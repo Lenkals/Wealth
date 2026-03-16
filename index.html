@@ -166,6 +166,58 @@ h1::after {
 }
 .dark-toggle:hover { transform: scale(1.05); }
 
+/* Input mode toggle */
+.input-toggle {
+  position: fixed;
+  top: 16px;
+  right: 152px;
+  background: var(--yellow);
+  border: 2px dashed rgba(0,0,0,0.2);
+  border-radius: 24px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 14px;
+  color: var(--ink);
+  z-index: 999;
+  transition: all 0.2s;
+  box-shadow: 2px 2px 0 var(--shadow);
+}
+.input-toggle:hover { transform: scale(1.05) rotate(-1deg); }
+[data-dark] .input-toggle { background: var(--yellow2); }
+
+/* Dual-mode slider group */
+.slider-part { display: block; }
+.textbox-part { display: none; }
+body.input-textbox .slider-part { display: none; }
+body.input-textbox .textbox-part { display: block; }
+
+/* Textbox within slider-group */
+.textbox-part .nb-input {
+  width: 100%;
+  font-family: 'Caveat', cursive;
+  font-size: 22px;
+  background: rgba(255,255,255,0.7);
+  border: none;
+  border-bottom: 2px solid rgba(0,0,0,0.2);
+  padding: 4px 8px;
+  color: var(--ink);
+  outline: none;
+  border-radius: 0;
+  transition: border-color 0.2s, background 0.2s;
+  margin-top: 4px;
+}
+.textbox-part .nb-input:focus {
+  border-bottom-color: var(--accent);
+  background: rgba(255,255,255,0.95);
+}
+[data-dark] .textbox-part .nb-input {
+  background: rgba(255,255,255,0.08);
+  color: var(--ink);
+  border-bottom-color: rgba(255,255,255,0.2);
+}
+[data-dark] .textbox-part .nb-input:focus { background: rgba(255,255,255,0.14); }
+
 /* Nav pills */
 .nav-pills {
   display: flex;
@@ -465,6 +517,59 @@ footer {
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 .loading-pulse { animation: pulse 1.5s infinite; }
 
+/* ====== SLIDER COMBO (replaces number inputs in calculators) ====== */
+.slider-group { margin-bottom: 18px; }
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+.slider-label {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 13px;
+  color: var(--ink2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.slider-val {
+  font-family: 'Caveat', cursive;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  min-width: 80px;
+  text-align: right;
+}
+input[type="range"].notebook-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(0,0,0,0.12);
+  outline: none;
+  cursor: pointer;
+  margin: 4px 0 2px;
+}
+input[type="range"].notebook-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 3px solid var(--paper);
+  box-shadow: 0 1px 5px rgba(0,0,0,0.25);
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+input[type="range"].notebook-slider::-webkit-slider-thumb:hover { transform: scale(1.25); background: var(--accent); }
+.slider-range-hint {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
 /* ====== HAND DRAWN DOODLES ====== */
 .doodle-arrow {
   font-family: 'Caveat', cursive;
@@ -487,6 +592,7 @@ footer {
 <body>
 
 <button class="dark-toggle" onclick="toggleDark()">🌙 Dark mode</button>
+<button class="input-toggle" id="inputToggleBtn" onclick="toggleInputMode()">🎚️ Slider mode</button>
 
 <div class="page">
 
@@ -526,26 +632,58 @@ footer {
     <!-- Simple Interest -->
     <div class="sticky yellow">
       <div class="sticky-label">Simple Interest Calculator</div>
-      <div class="field-group">
-        <label class="field-label">Principal (₹)</label>
-        <input class="field-input" id="si-p" type="number" value="100000" placeholder="e.g. 100000">
-      </div>
-      <div class="field-group">
-        <label class="field-label">Interest Rate (%)</label>
-        <input class="field-input" id="si-r" type="number" value="7" step="0.1" placeholder="e.g. 7">
-      </div>
-      <div class="field-group">
-        <label class="field-label">Time</label>
-        <div style="display:flex;gap:8px;">
-          <input class="field-input" id="si-t" type="number" value="2" placeholder="e.g. 2" style="flex:1">
-          <select class="field-input" id="si-unit" style="width:90px;">
-            <option value="years">Years</option>
-            <option value="days">Days</option>
-          </select>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">Principal</span>
+          <span class="slider-val" id="si-p-val">₹1,00,000</span>
+        </div>
+        <div class="slider-part">
+          <input type="range" class="notebook-slider" id="si-p" min="10000" max="10000000" step="10000" value="100000" oninput="autoSI()">
+          <div class="slider-range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
+        </div>
+        <div class="textbox-part">
+          <input class="nb-input" id="si-p-txt" type="number" value="100000" placeholder="e.g. 100000" oninput="syncFromText('si-p','si-p-txt'); autoSI()">
         </div>
       </div>
-      <button class="calc-btn" onclick="calcSI()">Calculate →</button>
-      <div class="result-box" id="si-result" style="display:none;">
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">Interest Rate</span>
+          <span class="slider-val" id="si-r-val">7.0%</span>
+        </div>
+        <div class="slider-part">
+          <input type="range" class="notebook-slider" id="si-r" min="1" max="20" step="0.5" value="7" oninput="autoSI()">
+          <div class="slider-range-hint"><span>1%</span><span>20%</span></div>
+        </div>
+        <div class="textbox-part">
+          <input class="nb-input" id="si-r-txt" type="number" value="7" step="0.5" placeholder="e.g. 7" oninput="syncFromText('si-r','si-r-txt'); autoSI()">
+        </div>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">Time</span>
+          <span class="slider-val" id="si-t-val">2 yrs</span>
+        </div>
+        <div class="slider-part">
+          <input type="range" class="notebook-slider" id="si-t" min="1" max="30" step="1" value="2" oninput="autoSI()">
+          <div class="slider-range-hint"><span>1 yr</span><span>30 yrs</span></div>
+        </div>
+        <div class="textbox-part">
+          <input class="nb-input" id="si-t-txt" type="number" value="2" placeholder="e.g. 2" oninput="syncFromText('si-t','si-t-txt'); autoSI()">
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom:14px;">
+        <label class="field-label">Unit</label>
+        <select class="field-input" id="si-unit" onchange="autoSI()">
+          <option value="years">Years</option>
+          <option value="days">Days</option>
+        </select>
+      </div>
+
+      <div class="result-box" id="si-result">
         <div class="result-row"><span class="result-label">Interest Earned</span><span class="result-val" id="si-interest">—</span></div>
         <div class="result-row"><span class="result-label">Total Amount</span><span class="result-val" id="si-total">—</span></div>
       </div>
@@ -554,21 +692,52 @@ footer {
     <!-- Compound Interest -->
     <div class="sticky pink">
       <div class="sticky-label">Compound Interest Calculator</div>
-      <div class="field-group">
-        <label class="field-label">Principal (₹)</label>
-        <input class="field-input" id="ci-p" type="number" value="100000">
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">Principal</span>
+          <span class="slider-val" id="ci-p-val">₹1,00,000</span>
+        </div>
+        <div class="slider-part">
+          <input type="range" class="notebook-slider" id="ci-p" min="10000" max="10000000" step="10000" value="100000" oninput="autoCI()">
+          <div class="slider-range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
+        </div>
+        <div class="textbox-part">
+          <input class="nb-input" id="ci-p-txt" type="number" value="100000" placeholder="e.g. 100000" oninput="syncFromText('ci-p','ci-p-txt'); autoCI()">
+        </div>
       </div>
-      <div class="field-group">
-        <label class="field-label">Interest Rate (%)</label>
-        <input class="field-input" id="ci-r" type="number" value="8" step="0.1">
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">Interest Rate</span>
+          <span class="slider-val" id="ci-r-val">8.0%</span>
+        </div>
+        <div class="slider-part">
+          <input type="range" class="notebook-slider" id="ci-r" min="1" max="24" step="0.5" value="8" oninput="autoCI()">
+          <div class="slider-range-hint"><span>1%</span><span>24%</span></div>
+        </div>
+        <div class="textbox-part">
+          <input class="nb-input" id="ci-r-txt" type="number" value="8" step="0.5" placeholder="e.g. 8" oninput="syncFromText('ci-r','ci-r-txt'); autoCI()">
+        </div>
       </div>
-      <div class="field-group">
-        <label class="field-label">Time (Years)</label>
-        <input class="field-input" id="ci-t" type="number" value="5">
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">Time (Years)</span>
+          <span class="slider-val" id="ci-t-val">5 yrs</span>
+        </div>
+        <div class="slider-part">
+          <input type="range" class="notebook-slider" id="ci-t" min="1" max="30" step="1" value="5" oninput="autoCI()">
+          <div class="slider-range-hint"><span>1 yr</span><span>30 yrs</span></div>
+        </div>
+        <div class="textbox-part">
+          <input class="nb-input" id="ci-t-txt" type="number" value="5" placeholder="e.g. 5" oninput="syncFromText('ci-t','ci-t-txt'); autoCI()">
+        </div>
       </div>
-      <div class="field-group">
+
+      <div class="field-group" style="margin-bottom:14px;">
         <label class="field-label">Compounding Frequency</label>
-        <select class="field-input" id="ci-freq">
+        <select class="field-input" id="ci-freq" onchange="autoCI()">
           <option value="1">Annually</option>
           <option value="2">Semi-Annually</option>
           <option value="4" selected>Quarterly</option>
@@ -576,8 +745,8 @@ footer {
           <option value="365">Daily</option>
         </select>
       </div>
-      <button class="calc-btn" onclick="calcCI()">Calculate →</button>
-      <div class="result-box" id="ci-result" style="display:none;">
+
+      <div class="result-box" id="ci-result">
         <div class="result-row"><span class="result-label">Future Value</span><span class="result-val" id="ci-fv">—</span></div>
         <div class="result-row"><span class="result-label">Total Interest</span><span class="result-val" id="ci-interest">—</span></div>
       </div>
@@ -590,24 +759,52 @@ footer {
 <!-- ============================================================ -->
 <section id="ror">
   <div class="section-title"><span class="icon">📈</span> Rate of Return Calculator</div>
-  <div class="sticky blue" style="max-width: 600px;">
+  <div class="sticky blue" style="max-width: 640px;">
     <div class="sticky-label">Investment Returns</div>
-    <div class="grid-3">
-      <div class="field-group">
-        <label class="field-label">Initial Investment (₹)</label>
-        <input class="field-input" id="ror-init" type="number" value="100000">
+
+    <div class="slider-group">
+      <div class="slider-header">
+        <span class="slider-label">Initial Investment</span>
+        <span class="slider-val" id="ror-init-val">₹1,00,000</span>
       </div>
-      <div class="field-group">
-        <label class="field-label">Final Value (₹)</label>
-        <input class="field-input" id="ror-final" type="number" value="185000">
+      <div class="slider-part">
+        <input type="range" class="notebook-slider" id="ror-init" min="10000" max="10000000" step="10000" value="100000" oninput="autoROR()">
+        <div class="slider-range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
       </div>
-      <div class="field-group">
-        <label class="field-label">Time Period (Years)</label>
-        <input class="field-input" id="ror-years" type="number" value="5" step="0.5">
+      <div class="textbox-part">
+        <input class="nb-input" id="ror-init-txt" type="number" value="100000" placeholder="e.g. 100000" oninput="syncFromText('ror-init','ror-init-txt'); autoROR()">
       </div>
     </div>
-    <button class="calc-btn" onclick="calcROR()">Calculate →</button>
-    <div class="result-box" id="ror-result" style="display:none; margin-top:20px;">
+
+    <div class="slider-group">
+      <div class="slider-header">
+        <span class="slider-label">Final Value</span>
+        <span class="slider-val" id="ror-final-val">₹1,85,000</span>
+      </div>
+      <div class="slider-part">
+        <input type="range" class="notebook-slider" id="ror-final" min="10000" max="20000000" step="10000" value="185000" oninput="autoROR()">
+        <div class="slider-range-hint"><span>₹10K</span><span>₹2 Cr</span></div>
+      </div>
+      <div class="textbox-part">
+        <input class="nb-input" id="ror-final-txt" type="number" value="185000" placeholder="e.g. 185000" oninput="syncFromText('ror-final','ror-final-txt'); autoROR()">
+      </div>
+    </div>
+
+    <div class="slider-group">
+      <div class="slider-header">
+        <span class="slider-label">Time Period</span>
+        <span class="slider-val" id="ror-years-val">5 yrs</span>
+      </div>
+      <div class="slider-part">
+        <input type="range" class="notebook-slider" id="ror-years" min="1" max="30" step="1" value="5" oninput="autoROR()">
+        <div class="slider-range-hint"><span>1 yr</span><span>30 yrs</span></div>
+      </div>
+      <div class="textbox-part">
+        <input class="nb-input" id="ror-years-txt" type="number" value="5" placeholder="e.g. 5" oninput="syncFromText('ror-years','ror-years-txt'); autoROR()">
+      </div>
+    </div>
+
+    <div class="result-box" id="ror-result" style="margin-top:20px;">
       <div style="display:flex;gap:32px;align-items:center;flex-wrap:wrap;">
         <div>
           <div class="field-label">Absolute Return</div>
@@ -790,49 +987,115 @@ function fmtNum(n, decimals=2) {
 function fmtPct(n) { return (n >= 0 ? '+' : '') + n.toFixed(2) + '%'; }
 
 // ==============================
-// SIMPLE INTEREST
+// INPUT MODE TOGGLE (slider ↔ textbox)
 // ==============================
-function calcSI() {
+let inputMode = 'slider'; // 'slider' or 'textbox'
+
+function toggleInputMode() {
+  inputMode = inputMode === 'slider' ? 'textbox' : 'slider';
+  const body = document.body;
+  const btn = document.getElementById('inputToggleBtn');
+  if (inputMode === 'textbox') {
+    body.classList.add('input-textbox');
+    btn.textContent = '⌨️ Type mode';
+    // Sync textboxes from current slider values
+    syncAllTextboxes();
+  } else {
+    body.classList.remove('input-textbox');
+    btn.textContent = '🎚️ Slider mode';
+    // Sync sliders from current textbox values
+    syncAllSliders();
+  }
+}
+
+// Sync a single textbox from its slider
+function syncFromSlider(sliderId, txtId) {
+  const s = document.getElementById(sliderId);
+  const t = document.getElementById(txtId);
+  if (s && t) t.value = s.value;
+}
+
+// Sync a single slider from its textbox (clamp to slider min/max)
+function syncFromText(sliderId, txtId) {
+  const s = document.getElementById(sliderId);
+  const t = document.getElementById(txtId);
+  if (!s || !t) return;
+  let v = parseFloat(t.value);
+  if (isNaN(v)) return;
+  v = Math.max(parseFloat(s.min), Math.min(parseFloat(s.max), v));
+  s.value = v;
+}
+
+function syncAllTextboxes() {
+  [['si-p','si-p-txt'],['si-r','si-r-txt'],['si-t','si-t-txt'],
+   ['ci-p','ci-p-txt'],['ci-r','ci-r-txt'],['ci-t','ci-t-txt'],
+   ['ror-init','ror-init-txt'],['ror-final','ror-final-txt'],['ror-years','ror-years-txt']
+  ].forEach(([s,t]) => syncFromSlider(s, t));
+}
+
+function syncAllSliders() {
+  [['si-p','si-p-txt'],['si-r','si-r-txt'],['si-t','si-t-txt'],
+   ['ci-p','ci-p-txt'],['ci-r','ci-r-txt'],['ci-t','ci-t-txt'],
+   ['ror-init','ror-init-txt'],['ror-final','ror-final-txt'],['ror-years','ror-years-txt']
+  ].forEach(([s,t]) => syncFromText(s, t));
+}
+
+// ==============================
+// SIMPLE INTEREST — auto on slide or type
+// ==============================
+function autoSI() {
   const p = parseFloat(document.getElementById('si-p').value);
   const r = parseFloat(document.getElementById('si-r').value);
   const t = parseFloat(document.getElementById('si-t').value);
   const unit = document.getElementById('si-unit').value;
+  // Update display labels
+  document.getElementById('si-p-val').textContent = fmtINR(p);
+  document.getElementById('si-r-val').textContent = r.toFixed(1) + '%';
+  document.getElementById('si-t-val').textContent = unit === 'days' ? t + ' days' : t + ' yr' + (t > 1 ? 's' : '');
+  // Sync the textbox that's currently hidden so values stay in sync
+  syncFromSlider('si-p','si-p-txt'); syncFromSlider('si-r','si-r-txt'); syncFromSlider('si-t','si-t-txt');
   const years = unit === 'days' ? t / 365 : t;
   const interest = p * r / 100 * years;
   const total = p + interest;
   document.getElementById('si-interest').textContent = fmtINR(interest);
   document.getElementById('si-total').textContent = fmtINR(total);
-  document.getElementById('si-result').style.display = 'block';
 }
 
 // ==============================
-// COMPOUND INTEREST
+// COMPOUND INTEREST — auto on slide or type
 // ==============================
-function calcCI() {
+function autoCI() {
   const p = parseFloat(document.getElementById('ci-p').value);
   const r = parseFloat(document.getElementById('ci-r').value);
   const t = parseFloat(document.getElementById('ci-t').value);
   const n = parseInt(document.getElementById('ci-freq').value);
+  document.getElementById('ci-p-val').textContent = fmtINR(p);
+  document.getElementById('ci-r-val').textContent = r.toFixed(1) + '%';
+  document.getElementById('ci-t-val').textContent = t + ' yr' + (t > 1 ? 's' : '');
+  syncFromSlider('ci-p','ci-p-txt'); syncFromSlider('ci-r','ci-r-txt'); syncFromSlider('ci-t','ci-t-txt');
   const fv = p * Math.pow(1 + (r / 100) / n, n * t);
   const interest = fv - p;
   document.getElementById('ci-fv').textContent = fmtINR(fv);
   document.getElementById('ci-interest').textContent = fmtINR(interest);
-  document.getElementById('ci-result').style.display = 'block';
 }
 
 // Run on load
-calcSI(); calcCI();
+autoSI(); autoCI();
 
 // ==============================
-// RATE OF RETURN
+// RATE OF RETURN — auto on slide or type
 // ==============================
-function calcROR() {
+function autoROR() {
   const init = parseFloat(document.getElementById('ror-init').value);
   const fin = parseFloat(document.getElementById('ror-final').value);
   const yrs = parseFloat(document.getElementById('ror-years').value);
+  document.getElementById('ror-init-val').textContent = fmtINR(init);
+  document.getElementById('ror-final-val').textContent = fmtINR(fin);
+  document.getElementById('ror-years-val').textContent = yrs + ' yr' + (yrs > 1 ? 's' : '');
+  syncFromSlider('ror-init','ror-init-txt'); syncFromSlider('ror-final','ror-final-txt'); syncFromSlider('ror-years','ror-years-txt');
   const pl = fin - init;
   const absReturn = (pl / init) * 100;
-  const cagr = (Math.pow(fin / init, 1 / yrs) - 1) * 100;
+  const cagr = fin > 0 && init > 0 ? (Math.pow(fin / init, 1 / yrs) - 1) * 100 : 0;
   const absEl = document.getElementById('ror-abs');
   const cagrEl = document.getElementById('ror-cagr');
   absEl.textContent = fmtPct(absReturn);
@@ -841,9 +1104,8 @@ function calcROR() {
   cagrEl.className = 'ror-big ' + (cagr >= 0 ? 'positive' : 'negative');
   document.getElementById('ror-pl').textContent = (pl >= 0 ? '+' : '') + fmtINR(pl);
   document.getElementById('ror-pl').style.color = pl >= 0 ? 'var(--green-text)' : 'var(--red-text)';
-  document.getElementById('ror-result').style.display = 'block';
 }
-calcROR();
+autoROR();
 
 // ==============================
 // PORTFOLIO TRACKER
