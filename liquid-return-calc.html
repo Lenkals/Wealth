@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liquid Investment Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #0a0e0f;
+    --surface: #111618;
+    --surface2: #181e20;
+    --border: rgba(255,255,255,0.07);
+    --accent: #00e5a0;
+    --accent2: #00b4ff;
+    --accent3: #ffb800;
+    --danger: #ff4f4f;
+    --text: #f0f4f5;
+    --muted: #6b7c80;
+    --muted2: #4a5a5e;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  /* Header */
+  header {
+    padding: 48px 0 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-tag {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-tag::before {
+    content: '';
+    width: 20px; height: 1px;
+    background: var(--accent);
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  h1 span { color: var(--accent); }
+  .header-sub {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Instrument selector */
+  .instrument-bar {
+    display: flex;
+    gap: 8px;
+    margin: 32px 0 28px;
+    flex-wrap: wrap;
+  }
+  .inst-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 8px 18px;
+    border-radius: 40px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    letter-spacing: 0.05em;
+  }
+  .inst-btn:hover { border-color: var(--muted2); color: var(--text); }
+  .inst-btn.active[data-inst="liquidbees"] { background: rgba(0,229,160,0.1); border-color: var(--accent); color: var(--accent); }
+  .inst-btn.active[data-inst="liquidfund"] { background: rgba(0,180,255,0.1); border-color: var(--accent2); color: var(--accent2); }
+  .inst-btn.active[data-inst="arbitrage"] { background: rgba(255,184,0,0.1); border-color: var(--accent3); color: var(--accent3); }
+  .inst-btn.active[data-inst="bankfd"] { background: rgba(200,130,255,0.1); border-color: #c882ff; color: #c882ff; }
+  .inst-btn.active[data-inst="savings"] { background: rgba(255,100,130,0.1); border-color: #ff6482; color: #ff6482; }
+
+  /* Instrument info strip */
+  .inst-info {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .inst-info-item { display: flex; flex-direction: column; gap: 3px; }
+  .inst-info-label { font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+  .inst-info-val { font-size: 14px; font-weight: 500; color: var(--text); }
+  .inst-info-val.accent-green { color: var(--accent); }
+  .inst-info-val.accent-blue { color: var(--accent2); }
+  .inst-info-val.accent-amber { color: var(--accent3); }
+
+  /* Main grid */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 780px) { .main-grid { grid-template-columns: 1fr; } }
+
+  /* Panel */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .panel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  /* Inputs */
+  .input-group { margin-bottom: 20px; }
+  .input-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .input-label span { color: var(--text); font-size: 13px; letter-spacing: 0; text-transform: none; }
+
+  input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--surface2);
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  .range-accent-blue::-webkit-slider-thumb { background: var(--accent2); }
+  .range-accent-amber::-webkit-slider-thumb { background: var(--accent3); }
+
+  .amount-display {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 6px 0 14px;
+    letter-spacing: -0.02em;
+  }
+
+  /* Days quick select */
+  .days-quick { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .day-chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .day-chip:hover { border-color: var(--muted2); color: var(--text); }
+  .day-chip.active { background: rgba(0,229,160,0.1); border-color: var(--accent); color: var(--accent); }
+  .day-chip.active-blue { background: rgba(0,180,255,0.1); border-color: var(--accent2); color: var(--accent2); }
+  .day-chip.active-amber { background: rgba(255,184,0,0.1); border-color: var(--accent3); color: var(--accent3); }
+  .day-chip.active-purple { background: rgba(200,130,255,0.1); border-color: #c882ff; color: #c882ff; }
+  .day-chip.active-pink { background: rgba(255,100,130,0.1); border-color: #ff6482; color: #ff6482; }
+
+  /* Result cards */
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .result-card {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .result-card.highlight {
+    border: 1px solid rgba(0,229,160,0.25);
+    background: rgba(0,229,160,0.05);
+  }
+  .result-card.highlight-blue {
+    border: 1px solid rgba(0,180,255,0.25);
+    background: rgba(0,180,255,0.05);
+  }
+  .result-card.highlight-amber {
+    border: 1px solid rgba(255,184,0,0.25);
+    background: rgba(255,184,0,0.05);
+  }
+  .result-card.highlight-purple {
+    border: 1px solid rgba(200,130,255,0.25);
+    background: rgba(200,130,255,0.05);
+  }
+  .result-card.highlight-pink {
+    border: 1px solid rgba(255,100,130,0.25);
+    background: rgba(255,100,130,0.05);
+  }
+  .rc-label { font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+  .rc-value { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; }
+  .rc-value.green { color: var(--accent); }
+  .rc-value.red { color: var(--danger); }
+  .rc-value.blue { color: var(--accent2); }
+  .rc-value.amber { color: var(--accent3); }
+  .rc-value.purple { color: #c882ff; }
+  .rc-value.pink { color: #ff6482; }
+  .rc-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+  /* Charges breakdown */
+  .charges-list { margin-top: 16px; }
+  .charge-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .charge-row:last-child { border-bottom: none; }
+  .charge-name { color: var(--muted); }
+  .charge-val { color: var(--text); font-weight: 500; }
+  .charge-total {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0 0;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .charge-total span:last-child { color: var(--danger); }
+
+  /* Chart area */
+  .chart-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+
+  /* Comparison table */
+  .comp-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .comp-table th {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: right;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .comp-table th:first-child { text-align: left; }
+  .comp-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+    color: var(--text);
+  }
+  .comp-table td:first-child { text-align: left; color: var(--muted); }
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-table .pos { color: var(--accent); font-weight: 500; }
+  .comp-table .neg { color: var(--danger); font-weight: 500; }
+  .comp-table .neu { color: var(--accent3); font-weight: 500; }
+
+  /* Verdict */
+  .verdict-box {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 14px 18px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+  .verdict-box strong { color: var(--text); font-weight: 500; }
+  .verdict-box.blue { border-left-color: var(--accent2); }
+  .verdict-box.amber { border-left-color: var(--accent3); }
+  .verdict-box.purple { border-left-color: #c882ff; }
+  .verdict-box.pink { border-left-color: #ff6482; }
+
+  /* Timeline chart */
+  .timeline-section { margin-bottom: 28px; }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 0;
+    font-size: 11px;
+    color: var(--muted2);
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  /* Animations */
+  .fade-in { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .pill {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  .pill-green { background: rgba(0,229,160,0.12); color: var(--accent); }
+  .pill-red { background: rgba(255,79,79,0.12); color: var(--danger); }
+  .pill-amber { background: rgba(255,184,0,0.12); color: var(--accent3); }
+
+  select {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    outline: none;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-tag">Thrivel Investment Calculator</div>
+    <h1>Liquid <span>Return</span><br>Calculator</h1>
+    <p class="header-sub">Compare returns across Liquid ETF, Liquid Fund & Arbitrage Fund — with charges, tax impact & net profit.</p>
+  </header>
+
+  <!-- Instrument selector -->
+  <div class="instrument-bar">
+    <button class="inst-btn active" data-inst="liquidbees" onclick="setInstrument('liquidbees')">Liquid BeES (ETF)</button>
+    <button class="inst-btn" data-inst="liquidfund" onclick="setInstrument('liquidfund')">Liquid Fund (MF)</button>
+    <button class="inst-btn" data-inst="arbitrage" onclick="setInstrument('arbitrage')">Arbitrage Fund (MF)</button>
+    <button class="inst-btn" data-inst="bankfd" onclick="setInstrument('bankfd')">Bank FD</button>
+    <button class="inst-btn" data-inst="savings" onclick="setInstrument('savings')">Savings Account</button>
+  </div>
+
+  <!-- Instrument info strip -->
+  <div class="inst-info" id="instInfo"></div>
+
+  <!-- Main grid: controls + results -->
+  <div class="main-grid">
+    <!-- Controls -->
+    <div class="panel">
+      <div class="panel-title">Parameters</div>
+
+      <div class="input-group">
+        <div class="input-label">Investment amount <span id="amtLabel">₹10,00,000</span></div>
+        <div class="amount-display" id="amtDisplay">₹10,00,000</div>
+        <input type="range" id="amtSlider" min="100000" max="5000000" step="50000" value="1000000"
+          oninput="updateCalc()" />
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px;">
+          <span>₹1L</span><span>₹50L</span>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <div class="input-label">Holding period <span id="daysLabel">15 days</span></div>
+        <input type="range" id="daysSlider" min="1" max="90" step="1" value="15"
+          oninput="updateCalc()" style="margin-bottom:10px;" />
+        <div class="days-quick" id="daysQuick">
+          <button class="day-chip" onclick="setDays(1)">1d</button>
+          <button class="day-chip" onclick="setDays(3)">3d</button>
+          <button class="day-chip" onclick="setDays(7)">7d</button>
+          <button class="day-chip active" onclick="setDays(15)">15d</button>
+          <button class="day-chip" onclick="setDays(30)">1m</button>
+          <button class="day-chip" onclick="setDays(60)">2m</button>
+          <button class="day-chip" onclick="setDays(90)">3m</button>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <div class="input-label">Tax slab <span id="taxLabel">30%</span></div>
+        <input type="range" id="taxSlider" min="0" max="30" step="5" value="30"
+          oninput="updateCalc()" />
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px;">
+          <span>0% (nil)</span><span>30% (highest)</span>
+        </div>
+      </div>
+
+      <!-- Charges breakdown -->
+      <div class="panel-title" style="margin-top:8px;">Charges Breakdown</div>
+      <div class="charges-list" id="chargesBreakdown"></div>
+    </div>
+
+    <!-- Results -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      <div class="panel fade-in" id="resultsPanel">
+        <div class="panel-title">Results</div>
+        <div class="result-grid" id="resultGrid"></div>
+        <div id="verdictBox"></div>
+      </div>
+
+      <!-- Bar chart -->
+      <div class="chart-panel">
+        <div class="panel-title">Net return by holding period</div>
+        <div style="position:relative;height:220px;">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline chart -->
+  <div class="timeline-section">
+    <div class="chart-panel">
+      <div class="panel-title" style="margin-bottom:6px;">Growth curve — ₹ value over time</div>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:16px;">How your investment grows day by day after all charges</p>
+      <div style="position:relative;height:260px;">
+        <canvas id="lineChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- All instruments comparison table -->
+  <div class="comp-panel">
+    <div class="panel-title">Side-by-side comparison — current settings</div>
+    <div style="overflow-x:auto;">
+      <table class="comp-table" id="compTable"></table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    Calculations are indicative based on assumed annual rates. Actual returns may vary.<br>
+    Not SEBI-registered investment advice. Always verify with a financial advisor before investing.<br>
+    <span style="color:var(--muted);">Liquid BeES ~6.5% | Liquid Fund ~6.8% | Arbitrage ~7.2% | Bank FD ~7.0% | Savings ~3.5% (annualised estimates)</span>
+  </div>
+</footer>
+
+<script>
+const INSTRUMENTS = {
+  liquidbees: {
+    name: 'Nippon India ETF Liquid BeES',
+    ticker: 'LIQUIDBEES · NSE',
+    rate: 6.5,
+    type: 'etf',
+    color: '#00e5a0',
+    aum: '₹11,417 Cr',
+    expenseRatio: '0.69%',
+    exitLoad: 'None',
+    minInvest: '₹1,000 (1 unit)',
+    settlement: 'T+1',
+    taxType: 'Dividend — slab rate',
+    note: 'Returns as daily dividend units. NAV fixed at ₹1,000.',
+    charges: (amt, days) => ({
+      'STT (buy)': amt * 0.00001,
+      'STT (sell)': amt * 0.00001,
+      'Stamp duty': amt * 0.00015,
+      'Exchange + SEBI': amt * 0.0000325,
+      'Brokerage (Zerodha)': 0,
+    })
+  },
+  liquidfund: {
+    name: 'Liquid Fund (Direct Growth)',
+    ticker: 'e.g. HDFC / ICICI / Nippon',
+    rate: 6.8,
+    type: 'mf',
+    color: '#00b4ff',
+    aum: '₹40,000–70,000 Cr',
+    expenseRatio: '0.10–0.20%',
+    exitLoad: 'None after 7 days',
+    minInvest: '₹100',
+    settlement: 'T+1 bank',
+    taxType: 'STCG — slab rate',
+    note: 'NAV grows daily. No Demat needed. Exit load only first 7 days.',
+    charges: (amt, days) => ({
+      'Exit load (0–7 days)': days <= 7 ? amt * 0.001 : 0,
+      'STT': 0,
+      'Stamp duty': amt * 0.00005,
+      'Brokerage': 0,
+    })
+  },
+  arbitrage: {
+    name: 'Arbitrage Fund (Direct Growth)',
+    ticker: 'e.g. Kotak / Nippon / ABSL',
+    rate: 7.2,
+    type: 'mf',
+    color: '#ffb800',
+    aum: '₹20,000–70,000 Cr',
+    expenseRatio: '0.30–0.45%',
+    exitLoad: '0.25% if < 30 days',
+    minInvest: '₹500',
+    settlement: 'T+2 bank',
+    taxType: 'Equity STCG — 20%',
+    note: 'Taxed as equity. Exit load if held under 30 days. Not for < 1 month.',
+    charges: (amt, days) => ({
+      'Exit load (< 30 days)': days < 30 ? amt * 0.0025 : 0,
+      'STT': amt * 0.001,
+      'Stamp duty': amt * 0.00015,
+      'Brokerage': 0,
+    })
+  },
+  bankfd: {
+    name: 'Bank Fixed Deposit',
+    ticker: 'SBI / HDFC / ICICI / Axis',
+    rate: 7.0,
+    type: 'fd',
+    color: '#c882ff',
+    aum: 'N/A',
+    expenseRatio: 'None',
+    exitLoad: 'Premature penalty ~0.5–1%',
+    minInvest: '₹1,000',
+    settlement: 'Instant (pre-closure)',
+    taxType: 'Interest — slab rate + TDS 10%',
+    note: 'Interest compounded quarterly. TDS deducted if interest > ₹40,000/year. Premature closure penalty applies.',
+    charges: (amt, days) => {
+      const grossInterest = amt * (7.0 / 100) * (days / 365);
+      const tds = grossInterest >= (40000 * days / 365) ? grossInterest * 0.10 : 0;
+      return {
+        'Premature penalty (0.5%)': days < 365 ? amt * 0.005 : 0,
+        'TDS @ 10% on interest': tds,
+        'Processing fee': 0,
+      };
+    }
+  },
+  savings: {
+    name: 'Savings Bank Account',
+    ticker: 'SBI ~2.7% | HDFC ~3.5% | Small Finance ~7%',
+    rate: 3.5,
+    type: 'savings',
+    color: '#ff6482',
+    aum: 'N/A',
+    expenseRatio: 'None',
+    exitLoad: 'None',
+    minInvest: 'No minimum',
+    settlement: 'Instant',
+    taxType: 'Interest — slab rate (₹10,000 exempt u/s 80TTA)',
+    note: 'Most liquid option. No lock-in. Interest credited quarterly. ₹10,000/year exempt under Sec 80TTA.',
+    charges: (amt, days) => ({
+      'Bank charges': 0,
+      'Tax exemption (80TTA)': 0,
+    })
+  }
+};
+
+// Per-instrument tax overrides
+function getTaxRate(inst, slabPct) {
+  if (inst === 'arbitrage') return 20; // equity STCG flat
+  if (inst === 'bankfd') return slabPct; // slab, TDS already in charges
+  if (inst === 'savings') return Math.max(0, slabPct - 10); // 80TTA exempts ₹10k, simplified as slight reduction
+  return slabPct;
+}
+
+let currentInst = 'liquidbees';
+let barChartInst, lineChartInst;
+
+function fmt(n) {
+  return '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+}
+function fmtPct(n) {
+  return (n >= 0 ? '+' : '') + n.toFixed(4) + '%';
+}
+
+function setInstrument(inst) {
+  currentInst = inst;
+  document.querySelectorAll('.inst-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-inst="${inst}"]`).classList.add('active');
+  updateCalc();
+}
+
+function setDays(d) {
+  document.getElementById('daysSlider').value = d;
+  updateCalc();
+}
+
+function getAccentClass() {
+  const map = { liquidbees: 'green', liquidfund: 'blue', arbitrage: 'amber', bankfd: 'purple', savings: 'pink' };
+  return map[currentInst] || 'green';
+}
+
+function getAccentColor() {
+  return INSTRUMENTS[currentInst].color;
+}
+
+function calcReturns(inst, amount, days, taxPct) {
+  const info = INSTRUMENTS[inst];
+  // FD: quarterly compounding
+  let grossReturn;
+  if (inst === 'bankfd') {
+    const quarters = days / 91.25;
+    grossReturn = amount * (Math.pow(1 + (info.rate / 100) / 4, quarters) - 1);
+  } else {
+    grossReturn = amount * (info.rate / 100) * (days / 365);
+  }
+
+  const chargesObj = info.charges(amount, days);
+  // For FD, TDS is already in charges — don't double-tax
+  const totalCharges = Object.values(chargesObj).reduce((a, b) => a + b, 0);
+
+  let taxRate = getTaxRate(inst, taxPct);
+  // FD: TDS already deducted in charges, remaining tax = (slab - 10%) on gross
+  let taxAmount = 0;
+  if (inst === 'bankfd') {
+    const tdsAlready = chargesObj['TDS @ 10% on interest'] || 0;
+    const remainingTaxRate = Math.max(0, taxPct - 10);
+    taxAmount = grossReturn * (remainingTaxRate / 100);
+  } else {
+    taxAmount = grossReturn * (taxRate / 100);
+  }
+
+  // Savings: 80TTA exempts ₹10,000/year interest
+  if (inst === 'savings') {
+    const annualisedInterest = grossReturn * (365 / days);
+    const exemptFraction = Math.min(1, 10000 / Math.max(annualisedInterest, 1));
+    taxAmount = grossReturn * (1 - exemptFraction) * (taxPct / 100);
+  }
+
+  const netReturn = grossReturn - totalCharges - taxAmount;
+  const netPct = (netReturn / amount) * 100;
+  const annualisedNet = (netPct / days) * 365;
+
+  return { grossReturn, totalCharges, taxAmount, netReturn, netPct, annualisedNet, chargesObj, taxRate };
+}
+
+function updateCalc() {
+  const amount = parseInt(document.getElementById('amtSlider').value);
+  const days = parseInt(document.getElementById('daysSlider').value);
+  const taxPct = parseInt(document.getElementById('taxSlider').value);
+
+  document.getElementById('amtLabel').textContent = fmt(amount);
+  document.getElementById('amtDisplay').textContent = fmt(amount);
+  document.getElementById('daysLabel').textContent = days + (days === 1 ? ' day' : ' days');
+  document.getElementById('taxLabel').textContent = taxPct + '%';
+
+  // Update day chips
+  const chipActiveMap = { liquidbees: 'active', liquidfund: 'active-blue', arbitrage: 'active-amber', bankfd: 'active-purple', savings: 'active-pink' };
+  document.querySelectorAll('.day-chip').forEach(c => {
+    c.classList.remove('active', 'active-blue', 'active-amber', 'active-purple', 'active-pink');
+    if (parseInt(c.textContent) === days) c.classList.add(chipActiveMap[currentInst] || 'active');
+  });
+
+  const info = INSTRUMENTS[currentInst];
+  const res = calcReturns(currentInst, amount, days, taxPct);
+  const accent = getAccentClass();
+  const color = getAccentColor();
+
+  // Instrument info strip
+  document.getElementById('instInfo').innerHTML = `
+    <div class="inst-info-item"><div class="inst-info-label">Instrument</div><div class="inst-info-val">${info.name}</div></div>
+    <div class="inst-info-item"><div class="inst-info-label">Where / Type</div><div class="inst-info-val">${info.ticker}</div></div>
+    <div class="inst-info-item"><div class="inst-info-label">Annual rate</div><div class="inst-info-val" style="color:${color}">${info.rate}%</div></div>
+    <div class="inst-info-item"><div class="inst-info-label">Expense ratio</div><div class="inst-info-val">${info.expenseRatio}</div></div>
+    <div class="inst-info-item"><div class="inst-info-label">Exit / penalty</div><div class="inst-info-val">${info.exitLoad}</div></div>
+    <div class="inst-info-item"><div class="inst-info-label">Tax type</div><div class="inst-info-val">${info.taxType}</div></div>
+    <div class="inst-info-item"><div class="inst-info-label">Settlement</div><div class="inst-info-val">${info.settlement}</div></div>
+  `;
+
+  // Note strip
+  document.getElementById('instInfo').innerHTML += `
+    <div style="width:100%;border-top:1px solid rgba(255,255,255,0.05);margin-top:8px;padding-top:10px;font-size:11px;color:#6b7c80;">${info.note}</div>
+  `;
+
+  // Result cards
+  const isLoss = res.netReturn < 0;
+  const highlightClass = isLoss ? '' : `highlight${accent !== 'green' ? '-' + accent : ''}`;
+  document.getElementById('resultGrid').innerHTML = `
+    <div class="result-card ${highlightClass}">
+      <div class="rc-label">Gross return</div>
+      <div class="rc-value ${accent}">${fmt(res.grossReturn)}</div>
+      <div class="rc-sub">${fmtPct(res.grossReturn / amount * 100)} of investment</div>
+    </div>
+    <div class="result-card">
+      <div class="rc-label">Charges / penalty</div>
+      <div class="rc-value" style="color:var(--danger)">${fmt(res.totalCharges)}</div>
+      <div class="rc-sub">Fees + penalties</div>
+    </div>
+    <div class="result-card">
+      <div class="rc-label">Tax deducted</div>
+      <div class="rc-value" style="color:#ff8f4f">${fmt(res.taxAmount)}</div>
+      <div class="rc-sub">${info.taxType.split('—')[0]}</div>
+    </div>
+    <div class="result-card ${highlightClass}">
+      <div class="rc-label">Net in hand</div>
+      <div class="rc-value ${isLoss ? 'red' : accent}">${isLoss ? '-' : '+'}${fmt(Math.abs(res.netReturn))}</div>
+      <div class="rc-sub">${fmtPct(res.netPct)} | Ann. ${res.annualisedNet.toFixed(2)}%</div>
+    </div>
+  `;
+
+  // Verdict
+  let verdictText = '';
+  if (res.netReturn < 0) {
+    verdictText = `<strong>Avoid holding for ${days} day${days>1?'s':''}.</strong> Charges (${fmt(res.totalCharges)}) exceed your gross return (${fmt(res.grossReturn)}). Hold for at least ${getMinDays(amount, taxPct)} days to break even.`;
+  } else if (res.netReturn < res.grossReturn * 0.3) {
+    verdictText = `<strong>Marginal return.</strong> Charges and tax are eating most of your gains. Consider holding longer for better net returns.`;
+  } else {
+    verdictText = `<strong>Good return for ${days} day${days>1?'s':''}.</strong> Net in hand: ${fmt(res.netReturn)} after all charges and tax. Daily earning: ~${fmt(res.netReturn/days)}/day.`;
+  }
+  // Special notes
+  if (currentInst === 'bankfd' && days < 365) verdictText += ` <strong>Note:</strong> Premature withdrawal penalty of 0.5% applies.`;
+  if (currentInst === 'savings') verdictText += ` <strong>Note:</strong> ₹10,000/year interest exempt under Sec 80TTA.`;
+  if (currentInst === 'arbitrage' && days < 30) verdictText += ` <strong>Warning:</strong> Exit load of 0.25% applies for holdings under 30 days.`;
+
+  document.getElementById('verdictBox').innerHTML = `<div class="verdict-box ${accent !== 'green' ? accent : ''}">${verdictText}</div>`;
+
+  // Charges breakdown
+  let chHtml = '';
+  for (const [name, val] of Object.entries(res.chargesObj)) {
+    chHtml += `<div class="charge-row"><span class="charge-name">${name}</span><span class="charge-val">${val === 0 ? '₹0 ✓' : fmt(val)}</span></div>`;
+  }
+  chHtml += `<div class="charge-total"><span style="color:var(--muted)">Tax on gains</span><span>${fmt(res.taxAmount)}</span></div>`;
+  chHtml += `<div class="charge-total" style="border-top:1px solid var(--border);padding-top:10px;"><span>Total deductions</span><span style="color:var(--danger)">${fmt(res.totalCharges + res.taxAmount)}</span></div>`;
+  document.getElementById('chargesBreakdown').innerHTML = chHtml;
+
+  updateBarChart(amount, taxPct);
+  updateLineChart(amount, days, taxPct);
+  updateCompTable(amount, days, taxPct);
+}
+
+function getMinDays(amount, taxPct) {
+  for (let d = 1; d <= 365; d++) {
+    const r = calcReturns(currentInst, amount, d, taxPct);
+    if (r.netReturn > 0) return d;
+  }
+  return 'N/A';
+}
+
+function updateBarChart(amount, taxPct) {
+  const periods = [1, 2, 3, 7, 15, 30, 60, 90];
+  const labels = ['1d','2d','3d','7d','15d','1m','2m','3m'];
+  const data = periods.map(d => {
+    const r = calcReturns(currentInst, amount, d, taxPct);
+    return Math.round(r.netReturn);
+  });
+  const color = INSTRUMENTS[currentInst].color;
+  const colors = data.map(v => v < 0 ? '#ff4f4f' : color);
+
+  if (barChartInst) barChartInst.destroy();
+  barChartInst = new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ data, backgroundColor: colors, borderRadius: 5, borderSkipped: false }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        backgroundColor: '#181e20', titleColor: '#6b7c80', bodyColor: '#f0f4f5',
+        borderColor: 'rgba(255,255,255,0.07)', borderWidth: 1,
+        callbacks: { label: ctx => (ctx.raw < 0 ? 'Loss: -₹' : 'Net: +₹') + Math.abs(ctx.raw).toLocaleString('en-IN') }
+      }},
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#6b7c80', font: { family: 'DM Mono', size: 11 } } },
+        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#6b7c80', font: { family: 'DM Mono', size: 10 },
+          callback: v => (v < 0 ? '-₹' : '₹') + Math.abs(v).toLocaleString('en-IN') } }
+      }
+    }
+  });
+}
+
+function updateLineChart(amount, days, taxPct) {
+  const maxDays = Math.max(days, 30);
+  const pts = Array.from({length: maxDays + 1}, (_, i) => i);
+  const labelMap = { liquidbees: 'Liquid BeES', liquidfund: 'Liquid Fund', arbitrage: 'Arbitrage', bankfd: 'Bank FD', savings: 'Savings A/c' };
+  const datasets = Object.entries(INSTRUMENTS).map(([key, info]) => {
+    const vals = pts.map(d => {
+      if (d === 0) return amount;
+      const r = calcReturns(key, amount, d, taxPct);
+      return Math.round(amount + r.netReturn);
+    });
+    return {
+      label: labelMap[key],
+      data: vals,
+      borderColor: info.color,
+      backgroundColor: 'transparent',
+      borderWidth: key === currentInst ? 2.5 : 1,
+      borderDash: key === currentInst ? [] : [4, 4],
+      pointRadius: 0,
+      tension: 0.3,
+    };
+  });
+
+  if (lineChartInst) lineChartInst.destroy();
+  lineChartInst = new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: { labels: pts, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: true, labels: { color: '#6b7c80', font: { family: 'DM Mono', size: 11 }, boxWidth: 12, boxHeight: 2, padding: 16 } },
+        tooltip: {
+          backgroundColor: '#181e20', titleColor: '#6b7c80', bodyColor: '#f0f4f5',
+          borderColor: 'rgba(255,255,255,0.07)', borderWidth: 1,
+          callbacks: {
+            title: ctx => 'Day ' + ctx[0].label,
+            label: ctx => ' ' + ctx.dataset.label + ': ₹' + ctx.raw.toLocaleString('en-IN')
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#6b7c80', font: { family: 'DM Mono', size: 10 }, maxTicksLimit: 10, callback: v => 'D' + v } },
+        y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#6b7c80', font: { family: 'DM Mono', size: 10 }, callback: v => '₹' + (v/100000).toFixed(1) + 'L' } }
+      }
+    }
+  });
+}
+
+function updateCompTable(amount, days, taxPct) {
+  const periods = [1, 3, 7, 15, 30, 90];
+  const labels = ['1 day', '3 days', '7 days', '15 days', '1 month', '3 months'];
+  const labelMap = { liquidbees: 'Liquid BeES', liquidfund: 'Liquid Fund', arbitrage: 'Arbitrage', bankfd: 'Bank FD', savings: 'Savings A/c' };
+
+  let html = `<thead><tr><th>Period</th>`;
+  for (const [key, info] of Object.entries(INSTRUMENTS)) {
+    html += `<th style="color:${info.color}">${labelMap[key]}</th>`;
+  }
+  html += `</tr></thead><tbody>`;
+
+  for (let i = 0; i < periods.length; i++) {
+    html += `<tr><td>${labels[i]}</td>`;
+    for (const key of Object.keys(INSTRUMENTS)) {
+      const r = calcReturns(key, amount, periods[i], taxPct);
+      const cls = r.netReturn < 0 ? 'neg' : r.netReturn < r.grossReturn * 0.3 ? 'neu' : 'pos';
+      html += `<td class="${cls}">${r.netReturn < 0 ? '-' : '+'}${fmt(Math.abs(r.netReturn))}<br><span style="font-size:10px;color:var(--muted)">${fmtPct(r.netPct)}</span></td>`;
+    }
+    html += `</tr>`;
+  }
+  html += `</tbody>`;
+  document.getElementById('compTable').innerHTML = html;
+}
+
+// Init
+updateCalc();
+</script>
+</body>
+</html>
