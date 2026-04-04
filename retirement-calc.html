@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retirement Benefits Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:       #0d1117;
+    --paper:     #f7f4ef;
+    --gold:      #c9a84c;
+    --gold-lt:   #e8d49a;
+    --gold-dk:   #8a6a1e;
+    --teal:      #2b6cb0;
+    --teal-lt:   #ebf4ff;
+    --mist:      #e8e2d9;
+    --smoke:     #a09887;
+    --success:   #276749;
+    --danger:    #9b2335;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201,168,76,.18) 0%, transparent 70%),
+      repeating-linear-gradient(
+        90deg,
+        transparent, transparent 59px,
+        rgba(201,168,76,.04) 59px, rgba(201,168,76,.04) 60px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        transparent, transparent 59px,
+        rgba(201,168,76,.04) 59px, rgba(201,168,76,.04) 60px
+      );
+  }
+  .hero-badge {
+    display: inline-block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .7rem;
+    font-weight: 500;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(201,168,76,.4);
+    border-radius: 2rem;
+    padding: .35rem 1rem;
+    margin-bottom: 1.6rem;
+    position: relative;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.6rem, 6vw, 5rem);
+    font-weight: 300;
+    line-height: 1.12;
+    letter-spacing: -.01em;
+    position: relative;
+    max-width: 720px;
+    margin: 0 auto 1.2rem;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+  .hero p {
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: rgba(247,244,239,.65);
+    max-width: 520px;
+    margin: 0 auto 2.4rem;
+    line-height: 1.7;
+    position: relative;
+  }
+  .hero-scroll {
+    display: inline-block;
+    color: var(--gold);
+    font-size: .78rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    position: relative;
+  }
+  .hero-scroll::after {
+    content: '↓';
+    display: block;
+    margin-top: .4rem;
+    font-size: 1.1rem;
+    animation: bob 1.6s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(5px)} }
+
+  /* ─── TAGLINE STRIP ─── */
+  .strip {
+    background: var(--gold);
+    color: var(--ink);
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    padding: .9rem 2rem;
+    flex-wrap: wrap;
+  }
+  .strip-item {
+    font-size: .78rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .strip-item span { font-size: 1rem; }
+
+  /* ─── MAIN LAYOUT ─── */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 5rem;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 2.4rem;
+    align-items: start;
+  }
+  @media(max-width: 860px) { .main { grid-template-columns: 1fr; } }
+
+  /* ─── PANEL ─── */
+  .panel {
+    background: #fff;
+    border: 1px solid var(--mist);
+    border-radius: 1rem;
+    padding: 2rem 1.8rem;
+    box-shadow: 0 2px 20px rgba(13,17,23,.06);
+  }
+  .panel-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.45rem;
+    font-weight: 400;
+    margin-bottom: 1.6rem;
+    padding-bottom: .8rem;
+    border-bottom: 1px solid var(--mist);
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+  }
+  .panel-title .icon {
+    width: 2rem; height: 2rem;
+    background: var(--ink);
+    color: var(--gold);
+    border-radius: .4rem;
+    display: grid; place-items: center;
+    font-size: .9rem;
+    flex-shrink: 0;
+  }
+
+  /* ─── FORM CONTROLS ─── */
+  .field { margin-bottom: 1.4rem; }
+  .field label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: .78rem;
+    font-weight: 500;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--smoke);
+    margin-bottom: .5rem;
+  }
+  .field label .val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--mist);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    background: var(--ink);
+    border: 3px solid var(--gold);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
+
+  .field select, .field input[type=number] {
+    width: 100%;
+    padding: .55rem .9rem;
+    border: 1px solid var(--mist);
+    border-radius: .5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .95rem;
+    color: var(--ink);
+    background: var(--paper);
+    outline: none;
+    transition: border-color .2s;
+  }
+  .field select:focus, .field input[type=number]:focus { border-color: var(--gold); }
+
+  .calc-btn {
+    width: 100%;
+    padding: .85rem;
+    background: var(--ink);
+    color: var(--gold);
+    border: none;
+    border-radius: .6rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .9rem;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+    margin-top: .4rem;
+  }
+  .calc-btn:hover { background: #1a2332; }
+  .calc-btn:active { transform: scale(.98); }
+
+  /* ─── RESULTS ─── */
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.6rem;
+  }
+  @media(max-width: 500px) { .results-grid { grid-template-columns: 1fr; } }
+
+  .stat-card {
+    background: var(--paper);
+    border: 1px solid var(--mist);
+    border-radius: .75rem;
+    padding: 1.1rem 1.2rem;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow .2s;
+  }
+  .stat-card:hover { box-shadow: 0 4px 16px rgba(13,17,23,.1); }
+  .stat-card.highlight {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+  .stat-card.highlight .stat-label { color: rgba(247,244,239,.55); }
+  .stat-card.highlight .stat-value { color: var(--gold); }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .4s ease;
+  }
+  .stat-card:hover::after { transform: scaleX(1); }
+  .stat-label {
+    font-size: .7rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--smoke);
+    margin-bottom: .3rem;
+  }
+  .stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+  .stat-sub {
+    font-size: .72rem;
+    color: var(--smoke);
+    margin-top: .2rem;
+  }
+
+  /* ─── CHART ─── */
+  .chart-wrap {
+    margin: 1.4rem 0;
+    position: relative;
+  }
+  .chart-title {
+    font-size: .72rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--smoke);
+    margin-bottom: .8rem;
+  }
+  canvas { width: 100% !important; border-radius: .5rem; }
+
+  /* ─── BENEFIT BREAKDOWN ─── */
+  .breakdown {
+    margin-top: 1.4rem;
+  }
+  .breakdown-row {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    padding: .65rem 0;
+    border-bottom: 1px solid var(--mist);
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .breakdown-label { flex: 1; font-size: .88rem; color: var(--ink); }
+  .breakdown-pct {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ink);
+    min-width: 3rem;
+    text-align: right;
+  }
+  .breakdown-bar-wrap {
+    width: 80px; height: 5px;
+    background: var(--mist);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .breakdown-bar { height: 100%; border-radius: 3px; transition: width .8s ease; }
+
+  /* ─── ADVICE CARD ─── */
+  .advice {
+    background: linear-gradient(135deg, #0d1117 0%, #1a2332 100%);
+    color: var(--paper);
+    border-radius: 1rem;
+    padding: 1.6rem 1.8rem;
+    margin-top: 1.6rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .advice::before {
+    content: '"';
+    position: absolute;
+    top: -.5rem; left: 1rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 9rem;
+    color: rgba(201,168,76,.12);
+    line-height: 1;
+    pointer-events: none;
+  }
+  .advice-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.6;
+    color: rgba(247,244,239,.9);
+    position: relative;
+    margin-bottom: .8rem;
+  }
+  .advice-action {
+    font-size: .8rem;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  /* ─── MILESTONES ─── */
+  .timeline {
+    margin-top: 2rem;
+  }
+  .timeline-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    margin-bottom: 1.2rem;
+    color: var(--ink);
+  }
+  .milestones {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+  .milestone {
+    background: #fff;
+    border: 1px solid var(--mist);
+    border-radius: .75rem;
+    padding: 1rem;
+    text-align: center;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .milestone:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(13,17,23,.1); }
+  .milestone-age {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: var(--gold-dk);
+    line-height: 1;
+  }
+  .milestone-label {
+    font-size: .72rem;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--smoke);
+    margin: .3rem 0 .5rem;
+  }
+  .milestone-desc {
+    font-size: .78rem;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  /* ─── BENEFITS INFO ─── */
+  .benefits-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem 5rem;
+  }
+  .section-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 300;
+    margin-bottom: .5rem;
+    color: var(--ink);
+  }
+  .section-sub {
+    font-size: .95rem;
+    font-weight: 300;
+    color: var(--smoke);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 2.4rem;
+  }
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.4rem;
+  }
+  .benefit-card {
+    background: #fff;
+    border: 1px solid var(--mist);
+    border-radius: 1rem;
+    padding: 1.6rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .benefit-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(13,17,23,.1); }
+  .benefit-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gold);
+  }
+  .benefit-icon {
+    font-size: 1.8rem;
+    margin-bottom: .8rem;
+    display: block;
+  }
+  .benefit-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin-bottom: .5rem;
+  }
+  .benefit-card p {
+    font-size: .85rem;
+    color: var(--smoke);
+    line-height: 1.6;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--ink);
+    color: rgba(247,244,239,.5);
+    text-align: center;
+    padding: 2rem;
+    font-size: .78rem;
+    line-height: 1.7;
+  }
+  footer strong { color: var(--gold); }
+
+  /* ─── ANIMATIONS ─── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp .6s ease forwards;
+  }
+  @keyframes fadeUp { to { opacity: 1; transform: none; } }
+  .fade-in:nth-child(1){ animation-delay: .05s }
+  .fade-in:nth-child(2){ animation-delay: .15s }
+  .fade-in:nth-child(3){ animation-delay: .25s }
+  .fade-in:nth-child(4){ animation-delay: .35s }
+
+  /* ─── TOOLTIP ─── */
+  .tip {
+    display: inline-block;
+    width: 15px; height: 15px;
+    background: var(--mist);
+    color: var(--smoke);
+    border-radius: 50%;
+    font-size: .65rem;
+    text-align: center;
+    line-height: 15px;
+    cursor: help;
+    position: relative;
+  }
+  .tip:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 120%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--ink);
+    color: var(--paper);
+    font-size: .72rem;
+    white-space: nowrap;
+    padding: .4rem .7rem;
+    border-radius: .4rem;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--mist);
+    margin: 1.2rem 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-badge">Retirement Planning Tool</div>
+  <h1>Your <em>golden years</em>,<br>brilliantly planned.</h1>
+  <p>See exactly what your retirement looks like — corpus, pension, monthly income, and the benefits you deserve at every milestone.</p>
+  <a href="#simulator" class="hero-scroll">Begin your projection</a>
+</header>
+
+<!-- STRIP -->
+<div class="strip">
+  <div class="strip-item"><span>📊</span> Inflation-Adjusted Returns</div>
+  <div class="strip-item"><span>🏥</span> Healthcare Benefits Included</div>
+  <div class="strip-item"><span>🏠</span> Housing & Pension Mapped</div>
+  <div class="strip-item"><span>🛡️</span> Tax Advantage Modelling</div>
+</div>
+
+<!-- SIMULATOR -->
+<section id="simulator">
+  <div class="main">
+
+    <!-- LEFT: INPUTS -->
+    <div class="panel fade-in" style="animation-delay:.1s">
+      <div class="panel-title">
+        <div class="icon">⚙</div>
+        Your Profile
+      </div>
+
+      <div class="field">
+        <label>
+          Current Age
+          <span class="val" id="v-age">32 yrs</span>
+        </label>
+        <input type="range" id="r-age" min="20" max="60" value="32" oninput="syncSlider('age',this.value,'yrs')">
+      </div>
+
+      <div class="field">
+        <label>
+          Retirement Age
+          <span class="val" id="v-ret">60 yrs</span>
+        </label>
+        <input type="range" id="r-ret" min="45" max="70" value="60" oninput="syncSlider('ret',this.value,'yrs')">
+      </div>
+
+      <div class="field">
+        <label>
+          Monthly Income
+          <span class="val" id="v-inc">₹75,000</span>
+        </label>
+        <input type="range" id="r-inc" min="15000" max="500000" step="5000" value="75000" oninput="syncSlider('inc',this.value,'₹',true)">
+      </div>
+
+      <div class="field">
+        <label>
+          Savings Rate
+          <span class="val" id="v-save">25%</span>
+        </label>
+        <input type="range" id="r-save" min="5" max="60" value="25" oninput="syncSlider('save',this.value,'%')">
+      </div>
+
+      <div class="field">
+        <label>
+          Expected Return (p.a.)
+          <span class="val" id="v-ret-rate">10%</span>
+        </label>
+        <input type="range" id="r-ret-rate" min="4" max="18" step=".5" value="10" oninput="syncSlider('ret-rate',this.value,'%')">
+      </div>
+
+      <div class="field">
+        <label>
+          Inflation Rate
+          <span class="val" id="v-inf">6%</span>
+        </label>
+        <input type="range" id="r-inf" min="2" max="12" step=".5" value="6" oninput="syncSlider('inf',this.value,'%')">
+      </div>
+
+      <div class="field">
+        <label for="s-scheme">Pension Scheme</label>
+        <select id="s-scheme">
+          <option value="nps">NPS (National Pension System)</option>
+          <option value="epf">EPF / EPS</option>
+          <option value="ppf">PPF + MF Portfolio</option>
+          <option value="none">Self-Managed Investments</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>
+          Life Expectancy
+          <span class="val" id="v-life">85 yrs</span>
+        </label>
+        <input type="range" id="r-life" min="70" max="100" value="85" oninput="syncSlider('life',this.value,'yrs')">
+      </div>
+
+      <hr class="divider">
+
+      <button class="calc-btn" onclick="calculate()">
+        ↻  Calculate My Retirement Benefits
+      </button>
+    </div>
+
+    <!-- RIGHT: RESULTS -->
+    <div id="results-panel">
+
+      <!-- STATS -->
+      <div class="results-grid fade-in" style="animation-delay:.2s">
+        <div class="stat-card highlight">
+          <div class="stat-label">Retirement Corpus</div>
+          <div class="stat-value" id="res-corpus">₹3.12 Cr</div>
+          <div class="stat-sub">at age <span id="res-ret-age">60</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Monthly Pension</div>
+          <div class="stat-value" id="res-pension">₹1,04,000</div>
+          <div class="stat-sub">inflation-adjusted today's ₹</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Corpus Lasts Until</div>
+          <div class="stat-value" id="res-sustain">Age 91</div>
+          <div class="stat-sub">withdrawal rate 4% p.a.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Healthcare Cover</div>
+          <div class="stat-value" id="res-health">₹25 L</div>
+          <div class="stat-sub">senior citizen health fund</div>
+        </div>
+      </div>
+
+      <!-- CHART -->
+      <div class="panel fade-in" style="animation-delay:.3s">
+        <div class="chart-title">Corpus Growth Projection — Accumulation & Drawdown</div>
+        <div class="chart-wrap">
+          <canvas id="corpusChart" height="200"></canvas>
+        </div>
+
+        <!-- BREAKDOWN -->
+        <div class="chart-title" style="margin-top:1.4rem">Benefit Allocation at Retirement</div>
+        <div class="breakdown" id="breakdown"></div>
+
+        <!-- ADVICE CARD -->
+        <div class="advice" id="advice-card">
+          <p class="advice-text" id="advice-text">
+            At your current savings rate, you are on a strong trajectory. Increasing your SIP by just ₹5,000/month today can add over ₹35 lakhs to your final corpus.
+          </p>
+          <div class="advice-action">📌 Personalised Insight</div>
+        </div>
+      </div>
+
+      <!-- MILESTONES -->
+      <div class="timeline fade-in" style="animation-delay:.4s">
+        <div class="timeline-title">Your Retirement Benefit Milestones</div>
+        <div class="milestones" id="milestones"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS INFO -->
+<section class="benefits-section">
+  <h2 class="section-heading">Retirement benefits<br><em style="font-style:italic;color:var(--gold-dk)">worth knowing about</em></h2>
+  <p class="section-sub">India's retirement framework offers multiple layers of financial protection. Here's what you're entitled to — and how to maximise every rupee.</p>
+  <div class="benefits-grid">
+    <div class="benefit-card">
+      <span class="benefit-icon">🏛️</span>
+      <h3>NPS — National Pension System</h3>
+      <p>Invest during your earning years, receive a lifelong annuity at retirement. Contributions up to ₹2 lakh p.a. attract dual tax deductions under Sec 80C & 80CCD(1B). The equity component delivers market-linked growth.</p>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">🏦</span>
+      <h3>EPF & EPS — Employee Provident Fund</h3>
+      <p>Your employer matches 12% of your basic salary. After 10 years of service, EPS entitles you to a monthly pension for life. At 58, tax-free withdrawal of the full EPF corpus — one of the most powerful retirement tools available.</p>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">🧾</span>
+      <h3>PPF — Public Provident Fund</h3>
+      <p>15-year compounding at government-guaranteed rates with complete EEE (exempt-exempt-exempt) tax status. Ideal as a debt anchor in your retirement portfolio. Extensions in blocks of 5 years after maturity.</p>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">🏥</span>
+      <h3>Senior Citizen Healthcare Benefits</h3>
+      <p>After 60, you're entitled to higher interest rates on savings, Ayushman Bharat coverage, PMVVY pension scheme access, and significant income tax relief — including a ₹50,000 standard deduction and higher exemption thresholds.</p>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">🏠</span>
+      <h3>Reverse Mortgage & Housing</h3>
+      <p>If you own a home, a reverse mortgage lets you draw monthly income against it without selling. For affordable housing owners, Pradhan Mantri Awas Yojana extensions provide continued housing security well into retirement.</p>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">📈</span>
+      <h3>Senior Citizen Savings Scheme (SCSS)</h3>
+      <p>Guaranteed returns of ~8.2% p.a. with quarterly payouts — up to ₹30 lakh per depositor. Best-in-class post-tax yield for retirees seeking predictable, government-backed cash flow without equity risk.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p><strong>Retirement Benefits Simulator</strong> · For illustrative purposes only. Actual returns depend on market conditions, policy changes, and personal circumstances. Consult a SEBI-registered financial advisor before making investment decisions.</p>
+  <p style="margin-top:.5rem">© 2026 · Built with care for your future self.</p>
+</footer>
+
+<!-- CHART.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// ── HELPERS ──────────────────────────────
+const fmt = (n) => {
+  if (n >= 1e7) return '₹' + (n/1e7).toFixed(2) + ' Cr';
+  if (n >= 1e5) return '₹' + (n/1e5).toFixed(2) + ' L';
+  return '₹' + Math.round(n).toLocaleString('en-IN');
+};
+const fmtK = (n) => {
+  if (n >= 1e7) return (n/1e7).toFixed(1) + 'Cr';
+  if (n >= 1e5) return (n/1e5).toFixed(1) + 'L';
+  return Math.round(n/1000) + 'k';
+};
+function syncSlider(id, value, unit, currency=false) {
+  const el = document.getElementById('v-'+id);
+  if (currency) {
+    el.textContent = fmt(+value);
+  } else {
+    el.textContent = value + ' ' + unit;
+  }
+  calculate();
+}
+
+// ── CHART ─────────────────────────────────
+let chartInst = null;
+
+function buildChart(labels, accumData, drawData) {
+  const ctx = document.getElementById('corpusChart').getContext('2d');
+  if (chartInst) chartInst.destroy();
+  chartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Corpus (Accumulation)',
+          data: accumData,
+          fill: true,
+          backgroundColor: 'rgba(201,168,76,.12)',
+          borderColor: '#c9a84c',
+          borderWidth: 2.5,
+          tension: .45,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+        },
+        {
+          label: 'Corpus (Drawdown)',
+          data: drawData,
+          fill: true,
+          backgroundColor: 'rgba(43,108,176,.08)',
+          borderColor: '#2b6cb0',
+          borderWidth: 2,
+          tension: .45,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          borderDash: [5,4],
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { font: { family:'DM Sans', size:11 }, color:'#a09887' } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.dataset.label + ': ' + fmt(ctx.raw)
+          },
+          backgroundColor: '#0d1117',
+          titleColor: '#e8d49a',
+          bodyColor: '#f7f4ef',
+          padding: 10,
+        }
+      },
+      scales: {
+        x: { ticks: { color:'#a09887', font:{family:'DM Sans',size:10} }, grid: { color:'rgba(160,152,135,.12)' } },
+        y: {
+          ticks: { color:'#a09887', font:{family:'DM Sans',size:10}, callback: v=>fmtK(v) },
+          grid: { color:'rgba(160,152,135,.12)' }
+        }
+      }
+    }
+  });
+}
+
+// ── MILESTONES ────────────────────────────
+const MILESTONE_DEFS = [
+  { offset: 0,  label:'EPF Partial Withdrawal',    desc:'Housing, education, medical emergencies covered under EPF rules.' },
+  { offset: 5,  label:'NPS Tier-II Flexibility',   desc:'Full withdrawal from NPS Tier-II at any time — no lock-in.' },
+  { offset: 10, label:'PPF Partial Withdrawal',    desc:'From 7th year onwards, 50% of balance available tax-free.' },
+  { offset: 0,  label:'Retirement Day',            desc:'Full EPF tax-free lump sum. NPS annuity begins. SCSS access opens.' },
+  { offset: 3,  label:'PMVVY Pension',             desc:'Senior citizen guaranteed pension scheme — ₹30L max deposit, 8%+ p.a.' },
+  { offset: 5,  label:'Senior Tax Benefits Peak',  desc:'₹50,000 standard deduction + higher exemption slab. Maximum tax relief.' },
+];
+
+function renderMilestones(currentAge, retAge) {
+  const defs = [
+    { age: Math.min(currentAge + 10, retAge - 2), label:'EPF Partial Withdrawal', desc:'Housing, education & medical costs covered under EPF rules.' },
+    { age: retAge - 5,                            label:'Begin Wind-Down',         desc:'Shift equity to debt. Lock in SCSS rates before retirement.' },
+    { age: retAge,                                label:'Retirement Day 🎉',        desc:'Full EPF payout. NPS annuity begins. SCSS account opens.' },
+    { age: retAge + 3,                            label:'PMVVY Pension',           desc:'Guaranteed senior pension scheme — up to ₹30L at 8%+ p.a.' },
+    { age: retAge + 5,                            label:'Senior Tax Peak',         desc:'Max relief: ₹50K deduction + highest exemption threshold.' },
+    { age: retAge + 10,                           label:'Will & Estate Review',    desc:'Revisit nominees, legal heirs, and asset distribution plan.' },
+  ].filter(m => m.age > currentAge && m.age <= 90);
+
+  const el = document.getElementById('milestones');
+  el.innerHTML = defs.map(m => `
+    <div class="milestone">
+      <div class="milestone-age">${m.age}</div>
+      <div class="milestone-label">${m.label}</div>
+      <div class="milestone-desc">${m.desc}</div>
+    </div>
+  `).join('');
+}
+
+// ── BREAKDOWN ────────────────────────────
+const SOURCES = [
+  { label: 'EPF / EPS Corpus',      color: '#c9a84c', pct: 35 },
+  { label: 'NPS / PPF / MF',        color: '#2b6cb0', pct: 40 },
+  { label: 'Property / Real Estate', color: '#276749', pct: 15 },
+  { label: 'Other Savings',          color: '#9b2335', pct: 10 },
+];
+function renderBreakdown(corpus) {
+  const el = document.getElementById('breakdown');
+  el.innerHTML = SOURCES.map(s => `
+    <div class="breakdown-row">
+      <div class="breakdown-dot" style="background:${s.color}"></div>
+      <div class="breakdown-label">${s.label}</div>
+      <div class="breakdown-bar-wrap"><div class="breakdown-bar" style="width:${s.pct}%;background:${s.color}"></div></div>
+      <div class="breakdown-pct">${fmt(corpus * s.pct / 100)}</div>
+    </div>
+  `).join('');
+}
+
+// ── ADVICE ──────────────────────────────
+function advice(savingsRate, yearsLeft, corpus) {
+  if (savingsRate < 15) return 'Your savings rate is below 15%. Even a ₹3,000/month increase compounding over ' + yearsLeft + ' years can add ' + fmt(3000 * 12 * yearsLeft * 1.6) + ' to your retirement fund.';
+  if (savingsRate < 25) return 'You\'re building a solid base. Consider topping up your NPS Tier-I by ₹50,000 p.a. for an additional tax deduction under Sec 80CCD(1B) — that\'s ₹15,600 saved annually if you\'re in the 30% bracket.';
+  if (corpus >= 5e7) return 'Excellent trajectory! With a corpus above ₹5 Crore, consider a bucket strategy — keep 3 years of expenses liquid, invest the rest across equity, bonds, and real estate for a balanced drawdown.';
+  return 'Your corpus will generate approximately ' + fmt(corpus * 0.04 / 12) + ' per month at a 4% safe withdrawal rate. Ensure your equity allocation gradually decreases from age 55 onwards to protect your wealth.';
+}
+
+// ── MAIN CALCULATE ────────────────────────
+function calculate() {
+  const age   = +document.getElementById('r-age').value;
+  const retAge= +document.getElementById('r-ret').value;
+  const inc   = +document.getElementById('r-inc').value;
+  const savePct= +document.getElementById('r-save').value;
+  const rate  = +document.getElementById('r-ret-rate').value / 100;
+  const inf   = +document.getElementById('r-inf').value / 100;
+  const life  = +document.getElementById('r-life').value;
+
+  const years = Math.max(retAge - age, 1);
+  const monthly = inc * savePct / 100;
+  const r_monthly = rate / 12;
+
+  // FV of monthly SIP
+  const corpus = monthly * ((Math.pow(1 + r_monthly, years * 12) - 1) / r_monthly) * (1 + r_monthly);
+
+  // Real return (inflation adjusted)
+  const realRate = (1 + rate) / (1 + inf) - 1;
+  const monthlyPension = corpus * realRate / 12;
+
+  // Sustain age (4% withdrawal rate)
+  const annualWithdrawal = corpus * 0.04;
+  const corpusSustainYears = Math.log(1 - (corpus * inf) / annualWithdrawal) / Math.log(1 + inf);
+  const sustainAge = Math.min(retAge + Math.abs(Math.round(corpusSustainYears)) + 5, 99);
+
+  // Healthcare (2% of corpus, min 10L, max 50L)
+  const health = Math.min(Math.max(corpus * 0.02, 1e6), 5e6);
+
+  // Update stats
+  document.getElementById('res-corpus').textContent = fmt(corpus);
+  document.getElementById('res-ret-age').textContent = retAge;
+  document.getElementById('res-pension').textContent = fmt(monthlyPension) + '/mo';
+  document.getElementById('res-sustain').textContent = 'Age ' + sustainAge;
+  document.getElementById('res-health').textContent = fmt(health);
+
+  // Chart data
+  const labels = [], accumData = Array(years * 12 + 1).fill(null), drawData = Array(years * 12 + 1).fill(null);
+  let c = 0;
+  for (let m = 0; m <= years * 12; m++) {
+    c = c * (1 + r_monthly) + monthly;
+    if (m % 12 === 0) labels.push('Age ' + (age + m / 12));
+    accumData[m] = c;
+  }
+
+  // Drawdown
+  const drawYears = life - retAge;
+  const drawMonths = drawYears * 12;
+  const withdrawal = monthlyPension;
+  let dc = corpus;
+  const allLabels = [...labels];
+  const fullAccum = [...accumData];
+  const fullDraw = new Array(labels.length).fill(null);
+  fullDraw[fullDraw.length - 1] = corpus;
+
+  for (let m = 1; m <= drawMonths; m++) {
+    dc = dc * (1 + r_monthly) - withdrawal;
+    if (dc < 0) dc = 0;
+    if (m % 12 === 0) {
+      allLabels.push('Age ' + (retAge + m / 12));
+      fullAccum.push(null);
+      fullDraw.push(dc);
+    }
+  }
+
+  buildChart(allLabels, fullAccum, fullDraw);
+  renderBreakdown(corpus);
+  renderMilestones(age, retAge);
+  document.getElementById('advice-text').textContent = advice(savePct, years, corpus);
+}
+
+// ── INIT ────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // Set initial label values
+  ['age','ret','life'].forEach(id => {
+    const el = document.getElementById('r-'+id);
+    syncSlider(id, el.value, 'yrs');
+  });
+  syncSlider('inc', document.getElementById('r-inc').value, '₹', true);
+  syncSlider('save', document.getElementById('r-save').value, '%');
+  syncSlider('ret-rate', document.getElementById('r-ret-rate').value, '%');
+  syncSlider('inf', document.getElementById('r-inf').value, '%');
+  calculate();
+});
+</script>
+</body>
+</html>
