@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liquid ETF Parking Cost Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #111827;
+    --bg3: #1a2236;
+    --accent: #00d4aa;
+    --accent2: #ff6b35;
+    --accent3: #7c6dfa;
+    --red: #ff4560;
+    --green: #00d4aa;
+    --text: #e8eaf0;
+    --muted: #6b7a99;
+    --border: #1e2d47;
+    --gold: #f5c518;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 32px 20px;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -20px; left: 50%; transform: translateX(-50%);
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(0,212,170,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent3) 60%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+  }
+
+  .assumptions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+
+  .tag {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .tag span { color: var(--accent); font-weight: 600; }
+
+  .controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+
+  .ctrl-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .ctrl-btn:hover, .ctrl-btn.active {
+    background: var(--accent);
+    color: #0a0e1a;
+    border-color: var(--accent);
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 0 60px rgba(0,212,170,0.04);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+    min-width: 1100px;
+  }
+
+  thead tr:first-child th {
+    background: var(--bg3);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+
+  thead tr:first-child th:first-child {
+    text-align: left;
+    color: var(--muted);
+  }
+
+  thead tr.subhead th {
+    background: var(--bg2);
+    font-size: 0.62rem;
+    color: var(--muted);
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--border);
+    text-align: center;
+    font-weight: 500;
+  }
+
+  thead tr.subhead th:first-child { text-align: left; }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(30, 45, 71, 0.6);
+    transition: background 0.15s;
+  }
+
+  tbody tr:hover { background: rgba(0,212,170,0.03); }
+
+  tbody tr.amount-header {
+    background: var(--bg3);
+    border-top: 2px solid var(--border);
+  }
+
+  tbody tr.amount-header td {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--gold);
+    padding: 12px 14px;
+    letter-spacing: 0.3px;
+  }
+
+  td {
+    padding: 9px 12px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  td:first-child {
+    text-align: left;
+    color: var(--muted);
+    font-size: 0.7rem;
+    padding-left: 20px;
+  }
+
+  .amt-col { color: var(--accent3); font-weight: 600; }
+  .charge-buy { color: #ff6b35; }
+  .charge-sell { color: #fa8c16; }
+  .charge-total { color: var(--accent2); font-weight: 600; }
+  .returns { color: #73d8c4; }
+  .net-pos { color: var(--green); font-weight: 600; }
+  .net-neg { color: var(--red); font-weight: 600; }
+  .breakeven { color: var(--gold); font-weight: 600; }
+  .pct { color: var(--muted); font-size: 0.65rem; }
+
+  .legend {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  .footer-note {
+    text-align: center;
+    margin-top: 28px;
+    color: var(--muted);
+    font-size: 0.68rem;
+    line-height: 1.8;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+
+  .view-toggle { margin-bottom: 10px; }
+
+  @media (max-width: 768px) {
+    body { padding: 16px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Liquid ETF Parking Cost Calculator</h1>
+  <p>LIQUIDPLUS · LIQUIDBEES · LIQUIDCASE &nbsp;|&nbsp; NSE Capital Market (EQ)</p>
+</div>
+
+<div class="assumptions">
+  <div class="tag">Exchange Charges <span>0.00297%</span></div>
+  <div class="tag">SEBI Charges <span>₹10/Cr</span></div>
+  <div class="tag">Stamp Duty (Buy only) <span>0.015%</span></div>
+  <div class="tag">GST on Exc+SEBI <span>18%</span></div>
+  <div class="tag">STT <span>NIL</span> (Debt ETF)</div>
+  <div class="tag">Assumed Return <span>~6.5% p.a.</span></div>
+  <div class="tag">Breakeven <span>~1.2 days</span> (all amounts)</div>
+</div>
+
+<div class="controls view-toggle">
+  <button class="ctrl-btn active" onclick="setView('all')">Show All</button>
+  <button class="ctrl-btn" onclick="setView('profitable')">Profitable Only</button>
+  <button class="ctrl-btn" onclick="setView('loss')">Loss Days Only</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th style="text-align:left">Duration</th>
+      <th colspan="3">CHARGES (₹)</th>
+      <th>GROSS RETURNS (₹)</th>
+      <th colspan="2">NET P&L (₹)</th>
+      <th>BREAKEVEN</th>
+      <th>EFF. COST %</th>
+    </tr>
+    <tr class="subhead">
+      <th>Parking Period</th>
+      <th>Buy Side</th>
+      <th>Sell Side</th>
+      <th>Total Charges</th>
+      <th>@6.5% p.a.</th>
+      <th>Net Gain/Loss</th>
+      <th>After-charge Return</th>
+      <th>Days to Cover</th>
+      <th>Round-trip Cost</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody">
+  </tbody>
+</table>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#ff4560"></div> Loss (returns < charges)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#00d4aa"></div> Profitable</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f5c518"></div> Breakeven zone (1–2 days)</div>
+</div>
+
+<div class="footer-note">
+  * Returns based on ~6.5% p.a. gross yield (RBI Repo rate tracking). Actual ETF returns vary daily.<br>
+  * Stamp Duty charged on Buy leg only. No STT for debt-oriented ETFs.<br>
+  * GST (18%) applied on Exchange + SEBI charges only (not on stamp duty).<br>
+  * Breakeven is constant ~1.2 days across all amounts as charges scale proportionally with investment.<br>
+  * Actual broker charges may vary based on negotiated rates (your actual buy-side was ₹471 vs calculated ₹559).
+</div>
+
+<script>
+const EXCHANGE = 0.0000297;
+const SEBI = 0.000001;
+const STAMP = 0.00015;
+const GST = 0.18;
+const ANNUAL_RETURN = 0.065;
+
+const amounts = [
+  { val: 100000,    label: '₹1 Lakh' },
+  { val: 500000,    label: '₹5 Lakh' },
+  { val: 1000000,   label: '₹10 Lakh' },
+  { val: 2000000,   label: '₹20 Lakh' },
+  { val: 3000000,   label: '₹30 Lakh' },
+  { val: 5000000,   label: '₹50 Lakh' },
+  { val: 10000000,  label: '₹1 Crore' },
+];
+
+const periods = [
+  { days: 1,   label: '1 Day' },
+  { days: 2,   label: '2 Days' },
+  { days: 5,   label: '5 Days' },
+  { days: 7,   label: '1 Week' },
+  { days: 15,  label: '15 Days' },
+  { days: 30,  label: '1 Month' },
+  { days: 60,  label: '2 Months' },
+  { days: 90,  label: '3 Months' },
+  { days: 180, label: '6 Months' },
+  { days: 365, label: '1 Year' },
+];
+
+function fmt(n) {
+  if (Math.abs(n) >= 100000) return '₹' + (n/100000).toFixed(2) + 'L';
+  if (Math.abs(n) >= 1000) return '₹' + n.toLocaleString('en-IN', {maximumFractionDigits: 0});
+  return '₹' + n.toFixed(2);
+}
+
+function calcRow(amount, days) {
+  const buyExc = amount * EXCHANGE;
+  const buySebi = amount * SEBI;
+  const buyStamp = amount * STAMP;
+  const buyGst = (buyExc + buySebi) * GST;
+  const buyTotal = buyExc + buySebi + buyStamp + buyGst;
+
+  const sellExc = amount * EXCHANGE;
+  const sellSebi = amount * SEBI;
+  const sellGst = (sellExc + sellSebi) * GST;
+  const sellTotal = sellExc + sellSebi + sellGst;
+
+  const totalCharge = buyTotal + sellTotal;
+  const returns = amount * (ANNUAL_RETURN / 365) * days;
+  const net = returns - totalCharge;
+  const breakeven = totalCharge / (amount * ANNUAL_RETURN / 365);
+  const effCostPct = (totalCharge / amount) * 100;
+  const afterChargeReturn = net > 0 ? (net / amount * 100) : null;
+
+  return { buyTotal, sellTotal, totalCharge, returns, net, breakeven, effCostPct, afterChargeReturn };
+}
+
+let currentView = 'all';
+
+function setView(v) {
+  currentView = v;
+  document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  amounts.forEach(amtObj => {
+    // Amount header row
+    const headerRow = document.createElement('tr');
+    headerRow.className = 'amount-header';
+    headerRow.innerHTML = `<td colspan="9">◆ Parking Amount: ${amtObj.label} (₹${amtObj.val.toLocaleString('en-IN')})</td>`;
+    tbody.appendChild(headerRow);
+
+    periods.forEach(period => {
+      const r = calcRow(amtObj.val, period.days);
+      const isProfit = r.net >= 0;
+      const isBreakeven = period.days <= 2;
+
+      if (currentView === 'profitable' && !isProfit) return;
+      if (currentView === 'loss' && isProfit) return;
+
+      const row = document.createElement('tr');
+
+      let rowBg = '';
+      if (!isProfit) rowBg = 'background: rgba(255,69,96,0.04);';
+      else if (isBreakeven) rowBg = 'background: rgba(245,197,24,0.04);';
+
+      row.style.cssText = rowBg;
+
+      const netClass = isProfit ? 'net-pos' : 'net-neg';
+      const netSign = isProfit ? '+' : '';
+      const afterRet = r.afterChargeReturn !== null
+        ? `<span class="pct">(${(r.afterChargeReturn * (365/period.days)).toFixed(2)}% p.a.)</span>`
+        : `<span class="pct net-neg">-</span>`;
+
+      row.innerHTML = `
+        <td>${period.label}</td>
+        <td class="charge-buy">${fmt(r.buyTotal)}</td>
+        <td class="charge-sell">${fmt(r.sellTotal)}</td>
+        <td class="charge-total">${fmt(r.totalCharge)}</td>
+        <td class="returns">${fmt(r.returns)}</td>
+        <td class="${netClass}">${netSign}${fmt(r.net)}</td>
+        <td>${afterRet}</td>
+        <td class="breakeven">~${r.breakeven.toFixed(1)} days</td>
+        <td class="pct">${r.effCostPct.toFixed(4)}%</td>
+      `;
+      tbody.appendChild(row);
+    });
+  });
+}
+
+renderTable();
+</script>
+</body>
+</html>
