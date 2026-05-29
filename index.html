@@ -1,741 +1,357 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Personal Wealth & Portfolio Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Patrick+Hand&family=Indie+Flower&display=swap" rel="stylesheet">
+<title>Personal Wealth &amp; Portfolio Dashboard</title>
+<meta name="description" content="All-in-one personal wealth dashboard: calculators, portfolio tracker, global markets, and financial tools for Indian investors.">
+<link rel="stylesheet" href="shared.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-:root {
-  --paper: #faf8f0;
-  --paper2: #f5f2e8;
-  --line: rgba(100,149,237,0.18);
-  --ink: #2c2c2c;
-  --ink2: #555;
-  --muted: #888;
-  --yellow: #fff9c4;
-  --yellow2: #fff3a3;
-  --pink: #fce4ec;
-  --pink2: #f8bbd0;
-  --blue: #e3f2fd;
-  --blue2: #bbdefb;
-  --green: #e8f5e9;
-  --green2: #c8e6c9;
-  --orange: #fff3e0;
-  --orange2: #ffe0b2;
-  --lavender: #f3e5f5;
-  --lavender2: #e1bee7;
-  --mint: #e0f7fa;
-  --mint2: #b2ebf2;
-  --red-text: #c62828;
-  --green-text: #2e7d32;
-  --accent: #5c6bc0;
-  --shadow: rgba(0,0,0,0.08);
-}
-[data-dark] {
-  --paper: #1a1a2e;
-  --paper2: #16213e;
-  --line: rgba(100,149,237,0.1);
-  --ink: #e8e8e8;
-  --ink2: #bbb;
-  --muted: #777;
-  --yellow: #2d2a1a;
-  --yellow2: #3d3820;
-  --pink: #2d1a1f;
-  --pink2: #3d2028;
-  --blue: #1a2433;
-  --blue2: #1e3050;
-  --green: #1a2d1a;
-  --green2: #1e3a1e;
-  --orange: #2d2210;
-  --orange2: #3d2e15;
-  --lavender: #221a2d;
-  --lavender2: #2d2040;
-  --mint: #1a2d2e;
-  --mint2: #1e3a3c;
-  --shadow: rgba(0,0,0,0.3);
-}
+/* ===== INDEX-SPECIFIC STYLES ===== */
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-
-body {
-  background-color: var(--paper);
-  background-image:
-    repeating-linear-gradient(
-      transparent,
-      transparent 27px,
-      var(--line) 27px,
-      var(--line) 28px
-    );
-  background-attachment: local;
-  color: var(--ink);
-  font-family: 'Patrick Hand', cursive;
-  min-height: 100vh;
-  font-size: 16px;
-  line-height: 1.6;
+/* Tool Cards Grid */
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-5);
+  margin-bottom: var(--space-10);
 }
-
-/* Margin line */
-body::before {
-  content: '';
-  position: fixed;
-  left: 72px;
-  top: 0; bottom: 0;
-  width: 2px;
-  background: rgba(220,100,100,0.25);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 32px 0 96px;
-  position: relative;
-  z-index: 1;
-}
-
-/* ====== HEADER ====== */
-header {
-  padding: 36px 0 24px;
-  border-bottom: 2px dashed rgba(100,149,237,0.3);
-  margin-bottom: 40px;
-  position: relative;
-}
-.header-top {
+.tool-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-h1 {
-  font-family: 'Caveat', cursive;
-  font-size: clamp(28px, 5vw, 48px);
-  font-weight: 700;
-  color: var(--ink);
-  line-height: 1.1;
-  position: relative;
-}
-h1::after {
-  content: '';
-  position: absolute;
-  bottom: -4px; left: 0;
-  width: 100%;
-  height: 3px;
-  background: repeating-linear-gradient(90deg, #5c6bc0 0, #5c6bc0 8px, transparent 8px, transparent 14px);
-  border-radius: 2px;
-}
-.subtitle {
-  font-family: 'Patrick Hand', cursive;
-  font-size: 15px;
-  color: var(--ink2);
-  margin-top: 10px;
-}
-.clock-box {
-  background: var(--yellow);
-  border: 2px solid var(--yellow2);
-  border-radius: 8px;
-  padding: 12px 20px;
-  transform: rotate(1deg);
-  box-shadow: 3px 3px 0 var(--yellow2);
-  min-width: 200px;
-  font-family: 'Caveat', cursive;
-}
-.clock-box .time { font-size: 28px; font-weight: 700; color: var(--ink); }
-.clock-box .date { font-size: 14px; color: var(--ink2); }
-.clock-box .updated { font-size: 12px; color: var(--muted); margin-top: 4px; }
-
-/* Dark mode toggle */
-.dark-toggle {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  background: var(--paper2);
-  border: 2px solid var(--line);
-  border-radius: 24px;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-family: 'Patrick Hand', cursive;
-  font-size: 14px;
-  color: var(--ink);
-  z-index: 999;
-  transition: all 0.2s;
-}
-.dark-toggle:hover { transform: scale(1.05); }
-
-/* Input mode toggle */
-.input-toggle {
-  position: fixed;
-  top: 16px;
-  right: 152px;
-  background: var(--yellow);
-  border: 2px dashed rgba(0,0,0,0.2);
-  border-radius: 24px;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-family: 'Patrick Hand', cursive;
-  font-size: 14px;
-  color: var(--ink);
-  z-index: 999;
-  transition: all 0.2s;
-  box-shadow: 2px 2px 0 var(--shadow);
-}
-.input-toggle:hover { transform: scale(1.05) rotate(-1deg); }
-[data-dark] .input-toggle { background: var(--yellow2); }
-
-/* Dual-mode slider group */
-.slider-part { display: block; }
-.textbox-part { display: none; }
-body.input-textbox .slider-part { display: none; }
-body.input-textbox .textbox-part { display: block; }
-
-/* Textbox within slider-group */
-.textbox-part .nb-input {
-  width: 100%;
-  font-family: 'Caveat', cursive;
-  font-size: 22px;
-  background: rgba(255,255,255,0.7);
-  border: none;
-  border-bottom: 2px solid rgba(0,0,0,0.2);
-  padding: 4px 8px;
-  color: var(--ink);
-  outline: none;
-  border-radius: 0;
-  transition: border-color 0.2s, background 0.2s;
-  margin-top: 4px;
-}
-.textbox-part .nb-input:focus {
-  border-bottom-color: var(--accent);
-  background: rgba(255,255,255,0.95);
-}
-[data-dark] .textbox-part .nb-input {
-  background: rgba(255,255,255,0.08);
-  color: var(--ink);
-  border-bottom-color: rgba(255,255,255,0.2);
-}
-[data-dark] .textbox-part .nb-input:focus { background: rgba(255,255,255,0.14); }
-
-/* Nav pills */
-.nav-pills {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 32px;
-}
-.nav-pill {
-  font-family: 'Caveat', cursive;
-  font-size: 15px;
-  padding: 6px 16px;
-  border-radius: 20px;
-  border: 2px solid rgba(100,149,237,0.3);
-  background: transparent;
-  color: var(--ink2);
-  cursor: pointer;
+  flex-direction: column;
+  gap: var(--space-3);
   text-decoration: none;
-  transition: all 0.15s;
-}
-.nav-pill:hover, .nav-pill.active {
-  background: var(--blue);
-  border-color: var(--accent);
-  color: var(--accent);
-  transform: translateY(-2px);
-}
-.nav-pill.special {
-  background: var(--green);
-  border-color: var(--green2);
-  color: var(--green-text);
-}
-.nav-pill.special:hover { transform: translateY(-2px) rotate(-1deg); }
-
-/* ====== SECTION HEADERS ====== */
-.section-title {
-  font-family: 'Caveat', cursive;
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--ink);
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.section-title .icon { font-size: 28px; }
-.section-title::after {
-  content: '';
-  flex: 1;
-  height: 2px;
-  background: repeating-linear-gradient(90deg, var(--accent) 0, var(--accent) 6px, transparent 6px, transparent 12px);
-  opacity: 0.4;
-  margin-left: 12px;
-}
-
-section { margin-bottom: 52px; }
-
-/* ====== STICKY NOTE CARDS ====== */
-.sticky {
-  border-radius: 4px 4px 8px 8px;
-  padding: 20px 24px;
-  box-shadow: 4px 4px 0 var(--shadow);
+  color: inherit;
+  transition: all var(--transition);
   position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
+  overflow: hidden;
 }
-.sticky:hover { transform: translateY(-3px) rotate(0.3deg); box-shadow: 6px 6px 0 var(--shadow); }
-.sticky::before {
+.tool-card::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 5px;
-  border-radius: 4px 4px 0 0;
-  opacity: 0.6;
+  height: 3px;
+  background: var(--card-accent, var(--color-primary));
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
-.sticky.yellow { background: var(--yellow); border: 2px solid var(--yellow2); }
-.sticky.yellow::before { background: #f9a825; }
-.sticky.pink { background: var(--pink); border: 2px solid var(--pink2); }
-.sticky.pink::before { background: #e91e63; }
-.sticky.blue { background: var(--blue); border: 2px solid var(--blue2); }
-.sticky.blue::before { background: #1565c0; }
-.sticky.green { background: var(--green); border: 2px solid var(--green2); }
-.sticky.green::before { background: #2e7d32; }
-.sticky.orange { background: var(--orange); border: 2px solid var(--orange2); }
-.sticky.orange::before { background: #e65100; }
-.sticky.lavender { background: var(--lavender); border: 2px solid var(--lavender2); }
-.sticky.lavender::before { background: #6a1b9a; }
-.sticky.mint { background: var(--mint); border: 2px solid var(--mint2); }
-.sticky.mint::before { background: #00838f; }
-
-.sticky-label {
-  font-family: 'Caveat', cursive;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px dashed rgba(0,0,0,0.15);
+.tool-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--card-accent, var(--color-primary));
 }
-
-/* ====== GRID LAYOUTS ====== */
-.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-@media (max-width: 900px) {
-  .grid-4 { grid-template-columns: repeat(2, 1fr); }
-  .grid-3 { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 600px) {
-  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-  .page { padding-left: 24px; }
-  body::before { display: none; }
-}
-
-/* ====== INPUTS ====== */
-.field-group { margin-bottom: 14px; }
-.field-label {
-  font-family: 'Patrick Hand', cursive;
-  font-size: 13px;
-  color: var(--ink2);
-  margin-bottom: 4px;
-  display: block;
-}
-.field-input {
-  width: 100%;
-  font-family: 'Caveat', cursive;
-  font-size: 18px;
-  background: rgba(255,255,255,0.6);
-  border: none;
-  border-bottom: 2px solid rgba(0,0,0,0.2);
-  padding: 4px 8px;
-  color: var(--ink);
-  outline: none;
-  border-radius: 0;
-  transition: border-color 0.2s;
-}
-.field-input:focus { border-bottom-color: var(--accent); background: rgba(255,255,255,0.9); }
-select.field-input { cursor: pointer; }
-
-.calc-btn {
-  font-family: 'Caveat', cursive;
-  font-size: 17px;
-  background: var(--ink);
-  color: var(--paper);
-  border: none;
-  padding: 10px 24px;
-  border-radius: 24px;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: all 0.15s;
-  box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
-}
-.calc-btn:hover { transform: translateY(-2px); box-shadow: 4px 5px 0 rgba(0,0,0,0.2); }
-
-.result-box {
-  margin-top: 16px;
-  background: rgba(255,255,255,0.5);
-  border-radius: 8px;
-  padding: 14px 16px;
-  border: 2px dashed rgba(0,0,0,0.12);
-  font-family: 'Caveat', cursive;
-}
-.result-row {
+.tool-card-icon {
+  width: 44px; height: 44px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-offset);
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: 4px 0;
-  border-bottom: 1px dotted rgba(0,0,0,0.1);
-  font-size: 16px;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
 }
-.result-row:last-child { border-bottom: none; }
-.result-label { color: var(--ink2); font-size: 14px; }
-.result-val { font-weight: 600; color: var(--green-text); font-size: 19px; }
+.tool-card-title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+.tool-card-sub {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  flex: 1;
+}
+.tool-card-arrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--card-accent, var(--color-primary));
+  margin-top: var(--space-2);
+  transition: gap var(--transition);
+}
+.tool-card:hover .tool-card-arrow { gap: var(--space-3); }
 
-/* ====== MARKET CARDS ====== */
-.market-section-label {
-  font-family: 'Caveat', cursive;
-  font-size: 16px;
-  color: var(--muted);
-  margin: 20px 0 10px;
-  padding-left: 4px;
-  border-left: 3px solid var(--accent);
-  padding-left: 10px;
+/* Section dividers */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: var(--space-8) 0 var(--space-5);
 }
-.market-card {
-  background: var(--paper);
-  border: 2px solid rgba(100,149,237,0.2);
-  border-radius: 8px;
-  padding: 14px 16px;
-  box-shadow: 3px 3px 0 var(--shadow);
-  transition: transform 0.2s;
-  cursor: default;
+.section-divider-title {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  white-space: nowrap;
 }
-.market-card:hover { transform: translateY(-3px) rotate(0.5deg); }
-.market-name { font-family: 'Patrick Hand', cursive; font-size: 12px; color: var(--muted); letter-spacing: 0.04em; }
-.market-val { font-family: 'Caveat', cursive; font-size: 24px; font-weight: 700; color: var(--ink); margin: 2px 0; }
-.market-change { font-family: 'Patrick Hand', cursive; font-size: 13px; }
-.market-change.up { color: var(--green-text); }
-.market-change.down { color: var(--red-text); }
-.market-change.loading { color: var(--muted); }
+.section-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--color-divider);
+}
+
+/* Clock box */
+.clock-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-sm);
+  min-width: 220px;
+}
+.clock-time { font-family: 'JetBrains Mono', monospace; font-size: var(--text-2xl); font-weight: 700; color: var(--color-text); letter-spacing: -0.02em; }
+.clock-date { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px; }
+.clock-updated { font-size: 0.68rem; color: var(--color-text-faint); margin-top: 4px; display:flex; align-items:center; gap:5px; }
+.refresh-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-success); animation: pulse 2s infinite; }
+
+/* Calculator sections */
+.calc-section { margin-bottom: var(--space-8); }
+.calc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-5); }
+@media (max-width: 720px) { .calc-grid { grid-template-columns: 1fr; } }
+
+/* Calc cards */
+.calc-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5) var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+.calc-card-title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-divider);
+}
+.slider-group { margin-bottom: var(--space-4); }
+.slider-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-2); }
+.slider-label { font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); }
+.slider-val { font-family: 'JetBrains Mono', monospace; font-size: var(--text-lg); font-weight: 700; color: var(--color-text); }
+.range-hint { display:flex; justify-content:space-between; font-size:0.68rem; color:var(--color-text-faint); margin-top:4px; }
+.result-box {
+  margin-top: var(--space-4);
+  background: var(--color-surface-offset);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-divider);
+}
+.result-row { display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; border-bottom:1px solid var(--color-divider); font-size:var(--text-xs); }
+.result-row:last-child { border-bottom:none; }
+.result-label { color:var(--color-text-muted); }
+.result-val { font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--color-success); font-size:var(--text-sm); }
+
+/* ROR section */
+.ror-big { font-family:'JetBrains Mono',monospace; font-size:var(--text-2xl); font-weight:700; }
+.ror-big.positive { color:var(--color-success); }
+.ror-big.negative { color:var(--color-error); }
+
+/* Portfolio section */
+.portfolio-add { display:flex; gap:var(--space-3); flex-wrap:wrap; margin-bottom:var(--space-5); align-items:flex-end; }
+.portfolio-add .field-group { flex:1; min-width:120px; margin-bottom:0; }
+.port-table { width:100%; border-collapse:collapse; font-size:var(--text-xs); }
+.port-table th { font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-text-muted); text-align:left; padding:6px 10px; border-bottom:2px solid var(--color-divider); }
+.port-table td { padding:8px 10px; border-bottom:1px solid var(--color-divider); font-size:var(--text-xs); color:var(--color-text); }
+.port-table tr:hover td { background:var(--color-surface-offset); }
+.port-table .profit { color:var(--color-success); font-weight:600; }
+.port-table .loss   { color:var(--color-error); font-weight:600; }
+.port-total { margin-top:var(--space-4); padding:var(--space-3) var(--space-4); background:var(--color-surface-offset); border-radius:var(--radius-lg); display:flex; gap:var(--space-8); flex-wrap:wrap; font-family:'JetBrains Mono',monospace; }
+.port-total span { font-size:var(--text-xs); color:var(--color-text-muted); font-family:'Inter',sans-serif; font-weight:600; display:block; margin-bottom:2px; }
+.del-btn { background:none; border:none; cursor:pointer; color:var(--color-text-faint); font-size:var(--text-xs); padding:2px 6px; border-radius:var(--radius-sm); transition:all var(--transition); }
+.del-btn:hover { background:var(--color-error-bg); color:var(--color-error); }
+
+/* Market cards */
+.market-section-label { font-size:var(--text-xs); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-text-muted); margin:var(--space-4) 0 var(--space-3); padding-left:var(--space-3); border-left:3px solid var(--color-primary); }
+.markets-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-3); margin-bottom:var(--space-2); }
+@media(max-width:900px){.markets-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:500px){.markets-grid{grid-template-columns:1fr;}}
+.market-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-3) var(--space-4); transition:all var(--transition); }
+.market-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
+.market-name { font-size:0.68rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-text-faint); }
+.market-val { font-family:'JetBrains Mono',monospace; font-size:var(--text-lg); font-weight:700; color:var(--color-text); margin:3px 0; }
+.market-change { font-size:var(--text-xs); font-weight:600; }
+.market-change.up   { color:var(--color-success); }
+.market-change.down { color:var(--color-error); }
+.market-change.loading { color:var(--color-text-faint); }
 
 /* Commodity cards */
-.commodity-card {
-  background: var(--orange);
-  border: 2px solid var(--orange2);
-  border-radius: 8px;
-  padding: 14px 16px;
-  box-shadow: 3px 3px 0 var(--shadow);
-  transition: transform 0.2s;
-  text-align: center;
-}
-.commodity-card:hover { transform: translateY(-3px) rotate(-0.4deg); }
-.commodity-icon { font-size: 28px; margin-bottom: 6px; }
-.commodity-name { font-family: 'Patrick Hand', cursive; font-size: 13px; color: var(--ink2); }
-.commodity-val { font-family: 'Caveat', cursive; font-size: 22px; font-weight: 700; color: var(--ink); }
-.commodity-change { font-family: 'Patrick Hand', cursive; font-size: 13px; }
+.commodity-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-3) var(--space-4); text-align:center; transition:all var(--transition); }
+.commodity-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
+.commodity-icon { font-size:1.6rem; margin-bottom:var(--space-2); }
+.commodity-name { font-size:0.68rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-text-faint); }
+.commodity-val { font-family:'JetBrains Mono',monospace; font-size:var(--text-base); font-weight:700; color:var(--color-text); }
+.commodity-change { font-size:var(--text-xs); font-weight:600; }
 
-/* ====== PORTFOLIO TABLE ====== */
-.portfolio-add {
-  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: flex-end;
-}
-.portfolio-add .field-group { flex: 1; min-width: 120px; margin-bottom: 0; }
-.port-table { width: 100%; border-collapse: collapse; font-family: 'Patrick Hand', cursive; }
-.port-table th {
-  font-family: 'Caveat', cursive;
-  font-size: 14px;
-  color: var(--muted);
-  text-align: left;
-  padding: 6px 10px;
-  border-bottom: 2px dashed rgba(0,0,0,0.15);
-  font-weight: 400;
-}
-.port-table td {
-  padding: 8px 10px;
-  border-bottom: 1px dotted rgba(0,0,0,0.1);
-  font-size: 14px;
-  color: var(--ink);
-}
-.port-table tr:hover td { background: rgba(255,255,255,0.4); }
-.port-table .profit { color: var(--green-text); font-weight: 500; }
-.port-table .loss { color: var(--red-text); font-weight: 500; }
-.port-total {
-  margin-top: 14px;
-  padding: 10px 14px;
-  background: rgba(255,255,255,0.5);
-  border-radius: 8px;
-  font-family: 'Caveat', cursive;
-  font-size: 18px;
-  display: flex;
-  gap: 32px;
-  flex-wrap: wrap;
-}
-.port-total span { font-size: 14px; color: var(--ink2); font-family: 'Patrick Hand', cursive; }
-.del-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--muted);
-  font-size: 14px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: all 0.15s;
-}
-.del-btn:hover { background: rgba(198,40,40,0.1); color: var(--red-text); }
+/* Chart cards */
+.chart-cards-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-3); }
+@media(max-width:900px){.chart-cards-grid{grid-template-columns:repeat(2,1fr);}}
+.spark-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-3) var(--space-4); }
+.spark-name { font-size:var(--text-sm); font-weight:700; color:var(--color-text); margin-bottom:2px; }
+.spark-val { font-size:var(--text-xs); color:var(--color-text-muted); margin-bottom:var(--space-2); }
 
-/* ====== SPARKLINE CHARTS ====== */
-.chart-card {
-  background: var(--paper);
-  border: 2px solid rgba(100,149,237,0.2);
-  border-radius: 8px;
-  padding: 14px;
-  box-shadow: 3px 3px 0 var(--shadow);
-}
-.chart-name {
-  font-family: 'Caveat', cursive;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 8px;
-}
-.chart-val { font-family: 'Patrick Hand', cursive; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-
-/* ====== RATE OF RETURN ====== */
-.ror-big { font-family: 'Caveat', cursive; font-size: 42px; font-weight: 700; }
-.ror-big.positive { color: var(--green-text); }
-.ror-big.negative { color: var(--red-text); }
-
-/* ====== FOOTER ====== */
-footer {
-  border-top: 2px dashed rgba(100,149,237,0.25);
-  padding: 24px 0 48px;
-  font-family: 'Patrick Hand', cursive;
-  font-size: 13px;
-  color: var(--muted);
-  text-align: center;
-}
-.footer-note { margin-bottom: 4px; }
-
-/* ====== LOADING PULSE ====== */
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.loading-pulse { animation: pulse 1.5s infinite; }
-
-/* ====== SLIDER COMBO (replaces number inputs in calculators) ====== */
-.slider-group { margin-bottom: 18px; }
-.slider-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 6px;
-}
-.slider-label {
-  font-family: 'Patrick Hand', cursive;
-  font-size: 13px;
-  color: var(--ink2);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.slider-val {
-  font-family: 'Caveat', cursive;
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--ink);
-  min-width: 80px;
-  text-align: right;
-}
-input[type="range"].notebook-slider {
-  width: 100%;
-  -webkit-appearance: none;
-  height: 5px;
-  border-radius: 3px;
-  background: rgba(0,0,0,0.12);
-  outline: none;
-  cursor: pointer;
-  margin: 4px 0 2px;
-}
-input[type="range"].notebook-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px; height: 20px;
-  border-radius: 50%;
-  background: var(--ink);
-  border: 3px solid var(--paper);
-  box-shadow: 0 1px 5px rgba(0,0,0,0.25);
-  cursor: pointer;
-  transition: transform 0.15s, background 0.15s;
-}
-input[type="range"].notebook-slider::-webkit-slider-thumb:hover { transform: scale(1.25); background: var(--accent); }
-.slider-range-hint {
-  display: flex;
-  justify-content: space-between;
-  font-family: 'Patrick Hand', cursive;
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 1px;
-}
-
-/* ====== HAND DRAWN DOODLES ====== */
-.doodle-arrow {
-  font-family: 'Caveat', cursive;
-  font-size: 13px;
-  color: var(--muted);
-  font-style: italic;
-}
-
-/* refresh indicator */
-.refresh-dot {
-  display: inline-block;
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: #4caf50;
-  margin-right: 6px;
-  animation: pulse 2s infinite;
+/* Select input */
+select.field-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8985' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+  appearance: none;
 }
 </style>
 </head>
 <body>
+<div class="app-wrapper">
 
-<button class="dark-toggle" onclick="toggleDark()">🌙 Dark mode</button>
-<button class="input-toggle" id="inputToggleBtn" onclick="toggleInputMode()">🎚️ Slider mode</button>
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-brand">
+      <svg class="brand-logo" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="8" fill="currentColor" opacity="0.1"/>
+        <path d="M8 26 L14 18 L20 21 L28 10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="28" cy="10" r="3" fill="currentColor"/>
+        <path d="M8 30 L28 30" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+      </svg>
+      <div>
+        <div class="brand-title">Wealth Dashboard</div>
+        <div class="brand-sub">Personal Finance &amp; Portfolio Tracker · India</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="header-badge">FY 2026–27</span>
+      <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
 
-<div class="page">
-
-<!-- HEADER -->
-<header>
-  <div class="header-top">
+  <!-- HERO + CLOCK -->
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:var(--space-5);margin-bottom:var(--space-8);">
     <div>
-      <h1>📒 Personal Wealth &amp; Portfolio Dashboard</h1>
-      <p class="subtitle">Track markets, calculate returns, and monitor investments — all in one place.</p>
+      <div class="page-hero-label">Personal Finance Hub</div>
+      <h1 class="page-hero-title">📒 Personal Wealth<br>&amp; Portfolio Dashboard</h1>
+      <p class="page-hero-sub">Track markets, calculate returns, and monitor investments — all in one place.</p>
     </div>
     <div class="clock-box">
-      <div class="time" id="clock">--:--:--</div>
-      <div class="date" id="dateline">Loading...</div>
-      <div class="updated"><span class="refresh-dot"></span>Updated: <span id="lastUpdate">--</span></div>
+      <div class="clock-time" id="clock">--:--:--</div>
+      <div class="clock-date" id="dateline">Loading...</div>
+      <div class="clock-updated"><span class="refresh-dot"></span>Updated: <span id="lastUpdate">--</span></div>
     </div>
   </div>
-</header>
 
-<!-- NAV -->
-<nav class="nav-pills">
-  <a href="#calculators" class="nav-pill">🧮 Calculators</a>
-  <a href="#ror" class="nav-pill">📈 Rate of Return</a>
-  <a href="#portfolio" class="nav-pill">💼 Portfolio</a>
-  <a href="#markets" class="nav-pill">🌐 Markets</a>
-  <a href="#commodities" class="nav-pill">🪙 Commodities</a>
-  <a href="#charts" class="nav-pill">📊 Mini Charts</a>
-  <a href="liquid-return-calc.html" class="nav-pill special">💧 Liquid Return Calc →</a>
-</nav>
+  <!-- TOOLS NAVIGATION CARDS -->
+  <div class="section-divider">
+    <span class="section-divider-title">Financial Tools</span>
+    <div class="section-divider-line"></div>
+    <span class="badge badge-primary">4 Tools</span>
+  </div>
 
-<!-- ============================================================ -->
-<!-- SECTION 1: CALCULATORS -->
-<!-- ============================================================ -->
-<section id="calculators">
-  <div class="section-title"><span class="icon">🧮</span> Interest Calculators</div>
-  <div class="grid-2">
+  <div class="tools-grid">
+    <a href="dashboards/trading-costs-dashboard.html" class="tool-card" style="--card-accent: var(--color-blue);">
+      <div class="tool-card-icon">📊</div>
+      <div>
+        <div class="tool-card-title">Trading Costs &amp; Tax Dashboard</div>
+        <div class="tool-card-sub">Compare transaction friction, charges &amp; tax treatment across all Indian asset classes — Stocks, ETFs, F&amp;O, Commodities, Currencies. FY 2026-27.</div>
+      </div>
+      <div class="tool-card-arrow">Open Dashboard <span>→</span></div>
+    </a>
 
+    <a href="calculators/liquid-return-calc.html" class="tool-card" style="--card-accent: var(--color-success);">
+      <div class="tool-card-icon">💧</div>
+      <div>
+        <div class="tool-card-title">Liquid Return Calculator</div>
+        <div class="tool-card-sub">Compare after-charge, after-tax returns across Liquid ETF, Liquid Fund, Arbitrage Fund, Bank FD, and Savings Account for any holding period.</div>
+      </div>
+      <div class="tool-card-arrow">Open Calculator <span>→</span></div>
+    </a>
+
+    <a href="calculators/liquid-etf-parking-calc.html" class="tool-card" style="--card-accent: var(--color-primary);">
+      <div class="tool-card-icon">🅿️</div>
+      <div>
+        <div class="tool-card-title">Liquid ETF Parking Calculator</div>
+        <div class="tool-card-sub">Exact cost vs return analysis for LIQUIDBEES, LIQUIDPLUS, LIQUIDCASE parking. Find your break-even day across 7 investment amounts.</div>
+      </div>
+      <div class="tool-card-arrow">Open Calculator <span>→</span></div>
+    </a>
+
+    <a href="calculators/retirement-calc.html" class="tool-card" style="--card-accent: var(--color-gold);">
+      <div class="tool-card-icon">🏛️</div>
+      <div>
+        <div class="tool-card-title">Retirement Benefits Simulator</div>
+        <div class="tool-card-sub">Project your retirement corpus, monthly pension, healthcare coverage &amp; benefit milestones across NPS, EPF, PPF &amp; self-managed portfolios.</div>
+      </div>
+      <div class="tool-card-arrow">Open Simulator <span>→</span></div>
+    </a>
+  </div>
+
+  <!-- CALCULATORS SECTION -->
+  <div class="section-divider">
+    <span class="section-divider-title">Interest Calculators</span>
+    <div class="section-divider-line"></div>
+    <a href="#calculators" id="calculators" style="opacity:0;pointer-events:none;"></a>
+  </div>
+
+  <div class="calc-grid calc-section">
     <!-- Simple Interest -->
-    <div class="sticky yellow">
-      <div class="sticky-label">Simple Interest Calculator</div>
-
+    <div class="calc-card">
+      <div class="calc-card-title">📐 Simple Interest Calculator</div>
       <div class="slider-group">
-        <div class="slider-header">
-          <span class="slider-label">Principal</span>
-          <span class="slider-val" id="si-p-val">₹1,00,000</span>
-        </div>
-        <div class="slider-part">
-          <input type="range" class="notebook-slider" id="si-p" min="10000" max="10000000" step="10000" value="100000" oninput="autoSI()">
-          <div class="slider-range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
-        </div>
-        <div class="textbox-part">
-          <input class="nb-input" id="si-p-txt" type="number" value="100000" placeholder="e.g. 100000" oninput="syncFromText('si-p','si-p-txt'); autoSI()">
-        </div>
+        <div class="slider-header"><span class="slider-label">Principal</span><span class="slider-val mono" id="si-p-val">₹1,00,000</span></div>
+        <input type="range" id="si-p" min="10000" max="10000000" step="10000" value="100000" oninput="autoSI()">
+        <div class="range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
       </div>
-
       <div class="slider-group">
-        <div class="slider-header">
-          <span class="slider-label">Interest Rate</span>
-          <span class="slider-val" id="si-r-val">7.0%</span>
-        </div>
-        <div class="slider-part">
-          <input type="range" class="notebook-slider" id="si-r" min="1" max="20" step="0.5" value="7" oninput="autoSI()">
-          <div class="slider-range-hint"><span>1%</span><span>20%</span></div>
-        </div>
-        <div class="textbox-part">
-          <input class="nb-input" id="si-r-txt" type="number" value="7" step="0.5" placeholder="e.g. 7" oninput="syncFromText('si-r','si-r-txt'); autoSI()">
-        </div>
+        <div class="slider-header"><span class="slider-label">Interest Rate</span><span class="slider-val mono" id="si-r-val">7.0%</span></div>
+        <input type="range" id="si-r" min="1" max="20" step="0.5" value="7" oninput="autoSI()">
+        <div class="range-hint"><span>1%</span><span>20%</span></div>
       </div>
-
       <div class="slider-group">
-        <div class="slider-header">
-          <span class="slider-label">Time</span>
-          <span class="slider-val" id="si-t-val">2 yrs</span>
-        </div>
-        <div class="slider-part">
-          <input type="range" class="notebook-slider" id="si-t" min="1" max="30" step="1" value="2" oninput="autoSI()">
-          <div class="slider-range-hint"><span>1 yr</span><span>30 yrs</span></div>
-        </div>
-        <div class="textbox-part">
-          <input class="nb-input" id="si-t-txt" type="number" value="2" placeholder="e.g. 2" oninput="syncFromText('si-t','si-t-txt'); autoSI()">
-        </div>
+        <div class="slider-header"><span class="slider-label">Time</span><span class="slider-val mono" id="si-t-val">2 yrs</span></div>
+        <input type="range" id="si-t" min="1" max="30" step="1" value="2" oninput="autoSI()">
+        <div class="range-hint"><span>1 yr</span><span>30 yrs</span></div>
       </div>
-
-      <div class="field-group" style="margin-bottom:14px;">
+      <div class="field-group">
         <label class="field-label">Unit</label>
         <select class="field-input" id="si-unit" onchange="autoSI()">
           <option value="years">Years</option>
           <option value="days">Days</option>
         </select>
       </div>
-
-      <div class="result-box" id="si-result">
+      <div class="result-box">
         <div class="result-row"><span class="result-label">Interest Earned</span><span class="result-val" id="si-interest">—</span></div>
         <div class="result-row"><span class="result-label">Total Amount</span><span class="result-val" id="si-total">—</span></div>
       </div>
     </div>
 
     <!-- Compound Interest -->
-    <div class="sticky pink">
-      <div class="sticky-label">Compound Interest Calculator</div>
-
+    <div class="calc-card">
+      <div class="calc-card-title">📈 Compound Interest Calculator</div>
       <div class="slider-group">
-        <div class="slider-header">
-          <span class="slider-label">Principal</span>
-          <span class="slider-val" id="ci-p-val">₹1,00,000</span>
-        </div>
-        <div class="slider-part">
-          <input type="range" class="notebook-slider" id="ci-p" min="10000" max="10000000" step="10000" value="100000" oninput="autoCI()">
-          <div class="slider-range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
-        </div>
-        <div class="textbox-part">
-          <input class="nb-input" id="ci-p-txt" type="number" value="100000" placeholder="e.g. 100000" oninput="syncFromText('ci-p','ci-p-txt'); autoCI()">
-        </div>
+        <div class="slider-header"><span class="slider-label">Principal</span><span class="slider-val mono" id="ci-p-val">₹1,00,000</span></div>
+        <input type="range" id="ci-p" min="10000" max="10000000" step="10000" value="100000" oninput="autoCI()">
+        <div class="range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
       </div>
-
       <div class="slider-group">
-        <div class="slider-header">
-          <span class="slider-label">Interest Rate</span>
-          <span class="slider-val" id="ci-r-val">8.0%</span>
-        </div>
-        <div class="slider-part">
-          <input type="range" class="notebook-slider" id="ci-r" min="1" max="24" step="0.5" value="8" oninput="autoCI()">
-          <div class="slider-range-hint"><span>1%</span><span>24%</span></div>
-        </div>
-        <div class="textbox-part">
-          <input class="nb-input" id="ci-r-txt" type="number" value="8" step="0.5" placeholder="e.g. 8" oninput="syncFromText('ci-r','ci-r-txt'); autoCI()">
-        </div>
+        <div class="slider-header"><span class="slider-label">Interest Rate</span><span class="slider-val mono" id="ci-r-val">8.0%</span></div>
+        <input type="range" id="ci-r" min="1" max="24" step="0.5" value="8" oninput="autoCI()">
+        <div class="range-hint"><span>1%</span><span>24%</span></div>
       </div>
-
       <div class="slider-group">
-        <div class="slider-header">
-          <span class="slider-label">Time (Years)</span>
-          <span class="slider-val" id="ci-t-val">5 yrs</span>
-        </div>
-        <div class="slider-part">
-          <input type="range" class="notebook-slider" id="ci-t" min="1" max="30" step="1" value="5" oninput="autoCI()">
-          <div class="slider-range-hint"><span>1 yr</span><span>30 yrs</span></div>
-        </div>
-        <div class="textbox-part">
-          <input class="nb-input" id="ci-t-txt" type="number" value="5" placeholder="e.g. 5" oninput="syncFromText('ci-t','ci-t-txt'); autoCI()">
-        </div>
+        <div class="slider-header"><span class="slider-label">Time (Years)</span><span class="slider-val mono" id="ci-t-val">5 yrs</span></div>
+        <input type="range" id="ci-t" min="1" max="30" step="1" value="5" oninput="autoCI()">
+        <div class="range-hint"><span>1 yr</span><span>30 yrs</span></div>
       </div>
-
-      <div class="field-group" style="margin-bottom:14px;">
+      <div class="field-group">
         <label class="field-label">Compounding Frequency</label>
         <select class="field-input" id="ci-freq" onchange="autoCI()">
           <option value="1">Annually</option>
@@ -745,578 +361,265 @@ input[type="range"].notebook-slider::-webkit-slider-thumb:hover { transform: sca
           <option value="365">Daily</option>
         </select>
       </div>
-
-      <div class="result-box" id="ci-result">
+      <div class="result-box">
         <div class="result-row"><span class="result-label">Future Value</span><span class="result-val" id="ci-fv">—</span></div>
         <div class="result-row"><span class="result-label">Total Interest</span><span class="result-val" id="ci-interest">—</span></div>
       </div>
     </div>
   </div>
-</section>
 
-<!-- ============================================================ -->
-<!-- SECTION 2: RATE OF RETURN -->
-<!-- ============================================================ -->
-<section id="ror">
-  <div class="section-title"><span class="icon">📈</span> Rate of Return Calculator</div>
-  <div class="sticky blue" style="max-width: 640px;">
-    <div class="sticky-label">Investment Returns</div>
+  <!-- RATE OF RETURN -->
+  <div class="section-divider">
+    <span class="section-divider-title">Rate of Return</span>
+    <div class="section-divider-line"></div>
+    <a id="ror"></a>
+  </div>
 
-    <div class="slider-group">
-      <div class="slider-header">
-        <span class="slider-label">Initial Investment</span>
-        <span class="slider-val" id="ror-init-val">₹1,00,000</span>
-      </div>
-      <div class="slider-part">
-        <input type="range" class="notebook-slider" id="ror-init" min="10000" max="10000000" step="10000" value="100000" oninput="autoROR()">
-        <div class="slider-range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
-      </div>
-      <div class="textbox-part">
-        <input class="nb-input" id="ror-init-txt" type="number" value="100000" placeholder="e.g. 100000" oninput="syncFromText('ror-init','ror-init-txt'); autoROR()">
-      </div>
-    </div>
-
-    <div class="slider-group">
-      <div class="slider-header">
-        <span class="slider-label">Final Value</span>
-        <span class="slider-val" id="ror-final-val">₹1,85,000</span>
-      </div>
-      <div class="slider-part">
-        <input type="range" class="notebook-slider" id="ror-final" min="10000" max="20000000" step="10000" value="185000" oninput="autoROR()">
-        <div class="slider-range-hint"><span>₹10K</span><span>₹2 Cr</span></div>
-      </div>
-      <div class="textbox-part">
-        <input class="nb-input" id="ror-final-txt" type="number" value="185000" placeholder="e.g. 185000" oninput="syncFromText('ror-final','ror-final-txt'); autoROR()">
-      </div>
-    </div>
-
-    <div class="slider-group">
-      <div class="slider-header">
-        <span class="slider-label">Time Period</span>
-        <span class="slider-val" id="ror-years-val">5 yrs</span>
-      </div>
-      <div class="slider-part">
-        <input type="range" class="notebook-slider" id="ror-years" min="1" max="30" step="1" value="5" oninput="autoROR()">
-        <div class="slider-range-hint"><span>1 yr</span><span>30 yrs</span></div>
-      </div>
-      <div class="textbox-part">
-        <input class="nb-input" id="ror-years-txt" type="number" value="5" placeholder="e.g. 5" oninput="syncFromText('ror-years','ror-years-txt'); autoROR()">
-      </div>
-    </div>
-
-    <div class="result-box" id="ror-result" style="margin-top:20px;">
-      <div style="display:flex;gap:32px;align-items:center;flex-wrap:wrap;">
-        <div>
-          <div class="field-label">Absolute Return</div>
-          <div class="ror-big" id="ror-abs">—</div>
+  <div class="calc-section" style="max-width:680px;">
+    <div class="calc-card">
+      <div class="calc-card-title">📈 Investment Returns Calculator</div>
+      <div class="calc-grid" style="grid-template-columns:1fr 1fr 1fr;gap:var(--space-4);">
+        <div class="slider-group">
+          <div class="slider-header"><span class="slider-label">Initial Investment</span><span class="slider-val mono" id="ror-init-val">₹1,00,000</span></div>
+          <input type="range" id="ror-init" min="10000" max="10000000" step="10000" value="100000" oninput="autoROR()">
+          <div class="range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
         </div>
-        <div>
-          <div class="field-label">CAGR</div>
-          <div class="ror-big" id="ror-cagr">—</div>
+        <div class="slider-group">
+          <div class="slider-header"><span class="slider-label">Final Value</span><span class="slider-val mono" id="ror-final-val">₹1,85,000</span></div>
+          <input type="range" id="ror-final" min="10000" max="20000000" step="10000" value="185000" oninput="autoROR()">
+          <div class="range-hint"><span>₹10K</span><span>₹2 Cr</span></div>
         </div>
-        <div>
-          <div class="field-label">Profit / Loss</div>
-          <div class="result-val" style="font-size:20px;" id="ror-pl">—</div>
+        <div class="slider-group">
+          <div class="slider-header"><span class="slider-label">Time Period</span><span class="slider-val mono" id="ror-years-val">5 yrs</span></div>
+          <input type="range" id="ror-years" min="1" max="30" step="1" value="5" oninput="autoROR()">
+          <div class="range-hint"><span>1 yr</span><span>30 yrs</span></div>
         </div>
       </div>
+      <div class="result-box" style="display:flex;gap:var(--space-6);align-items:center;flex-wrap:wrap;">
+        <div><div class="result-label">Absolute Return</div><div class="ror-big" id="ror-abs">—</div></div>
+        <div><div class="result-label">CAGR</div><div class="ror-big" id="ror-cagr">—</div></div>
+        <div><div class="result-label">Profit / Loss</div><div style="font-family:'JetBrains Mono',monospace;font-size:var(--text-xl);font-weight:700;" id="ror-pl">—</div></div>
+      </div>
     </div>
   </div>
-</section>
 
-<!-- ============================================================ -->
-<!-- SECTION 3: PORTFOLIO TRACKER -->
-<!-- ============================================================ -->
-<section id="portfolio">
-  <div class="section-title"><span class="icon">💼</span> Personal Portfolio Tracker</div>
-  <div class="sticky lavender">
-    <div class="sticky-label">Add Asset</div>
-    <div class="portfolio-add">
-      <div class="field-group"><label class="field-label">Asset Name</label><input class="field-input" id="pt-name" placeholder="e.g. Reliance"></div>
-      <div class="field-group"><label class="field-label">Quantity</label><input class="field-input" id="pt-qty" type="number" placeholder="100"></div>
-      <div class="field-group"><label class="field-label">Buy Price (₹)</label><input class="field-input" id="pt-buy" type="number" placeholder="2500"></div>
-      <div class="field-group"><label class="field-label">Current Price (₹)</label><input class="field-input" id="pt-cur" type="number" placeholder="2750"></div>
-      <div><button class="calc-btn" onclick="addAsset()" style="margin-top:20px;">+ Add</button></div>
-    </div>
-    <div style="overflow-x:auto;">
-      <table class="port-table">
-        <thead>
-          <tr>
-            <th>Asset</th><th>Qty</th><th>Buy Price</th><th>Current Price</th><th>Invested</th><th>Current Value</th><th>P&amp;L</th><th>Return</th><th></th>
-          </tr>
-        </thead>
-        <tbody id="port-body">
-          <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px;font-family:Caveat,cursive;font-size:16px;">No assets yet. Add your first one above ↑</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="port-total" id="port-total" style="display:none;">
-      <div><span>Total Invested</span><br><strong id="pt-invested">—</strong></div>
-      <div><span>Portfolio Value</span><br><strong id="pt-value">—</strong></div>
-      <div><span>Total P&amp;L</span><br><strong id="pt-pnl">—</strong></div>
-      <div><span>Overall Return</span><br><strong id="pt-ret">—</strong></div>
+  <!-- PORTFOLIO TRACKER -->
+  <div class="section-divider">
+    <span class="section-divider-title">Portfolio Tracker</span>
+    <div class="section-divider-line"></div>
+    <a id="portfolio"></a>
+  </div>
+
+  <div class="calc-section">
+    <div class="calc-card">
+      <div class="calc-card-title">💼 Personal Portfolio Tracker</div>
+      <div class="portfolio-add">
+        <div class="field-group"><label class="field-label">Asset Name</label><input class="field-input" id="pt-name" placeholder="e.g. Reliance"></div>
+        <div class="field-group"><label class="field-label">Quantity</label><input class="field-input" id="pt-qty" type="number" placeholder="100"></div>
+        <div class="field-group"><label class="field-label">Buy Price (₹)</label><input class="field-input" id="pt-buy" type="number" placeholder="2500"></div>
+        <div class="field-group"><label class="field-label">Current Price (₹)</label><input class="field-input" id="pt-cur" type="number" placeholder="2750"></div>
+        <div style="display:flex;align-items:flex-end;"><button class="btn btn-primary" onclick="addAsset()">+ Add Asset</button></div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="port-table">
+          <thead><tr><th>Asset</th><th>Qty</th><th>Buy Price</th><th>Current</th><th>Invested</th><th>Value</th><th>P&amp;L</th><th>Return</th><th></th></tr></thead>
+          <tbody id="port-body"><tr><td colspan="9" style="text-align:center;color:var(--color-text-faint);padding:24px;">No assets yet. Add your first one above ↑</td></tr></tbody>
+        </table>
+      </div>
+      <div class="port-total" id="port-total" style="display:none;">
+        <div><span>Total Invested</span><strong id="pt-invested">—</strong></div>
+        <div><span>Portfolio Value</span><strong id="pt-value">—</strong></div>
+        <div><span>Total P&amp;L</span><strong id="pt-pnl">—</strong></div>
+        <div><span>Overall Return</span><strong id="pt-ret">—</strong></div>
+      </div>
     </div>
   </div>
-</section>
 
-<!-- ============================================================ -->
-<!-- SECTION 4: GLOBAL MARKETS -->
-<!-- ============================================================ -->
-<section id="markets">
-  <div class="section-title"><span class="icon">🌐</span> Global Market Dashboard</div>
-  <p style="font-family:'Patrick Hand',cursive;font-size:13px;color:var(--muted);margin-bottom:16px;">
-    <span class="refresh-dot"></span>Auto-refreshes every 60 seconds. Data via Yahoo Finance (CORS proxy).
-  </p>
-
-  <div class="market-section-label">🇺🇸 US Markets</div>
-  <div class="grid-4" id="us-markets">
-    <div class="market-card"><div class="market-name">S&amp;P 500</div><div class="market-val loading-pulse" id="spx-val">Loading...</div><div class="market-change loading" id="spx-chg">—</div></div>
-    <div class="market-card"><div class="market-name">Nasdaq</div><div class="market-val loading-pulse" id="ndx-val">Loading...</div><div class="market-change loading" id="ndx-chg">—</div></div>
-    <div class="market-card"><div class="market-name">Dow Jones</div><div class="market-val loading-pulse" id="dji-val">Loading...</div><div class="market-change loading" id="dji-chg">—</div></div>
-    <div class="market-card"><div class="market-name">VIX</div><div class="market-val loading-pulse" id="vix-val">Loading...</div><div class="market-change loading" id="vix-chg">—</div></div>
+  <!-- GLOBAL MARKETS -->
+  <div class="section-divider">
+    <span class="section-divider-title">Global Markets</span>
+    <div class="section-divider-line"></div>
+    <span style="font-size:0.68rem;color:var(--color-text-faint);"><span class="refresh-dot" style="display:inline-block;margin-right:4px;"></span>Auto-refresh 60s</span>
+    <a id="markets"></a>
   </div>
 
-  <div class="market-section-label">🇮🇳 Indian Markets</div>
-  <div class="grid-4" id="in-markets">
-    <div class="market-card"><div class="market-name">Nifty 50</div><div class="market-val loading-pulse" id="nifty-val">Loading...</div><div class="market-change loading" id="nifty-chg">—</div></div>
-    <div class="market-card"><div class="market-name">Sensex</div><div class="market-val loading-pulse" id="sensex-val">Loading...</div><div class="market-change loading" id="sensex-chg">—</div></div>
-    <div class="market-card"><div class="market-name">Bank Nifty</div><div class="market-val loading-pulse" id="banknifty-val">Loading...</div><div class="market-change loading" id="banknifty-chg">—</div></div>
-    <div class="market-card"><div class="market-name">Nifty IT</div><div class="market-val loading-pulse" id="niftyit-val">Loading...</div><div class="market-change loading" id="niftyit-chg">—</div></div>
+  <div class="calc-section">
+    <div class="market-section-label">🇮🇳 Indian Markets</div>
+    <div class="markets-grid" id="in-markets">
+      <div class="market-card"><div class="market-name">Nifty 50</div><div class="market-val loading-pulse" id="nifty-val">Loading...</div><div class="market-change loading" id="nifty-chg">—</div></div>
+      <div class="market-card"><div class="market-name">Sensex</div><div class="market-val loading-pulse" id="sensex-val">Loading...</div><div class="market-change loading" id="sensex-chg">—</div></div>
+      <div class="market-card"><div class="market-name">Bank Nifty</div><div class="market-val loading-pulse" id="banknifty-val">Loading...</div><div class="market-change loading" id="banknifty-chg">—</div></div>
+      <div class="market-card"><div class="market-name">Nifty IT</div><div class="market-val loading-pulse" id="niftyit-val">Loading...</div><div class="market-change loading" id="niftyit-chg">—</div></div>
+    </div>
+    <div class="market-section-label">🇺🇸 US Markets</div>
+    <div class="markets-grid" id="us-markets">
+      <div class="market-card"><div class="market-name">S&amp;P 500</div><div class="market-val loading-pulse" id="spx-val">Loading...</div><div class="market-change loading" id="spx-chg">—</div></div>
+      <div class="market-card"><div class="market-name">Nasdaq</div><div class="market-val loading-pulse" id="ndx-val">Loading...</div><div class="market-change loading" id="ndx-chg">—</div></div>
+      <div class="market-card"><div class="market-name">Dow Jones</div><div class="market-val loading-pulse" id="dji-val">Loading...</div><div class="market-change loading" id="dji-chg">—</div></div>
+      <div class="market-card"><div class="market-name">VIX</div><div class="market-val loading-pulse" id="vix-val">Loading...</div><div class="market-change loading" id="vix-chg">—</div></div>
+    </div>
+    <div class="market-section-label">🌏 Asian &amp; European Markets</div>
+    <div class="markets-grid">
+      <div class="market-card"><div class="market-name">Nikkei 225</div><div class="market-val loading-pulse" id="nikkei-val">Loading...</div><div class="market-change loading" id="nikkei-chg">—</div></div>
+      <div class="market-card"><div class="market-name">Hang Seng</div><div class="market-val loading-pulse" id="hsi-val">Loading...</div><div class="market-change loading" id="hsi-chg">—</div></div>
+      <div class="market-card"><div class="market-name">FTSE 100</div><div class="market-val loading-pulse" id="ftse-val">Loading...</div><div class="market-change loading" id="ftse-chg">—</div></div>
+      <div class="market-card"><div class="market-name">DAX</div><div class="market-val loading-pulse" id="dax-val">Loading...</div><div class="market-change loading" id="dax-chg">—</div></div>
+    </div>
   </div>
 
-  <div class="market-section-label">🌏 Asian Markets</div>
-  <div class="grid-4">
-    <div class="market-card"><div class="market-name">Nikkei 225</div><div class="market-val loading-pulse" id="nikkei-val">Loading...</div><div class="market-change loading" id="nikkei-chg">—</div></div>
-    <div class="market-card"><div class="market-name">Hang Seng</div><div class="market-val loading-pulse" id="hsi-val">Loading...</div><div class="market-change loading" id="hsi-chg">—</div></div>
-    <div class="market-card"><div class="market-name">Shanghai Comp</div><div class="market-val loading-pulse" id="sse-val">Loading...</div><div class="market-change loading" id="sse-chg">—</div></div>
-    <div class="market-card"><div class="market-name">KOSPI</div><div class="market-val loading-pulse" id="kospi-val">Loading...</div><div class="market-change loading" id="kospi-chg">—</div></div>
+  <!-- COMMODITIES -->
+  <div class="section-divider">
+    <span class="section-divider-title">Commodities</span>
+    <div class="section-divider-line"></div>
+    <a id="commodities"></a>
+  </div>
+  <div class="calc-section">
+    <div class="markets-grid" style="grid-template-columns:repeat(5,1fr);" id="commodities-grid">
+      <div class="commodity-card"><div class="commodity-icon">🥇</div><div class="commodity-name">Gold (USD/oz)</div><div class="commodity-val loading-pulse" id="gold-val">Loading...</div><div class="commodity-change loading" id="gold-chg">—</div></div>
+      <div class="commodity-card"><div class="commodity-icon">🥈</div><div class="commodity-name">Silver (USD/oz)</div><div class="commodity-val loading-pulse" id="silver-val">Loading...</div><div class="commodity-change loading" id="silver-chg">—</div></div>
+      <div class="commodity-card"><div class="commodity-icon">🛢️</div><div class="commodity-name">Crude Oil (USD)</div><div class="commodity-val loading-pulse" id="crude-val">Loading...</div><div class="commodity-change loading" id="crude-chg">—</div></div>
+      <div class="commodity-card"><div class="commodity-icon">🔥</div><div class="commodity-name">Natural Gas</div><div class="commodity-val loading-pulse" id="gas-val">Loading...</div><div class="commodity-change loading" id="gas-chg">—</div></div>
+      <div class="commodity-card"><div class="commodity-icon">🔶</div><div class="commodity-name">Copper (USD/lb)</div><div class="commodity-val loading-pulse" id="copper-val">Loading...</div><div class="commodity-change loading" id="copper-chg">—</div></div>
+    </div>
+    <p style="font-size:0.68rem;color:var(--color-text-faint);margin-top:var(--space-2);">* Prices in USD. Data via Yahoo Finance proxy.</p>
   </div>
 
-  <div class="market-section-label">🇪🇺 European Markets</div>
-  <div class="grid-4">
-    <div class="market-card"><div class="market-name">FTSE 100</div><div class="market-val loading-pulse" id="ftse-val">Loading...</div><div class="market-change loading" id="ftse-chg">—</div></div>
-    <div class="market-card"><div class="market-name">DAX</div><div class="market-val loading-pulse" id="dax-val">Loading...</div><div class="market-change loading" id="dax-chg">—</div></div>
-    <div class="market-card"><div class="market-name">CAC 40</div><div class="market-val loading-pulse" id="cac-val">Loading...</div><div class="market-change loading" id="cac-chg">—</div></div>
-    <div class="market-card"><div class="market-name">Euro Stoxx 50</div><div class="market-val loading-pulse" id="stoxx-val">Loading...</div><div class="market-change loading" id="stoxx-chg">—</div></div>
+  <!-- MINI CHARTS -->
+  <div class="section-divider">
+    <span class="section-divider-title">Mini Charts</span>
+    <div class="section-divider-line"></div>
+    <a id="charts"></a>
   </div>
-</section>
-
-<!-- ============================================================ -->
-<!-- SECTION 5: COMMODITIES -->
-<!-- ============================================================ -->
-<section id="commodities">
-  <div class="section-title"><span class="icon">🪙</span> Commodities Dashboard</div>
-  <div class="grid-4" style="grid-template-columns:repeat(5,1fr);" id="commodities-grid">
-    <div class="commodity-card"><div class="commodity-icon">🥇</div><div class="commodity-name">Gold (USD/oz)</div><div class="commodity-val loading-pulse" id="gold-val">Loading...</div><div class="commodity-change loading" id="gold-chg">—</div></div>
-    <div class="commodity-card"><div class="commodity-icon">🥈</div><div class="commodity-name">Silver (USD/oz)</div><div class="commodity-val loading-pulse" id="silver-val">Loading...</div><div class="commodity-change loading" id="silver-chg">—</div></div>
-    <div class="commodity-card"><div class="commodity-icon">🛢️</div><div class="commodity-name">Crude Oil (USD/bbl)</div><div class="commodity-val loading-pulse" id="crude-val">Loading...</div><div class="commodity-change loading" id="crude-chg">—</div></div>
-    <div class="commodity-card"><div class="commodity-icon">🔥</div><div class="commodity-name">Natural Gas</div><div class="commodity-val loading-pulse" id="gas-val">Loading...</div><div class="commodity-change loading" id="gas-chg">—</div></div>
-    <div class="commodity-card"><div class="commodity-icon">🔶</div><div class="commodity-name">Copper (USD/lb)</div><div class="commodity-val loading-pulse" id="copper-val">Loading...</div><div class="commodity-change loading" id="copper-chg">—</div></div>
+  <div class="calc-section">
+    <div class="chart-cards-grid">
+      <div class="spark-card"><div class="spark-name">Nifty 50</div><div class="spark-val" id="chart-nifty-val">—</div><div style="height:80px;position:relative;"><canvas id="chart-nifty"></canvas></div></div>
+      <div class="spark-card"><div class="spark-name">S&amp;P 500</div><div class="spark-val" id="chart-spx-val">—</div><div style="height:80px;position:relative;"><canvas id="chart-spx"></canvas></div></div>
+      <div class="spark-card"><div class="spark-name">Gold</div><div class="spark-val" id="chart-gold-val">—</div><div style="height:80px;position:relative;"><canvas id="chart-gold"></canvas></div></div>
+      <div class="spark-card"><div class="spark-name">Crude Oil</div><div class="spark-val" id="chart-crude-val">—</div><div style="height:80px;position:relative;"><canvas id="chart-crude"></canvas></div></div>
+    </div>
   </div>
-  <p style="font-family:'Patrick Hand',cursive;font-size:12px;color:var(--muted);margin-top:10px;">* Commodity prices in USD. Data via Yahoo Finance.</p>
-</section>
 
-<!-- ============================================================ -->
-<!-- SECTION 6: MINI CHARTS -->
-<!-- ============================================================ -->
-<section id="charts">
-  <div class="section-title"><span class="icon">📊</span> Mini Market Charts (Simulated)</div>
-  <p style="font-family:'Patrick Hand',cursive;font-size:13px;color:var(--muted);margin-bottom:16px;">
-    Sparkline trend charts. Due to browser CORS restrictions, live chart data uses simulated intraday patterns based on fetched current prices.
-  </p>
-  <div class="grid-4">
-    <div class="chart-card"><div class="chart-name">Nifty 50</div><div class="chart-val" id="chart-nifty-val">—</div><div style="height:80px;position:relative;"><canvas id="chart-nifty"></canvas></div></div>
-    <div class="chart-card"><div class="chart-name">S&amp;P 500</div><div class="chart-val" id="chart-spx-val">—</div><div style="height:80px;position:relative;"><canvas id="chart-spx"></canvas></div></div>
-    <div class="chart-card"><div class="chart-name">Gold</div><div class="chart-val" id="chart-gold-val">—</div><div style="height:80px;position:relative;"><canvas id="chart-gold"></canvas></div></div>
-    <div class="chart-card"><div class="chart-name">Crude Oil</div><div class="chart-val" id="chart-crude-val">—</div><div style="height:80px;position:relative;"><canvas id="chart-crude"></canvas></div></div>
-  </div>
-</section>
+  <!-- FOOTER -->
+  <footer style="border-top:1px solid var(--color-divider);padding:var(--space-6) 0 var(--space-12);font-size:var(--text-xs);color:var(--color-text-faint);text-align:center;line-height:1.8;">
+    <div>📡 Data Source: Yahoo Finance (via allorigins proxy) · Auto-refreshes every 60 seconds</div>
+    <div>Last Updated: <span id="footer-update">—</span></div>
+    <div style="margin-top:var(--space-2);">Not financial advice. For educational &amp; tracking purposes only.</div>
+  </footer>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-note">📡 Data Source: Yahoo Finance (via allorigins proxy) · Auto-refreshes every 60 seconds</div>
-  <div class="footer-note">Last Updated: <span id="footer-update">—</span></div>
-  <div class="footer-note" style="margin-top:8px;">Not financial advice. For educational & tracking purposes only.</div>
-  <div style="margin-top:8px;"><a href="liquid-return-calc.html" style="color:var(--accent);font-family:Caveat,cursive;font-size:16px;">💧 Open Liquid Return Calculator →</a></div>
-</footer>
-
-</div><!-- /page -->
+</div><!-- /app-wrapper -->
 
 <script>
-// ==============================
-// CLOCK
-// ==============================
-function updateClock() {
-  const now = new Date();
-  document.getElementById('clock').textContent = now.toLocaleTimeString('en-IN');
-  document.getElementById('dateline').textContent = now.toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+// ===== THEME TOGGLE =====
+(function(){
+  const toggle=document.querySelector('[data-theme-toggle]'),root=document.documentElement;
+  let theme=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+  root.setAttribute('data-theme',theme);
+  function setIcon(t){if(!toggle)return;toggle.innerHTML=t==='dark'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';toggle.setAttribute('aria-label','Switch to '+(t==='dark'?'light':'dark')+' mode');}
+  setIcon(theme);
+  if(toggle)toggle.addEventListener('click',()=>{theme=theme==='dark'?'light':'dark';root.setAttribute('data-theme',theme);setIcon(theme);});
+})();
+
+// ===== CLOCK =====
+function updateClock(){const now=new Date();document.getElementById('clock').textContent=now.toLocaleTimeString('en-IN');document.getElementById('dateline').textContent=now.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
+setInterval(updateClock,1000);updateClock();
+function setUpdated(){const t=new Date().toLocaleTimeString('en-IN');document.getElementById('lastUpdate').textContent=t;const fu=document.getElementById('footer-update');if(fu)fu.textContent=new Date().toLocaleString('en-IN');}
+
+// ===== FORMATTERS =====
+function fmtINR(n){if(isNaN(n))return'—';return'₹'+Math.abs(n).toLocaleString('en-IN',{maximumFractionDigits:2});}
+function fmtNum(n,decimals=2){if(isNaN(n))return'—';return n.toLocaleString('en-US',{maximumFractionDigits:decimals});}
+function fmtPct(n){return(n>=0?'+':'')+n.toFixed(2)+'%';}
+
+// ===== SIMPLE INTEREST =====
+function autoSI(){
+  const p=parseFloat(document.getElementById('si-p').value),r=parseFloat(document.getElementById('si-r').value),t=parseFloat(document.getElementById('si-t').value),unit=document.getElementById('si-unit').value;
+  document.getElementById('si-p-val').textContent=fmtINR(p);
+  document.getElementById('si-r-val').textContent=r.toFixed(1)+'%';
+  document.getElementById('si-t-val').textContent=unit==='days'?t+' days':t+' yr'+(t>1?'s':'');
+  const years=unit==='days'?t/365:t,interest=p*r/100*years,total=p+interest;
+  document.getElementById('si-interest').textContent=fmtINR(interest);
+  document.getElementById('si-total').textContent=fmtINR(total);
 }
-setInterval(updateClock, 1000);
-updateClock();
+autoSI();
 
-function setUpdated() {
-  const t = new Date().toLocaleTimeString('en-IN');
-  document.getElementById('lastUpdate').textContent = t;
-  document.getElementById('footer-update').textContent = new Date().toLocaleString('en-IN');
+// ===== COMPOUND INTEREST =====
+function autoCI(){
+  const p=parseFloat(document.getElementById('ci-p').value),r=parseFloat(document.getElementById('ci-r').value),t=parseFloat(document.getElementById('ci-t').value),n=parseInt(document.getElementById('ci-freq').value);
+  document.getElementById('ci-p-val').textContent=fmtINR(p);
+  document.getElementById('ci-r-val').textContent=r.toFixed(1)+'%';
+  document.getElementById('ci-t-val').textContent=t+' yr'+(t>1?'s':'');
+  const fv=p*Math.pow(1+(r/100)/n,n*t),interest=fv-p;
+  document.getElementById('ci-fv').textContent=fmtINR(fv);
+  document.getElementById('ci-interest').textContent=fmtINR(interest);
 }
+autoCI();
 
-// ==============================
-// DARK MODE
-// ==============================
-function toggleDark() {
-  const body = document.body;
-  if (body.hasAttribute('data-dark')) {
-    body.removeAttribute('data-dark');
-    document.querySelector('.dark-toggle').textContent = '🌙 Dark mode';
-  } else {
-    body.setAttribute('data-dark', '');
-    document.querySelector('.dark-toggle').textContent = '☀️ Light mode';
-  }
-}
-
-// ==============================
-// FORMATTERS
-// ==============================
-function fmtINR(n) {
-  if (isNaN(n)) return '—';
-  return '₹' + Math.abs(n).toLocaleString('en-IN', { maximumFractionDigits: 2 });
-}
-function fmtNum(n, decimals=2) {
-  if (isNaN(n)) return '—';
-  return n.toLocaleString('en-US', { maximumFractionDigits: decimals });
-}
-function fmtPct(n) { return (n >= 0 ? '+' : '') + n.toFixed(2) + '%'; }
-
-// ==============================
-// INPUT MODE TOGGLE (slider ↔ textbox)
-// ==============================
-let inputMode = 'slider'; // 'slider' or 'textbox'
-
-function toggleInputMode() {
-  inputMode = inputMode === 'slider' ? 'textbox' : 'slider';
-  const body = document.body;
-  const btn = document.getElementById('inputToggleBtn');
-  if (inputMode === 'textbox') {
-    body.classList.add('input-textbox');
-    btn.textContent = '⌨️ Type mode';
-    // Sync textboxes from current slider values
-    syncAllTextboxes();
-  } else {
-    body.classList.remove('input-textbox');
-    btn.textContent = '🎚️ Slider mode';
-    // Sync sliders from current textbox values
-    syncAllSliders();
-  }
-}
-
-// Sync a single textbox from its slider
-function syncFromSlider(sliderId, txtId) {
-  const s = document.getElementById(sliderId);
-  const t = document.getElementById(txtId);
-  if (s && t) t.value = s.value;
-}
-
-// Sync a single slider from its textbox (clamp to slider min/max)
-function syncFromText(sliderId, txtId) {
-  const s = document.getElementById(sliderId);
-  const t = document.getElementById(txtId);
-  if (!s || !t) return;
-  let v = parseFloat(t.value);
-  if (isNaN(v)) return;
-  v = Math.max(parseFloat(s.min), Math.min(parseFloat(s.max), v));
-  s.value = v;
-}
-
-function syncAllTextboxes() {
-  [['si-p','si-p-txt'],['si-r','si-r-txt'],['si-t','si-t-txt'],
-   ['ci-p','ci-p-txt'],['ci-r','ci-r-txt'],['ci-t','ci-t-txt'],
-   ['ror-init','ror-init-txt'],['ror-final','ror-final-txt'],['ror-years','ror-years-txt']
-  ].forEach(([s,t]) => syncFromSlider(s, t));
-}
-
-function syncAllSliders() {
-  [['si-p','si-p-txt'],['si-r','si-r-txt'],['si-t','si-t-txt'],
-   ['ci-p','ci-p-txt'],['ci-r','ci-r-txt'],['ci-t','ci-t-txt'],
-   ['ror-init','ror-init-txt'],['ror-final','ror-final-txt'],['ror-years','ror-years-txt']
-  ].forEach(([s,t]) => syncFromText(s, t));
-}
-
-// ==============================
-// SIMPLE INTEREST — auto on slide or type
-// ==============================
-function autoSI() {
-  const p = parseFloat(document.getElementById('si-p').value);
-  const r = parseFloat(document.getElementById('si-r').value);
-  const t = parseFloat(document.getElementById('si-t').value);
-  const unit = document.getElementById('si-unit').value;
-  // Update display labels
-  document.getElementById('si-p-val').textContent = fmtINR(p);
-  document.getElementById('si-r-val').textContent = r.toFixed(1) + '%';
-  document.getElementById('si-t-val').textContent = unit === 'days' ? t + ' days' : t + ' yr' + (t > 1 ? 's' : '');
-  // Sync the textbox that's currently hidden so values stay in sync
-  syncFromSlider('si-p','si-p-txt'); syncFromSlider('si-r','si-r-txt'); syncFromSlider('si-t','si-t-txt');
-  const years = unit === 'days' ? t / 365 : t;
-  const interest = p * r / 100 * years;
-  const total = p + interest;
-  document.getElementById('si-interest').textContent = fmtINR(interest);
-  document.getElementById('si-total').textContent = fmtINR(total);
-}
-
-// ==============================
-// COMPOUND INTEREST — auto on slide or type
-// ==============================
-function autoCI() {
-  const p = parseFloat(document.getElementById('ci-p').value);
-  const r = parseFloat(document.getElementById('ci-r').value);
-  const t = parseFloat(document.getElementById('ci-t').value);
-  const n = parseInt(document.getElementById('ci-freq').value);
-  document.getElementById('ci-p-val').textContent = fmtINR(p);
-  document.getElementById('ci-r-val').textContent = r.toFixed(1) + '%';
-  document.getElementById('ci-t-val').textContent = t + ' yr' + (t > 1 ? 's' : '');
-  syncFromSlider('ci-p','ci-p-txt'); syncFromSlider('ci-r','ci-r-txt'); syncFromSlider('ci-t','ci-t-txt');
-  const fv = p * Math.pow(1 + (r / 100) / n, n * t);
-  const interest = fv - p;
-  document.getElementById('ci-fv').textContent = fmtINR(fv);
-  document.getElementById('ci-interest').textContent = fmtINR(interest);
-}
-
-// Run on load
-autoSI(); autoCI();
-
-// ==============================
-// RATE OF RETURN — auto on slide or type
-// ==============================
-function autoROR() {
-  const init = parseFloat(document.getElementById('ror-init').value);
-  const fin = parseFloat(document.getElementById('ror-final').value);
-  const yrs = parseFloat(document.getElementById('ror-years').value);
-  document.getElementById('ror-init-val').textContent = fmtINR(init);
-  document.getElementById('ror-final-val').textContent = fmtINR(fin);
-  document.getElementById('ror-years-val').textContent = yrs + ' yr' + (yrs > 1 ? 's' : '');
-  syncFromSlider('ror-init','ror-init-txt'); syncFromSlider('ror-final','ror-final-txt'); syncFromSlider('ror-years','ror-years-txt');
-  const pl = fin - init;
-  const absReturn = (pl / init) * 100;
-  const cagr = fin > 0 && init > 0 ? (Math.pow(fin / init, 1 / yrs) - 1) * 100 : 0;
-  const absEl = document.getElementById('ror-abs');
-  const cagrEl = document.getElementById('ror-cagr');
-  absEl.textContent = fmtPct(absReturn);
-  cagrEl.textContent = fmtPct(cagr);
-  absEl.className = 'ror-big ' + (pl >= 0 ? 'positive' : 'negative');
-  cagrEl.className = 'ror-big ' + (cagr >= 0 ? 'positive' : 'negative');
-  document.getElementById('ror-pl').textContent = (pl >= 0 ? '+' : '') + fmtINR(pl);
-  document.getElementById('ror-pl').style.color = pl >= 0 ? 'var(--green-text)' : 'var(--red-text)';
+// ===== RATE OF RETURN =====
+function autoROR(){
+  const init=parseFloat(document.getElementById('ror-init').value),fin=parseFloat(document.getElementById('ror-final').value),yrs=parseFloat(document.getElementById('ror-years').value);
+  document.getElementById('ror-init-val').textContent=fmtINR(init);
+  document.getElementById('ror-final-val').textContent=fmtINR(fin);
+  document.getElementById('ror-years-val').textContent=yrs+' yr'+(yrs>1?'s':'');
+  const pl=fin-init,absReturn=(pl/init)*100,cagr=fin>0&&init>0?(Math.pow(fin/init,1/yrs)-1)*100:0;
+  const absEl=document.getElementById('ror-abs'),cagrEl=document.getElementById('ror-cagr');
+  absEl.textContent=fmtPct(absReturn);cagrEl.textContent=fmtPct(cagr);
+  absEl.className='ror-big '+(pl>=0?'positive':'negative');
+  cagrEl.className='ror-big '+(cagr>=0?'positive':'negative');
+  document.getElementById('ror-pl').textContent=(pl>=0?'+':'')+fmtINR(pl);
+  document.getElementById('ror-pl').style.color=pl>=0?'var(--color-success)':'var(--color-error)';
 }
 autoROR();
 
-// ==============================
-// PORTFOLIO TRACKER
-// ==============================
-let portfolio = JSON.parse(localStorage.getItem('portfolio') || '[]');
-
-function savePort() { localStorage.setItem('portfolio', JSON.stringify(portfolio)); }
-
-function addAsset() {
-  const name = document.getElementById('pt-name').value.trim();
-  const qty = parseFloat(document.getElementById('pt-qty').value);
-  const buy = parseFloat(document.getElementById('pt-buy').value);
-  const cur = parseFloat(document.getElementById('pt-cur').value);
-  if (!name || isNaN(qty) || isNaN(buy) || isNaN(cur)) { alert('Please fill all fields'); return; }
-  portfolio.push({ name, qty, buy, cur, id: Date.now() });
-  savePort();
-  renderPortfolio();
-  ['pt-name','pt-qty','pt-buy','pt-cur'].forEach(id => document.getElementById(id).value = '');
+// ===== PORTFOLIO TRACKER =====
+let portfolio=JSON.parse(localStorage.getItem('portfolio')||'[]');
+function savePort(){localStorage.setItem('portfolio',JSON.stringify(portfolio));}
+function addAsset(){
+  const name=document.getElementById('pt-name').value.trim(),qty=parseFloat(document.getElementById('pt-qty').value),buy=parseFloat(document.getElementById('pt-buy').value),cur=parseFloat(document.getElementById('pt-cur').value);
+  if(!name||isNaN(qty)||isNaN(buy)||isNaN(cur)){alert('Please fill all fields');return;}
+  portfolio.push({name,qty,buy,cur,id:Date.now()});savePort();renderPortfolio();
+  ['pt-name','pt-qty','pt-buy','pt-cur'].forEach(id=>document.getElementById(id).value='');
 }
-
-function removeAsset(id) {
-  portfolio = portfolio.filter(a => a.id !== id);
-  savePort();
-  renderPortfolio();
-}
-
-function renderPortfolio() {
-  const tbody = document.getElementById('port-body');
-  if (portfolio.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px;font-family:Caveat,cursive;font-size:16px;">No assets yet. Add your first one above ↑</td></tr>';
-    document.getElementById('port-total').style.display = 'none';
-    return;
-  }
-  let totalInvested = 0, totalValue = 0;
-  tbody.innerHTML = portfolio.map(a => {
-    const invested = a.qty * a.buy;
-    const value = a.qty * a.cur;
-    const pl = value - invested;
-    const ret = ((a.cur - a.buy) / a.buy) * 100;
-    totalInvested += invested;
-    totalValue += value;
-    const cls = pl >= 0 ? 'profit' : 'loss';
-    return `<tr>
-      <td><strong>${a.name}</strong></td>
-      <td>${a.qty}</td>
-      <td>${fmtINR(a.buy)}</td>
-      <td>${fmtINR(a.cur)}</td>
-      <td>${fmtINR(invested)}</td>
-      <td>${fmtINR(value)}</td>
-      <td class="${cls}">${pl >= 0 ? '+' : ''}${fmtINR(pl)}</td>
-      <td class="${cls}">${fmtPct(ret)}</td>
-      <td><button class="del-btn" onclick="removeAsset(${a.id})">✕</button></td>
-    </tr>`;
+function removeAsset(id){portfolio=portfolio.filter(a=>a.id!==id);savePort();renderPortfolio();}
+function renderPortfolio(){
+  const tbody=document.getElementById('port-body');
+  if(portfolio.length===0){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--color-text-faint);padding:24px;">No assets yet. Add your first one above ↑</td></tr>';document.getElementById('port-total').style.display='none';return;}
+  let totalInvested=0,totalValue=0;
+  tbody.innerHTML=portfolio.map(a=>{
+    const invested=a.qty*a.buy,value=a.qty*a.cur,pl=value-invested,ret=((a.cur-a.buy)/a.buy)*100;
+    totalInvested+=invested;totalValue+=value;
+    const cls=pl>=0?'profit':'loss';
+    return`<tr><td><strong>${a.name}</strong></td><td>${a.qty}</td><td>${fmtINR(a.buy)}</td><td>${fmtINR(a.cur)}</td><td>${fmtINR(invested)}</td><td>${fmtINR(value)}</td><td class="${cls}">${pl>=0?'+':''}${fmtINR(pl)}</td><td class="${cls}">${fmtPct(ret)}</td><td><button class="del-btn" onclick="removeAsset(${a.id})">✕</button></td></tr>`;
   }).join('');
-  const totalPL = totalValue - totalInvested;
-  const totalRet = ((totalValue - totalInvested) / totalInvested) * 100;
-  document.getElementById('pt-invested').textContent = fmtINR(totalInvested);
-  document.getElementById('pt-value').textContent = fmtINR(totalValue);
-  document.getElementById('pt-pnl').textContent = (totalPL >= 0 ? '+' : '') + fmtINR(totalPL);
-  document.getElementById('pt-pnl').style.color = totalPL >= 0 ? 'var(--green-text)' : 'var(--red-text)';
-  document.getElementById('pt-ret').textContent = fmtPct(totalRet);
-  document.getElementById('pt-ret').style.color = totalRet >= 0 ? 'var(--green-text)' : 'var(--red-text)';
-  document.getElementById('port-total').style.display = 'flex';
+  const totalPL=totalValue-totalInvested,totalRet=((totalValue-totalInvested)/totalInvested)*100;
+  document.getElementById('pt-invested').textContent=fmtINR(totalInvested);
+  document.getElementById('pt-value').textContent=fmtINR(totalValue);
+  const pnlEl=document.getElementById('pt-pnl');pnlEl.textContent=(totalPL>=0?'+':'')+fmtINR(totalPL);pnlEl.style.color=totalPL>=0?'var(--color-success)':'var(--color-error)';
+  const retEl=document.getElementById('pt-ret');retEl.textContent=fmtPct(totalRet);retEl.style.color=totalRet>=0?'var(--color-success)':'var(--color-error)';
+  document.getElementById('port-total').style.display='flex';
 }
 renderPortfolio();
 
-// ==============================
-// MARKET DATA FETCH
-// ==============================
-const SYMBOLS = {
-  '^GSPC':   { val: 'spx-val',      chg: 'spx-chg' },
-  '^IXIC':   { val: 'ndx-val',      chg: 'ndx-chg' },
-  '^DJI':    { val: 'dji-val',      chg: 'dji-chg' },
-  '^VIX':    { val: 'vix-val',      chg: 'vix-chg' },
-  '^NSEI':   { val: 'nifty-val',    chg: 'nifty-chg' },
-  '^BSESN':  { val: 'sensex-val',   chg: 'sensex-chg' },
-  '^NSEBANK':{ val: 'banknifty-val',chg: 'banknifty-chg' },
-  '^CNXIT':  { val: 'niftyit-val',  chg: 'niftyit-chg' },
-  '^N225':   { val: 'nikkei-val',   chg: 'nikkei-chg' },
-  '^HSI':    { val: 'hsi-val',      chg: 'hsi-chg' },
-  '000001.SS':{ val: 'sse-val',     chg: 'sse-chg' },
-  '^KS11':   { val: 'kospi-val',    chg: 'kospi-chg' },
-  '^FTSE':   { val: 'ftse-val',     chg: 'ftse-chg' },
-  '^GDAXI':  { val: 'dax-val',      chg: 'dax-chg' },
-  '^FCHI':   { val: 'cac-val',      chg: 'cac-chg' },
-  '^STOXX50E':{ val: 'stoxx-val',   chg: 'stoxx-chg' },
-  'GC=F':    { val: 'gold-val',     chg: 'gold-chg',   chartVal: 'chart-gold-val',  chart: 'chart-gold'  },
-  'SI=F':    { val: 'silver-val',   chg: 'silver-chg' },
-  'CL=F':    { val: 'crude-val',    chg: 'crude-chg',  chartVal: 'chart-crude-val', chart: 'chart-crude' },
-  'NG=F':    { val: 'gas-val',      chg: 'gas-chg' },
-  'HG=F':    { val: 'copper-val',   chg: 'copper-chg' },
-};
-
-// Chart storage
-const sparkCharts = {};
-
-function makeSparkline(canvasId, values, color) {
-  const ctx = document.getElementById(canvasId);
-  if (!ctx) return;
-  if (sparkCharts[canvasId]) sparkCharts[canvasId].destroy();
-  sparkCharts[canvasId] = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: values.map((_,i) => i),
-      datasets: [{ data: values, borderColor: color, borderWidth: 2, fill: true,
-        backgroundColor: color + '22', pointRadius: 0, tension: 0.4 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { enabled: false } },
-      scales: { x: { display: false }, y: { display: false } },
-      animation: false
-    }
-  });
+// ===== MARKET DATA =====
+const SYMBOLS={'^GSPC':{val:'spx-val',chg:'spx-chg'},'^IXIC':{val:'ndx-val',chg:'ndx-chg'},'^DJI':{val:'dji-val',chg:'dji-chg'},'^VIX':{val:'vix-val',chg:'vix-chg'},'^NSEI':{val:'nifty-val',chg:'nifty-chg',chartVal:'chart-nifty-val',chart:'chart-nifty'},'^BSESN':{val:'sensex-val',chg:'sensex-chg'},'^NSEBANK':{val:'banknifty-val',chg:'banknifty-chg'},'^CNXIT':{val:'niftyit-val',chg:'niftyit-chg'},'^N225':{val:'nikkei-val',chg:'nikkei-chg'},'^HSI':{val:'hsi-val',chg:'hsi-chg'},'^FTSE':{val:'ftse-val',chg:'ftse-chg'},'^GDAXI':{val:'dax-val',chg:'dax-chg'},'GC=F':{val:'gold-val',chg:'gold-chg',chartVal:'chart-gold-val',chart:'chart-gold'},'SI=F':{val:'silver-val',chg:'silver-chg'},'CL=F':{val:'crude-val',chg:'crude-chg',chartVal:'chart-crude-val',chart:'chart-crude'},'NG=F':{val:'gas-val',chg:'gas-chg'},'HG=F':{val:'copper-val',chg:'copper-chg'}};
+const sparkCharts={};
+function makeSparkline(canvasId,values,color){const ctx=document.getElementById(canvasId);if(!ctx)return;if(sparkCharts[canvasId])sparkCharts[canvasId].destroy();sparkCharts[canvasId]=new Chart(ctx,{type:'line',data:{labels:values.map((_,i)=>i),datasets:[{data:values,borderColor:color,borderWidth:2,fill:true,backgroundColor:color+'22',pointRadius:0,tension:0.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}},animation:false}});}
+function generateSparkData(baseVal,points=20,volatility=0.005){const data=[baseVal];for(let i=1;i<points;i++){const change=data[i-1]*volatility*(Math.random()-0.48);data.push(data[i-1]+change);}return data;}
+async function fetchQuote(symbol){const url=`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;const proxy=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;const res=await fetch(proxy);const json=await res.json();const data=JSON.parse(json.contents);const meta=data.chart.result[0].meta;return{price:meta.regularMarketPrice,prevClose:meta.chartPreviousClose||meta.previousClose,change:meta.regularMarketPrice-(meta.chartPreviousClose||meta.previousClose),changePct:((meta.regularMarketPrice-(meta.chartPreviousClose||meta.previousClose))/(meta.chartPreviousClose||meta.previousClose))*100};}
+function updateMarketCard(sym,data){
+  const map=SYMBOLS[sym];if(!map)return;
+  const valEl=document.getElementById(map.val),chgEl=document.getElementById(map.chg);if(!valEl||!chgEl)return;
+  valEl.classList.remove('loading-pulse');const isUp=data.change>=0;
+  let priceStr;if(data.price>1000)priceStr=data.price.toLocaleString('en-US',{maximumFractionDigits:2});else priceStr=data.price.toFixed(data.price<10?3:2);
+  valEl.textContent=priceStr;
+  chgEl.textContent=`${isUp?'▲':'▼'} ${Math.abs(data.change).toFixed(2)} (${Math.abs(data.changePct).toFixed(2)}%)`;
+  chgEl.className='market-change '+(isUp?'up':'down');
+  if(map.chartVal){const cv=document.getElementById(map.chartVal);if(cv)cv.textContent=priceStr+' '+(isUp?'▲':'▼')+' '+Math.abs(data.changePct).toFixed(2)+'%';}
+  if(map.chart){const color=isUp?'var(--color-success)':'var(--color-error)';makeSparkline(map.chart,generateSparkData(data.price,24,0.004),isUp?'#6db545':'#f87171');}
+  if(sym==='^NSEI'&&!map.chart){const cv=document.getElementById('chart-nifty-val');if(cv)cv.textContent=priceStr+' '+(isUp?'▲':'▼')+' '+Math.abs(data.changePct).toFixed(2)+'%';makeSparkline('chart-nifty',generateSparkData(data.price,24,0.003),isUp?'#6db545':'#f87171');}
+  if(sym==='^GSPC'&&!map.chart){const cv=document.getElementById('chart-spx-val');if(cv)cv.textContent=priceStr+' '+(isUp?'▲':'▼')+' '+Math.abs(data.changePct).toFixed(2)+'%';makeSparkline('chart-spx',generateSparkData(data.price,24,0.003),isUp?'#6db545':'#f87171');}
 }
-
-function generateSparkData(baseVal, points=20, volatility=0.005) {
-  const data = [baseVal];
-  for (let i = 1; i < points; i++) {
-    const change = data[i-1] * volatility * (Math.random() - 0.48);
-    data.push(data[i-1] + change);
-  }
-  return data;
-}
-
-async function fetchQuote(symbol) {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
-  const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-  const res = await fetch(proxy);
-  const json = await res.json();
-  const data = JSON.parse(json.contents);
-  const meta = data.chart.result[0].meta;
-  return {
-    price: meta.regularMarketPrice,
-    prevClose: meta.chartPreviousClose || meta.previousClose,
-    change: meta.regularMarketPrice - (meta.chartPreviousClose || meta.previousClose),
-    changePct: ((meta.regularMarketPrice - (meta.chartPreviousClose || meta.previousClose)) / (meta.chartPreviousClose || meta.previousClose)) * 100
-  };
-}
-
-function updateMarketCard(sym, data) {
-  const map = SYMBOLS[sym];
-  if (!map) return;
-  const valEl = document.getElementById(map.val);
-  const chgEl = document.getElementById(map.chg);
-  if (!valEl || !chgEl) return;
-
-  valEl.classList.remove('loading-pulse');
-  const isUp = data.change >= 0;
-
-  // Format value
-  let priceStr;
-  if (data.price > 1000) priceStr = data.price.toLocaleString('en-US', { maximumFractionDigits: 2 });
-  else priceStr = data.price.toFixed(data.price < 10 ? 3 : 2);
-  valEl.textContent = priceStr;
-
-  chgEl.textContent = `${isUp ? '▲' : '▼'} ${Math.abs(data.change).toFixed(2)} (${Math.abs(data.changePct).toFixed(2)}%)`;
-  chgEl.className = 'market-change ' + (isUp ? 'up' : 'down');
-
-  // Update sparkline chartVal if exists
-  if (map.chartVal) {
-    const cv = document.getElementById(map.chartVal);
-    if (cv) cv.textContent = priceStr + ' ' + (isUp ? '▲' : '▼') + ' ' + Math.abs(data.changePct).toFixed(2) + '%';
-  }
-  if (map.chart) {
-    const color = isUp ? '#2e7d32' : '#c62828';
-    const sparkData = generateSparkData(data.price, 24, 0.004);
-    makeSparkline(map.chart, sparkData, color);
-  }
-
-  // Nifty and SPX sparklines
-  if (sym === '^NSEI') {
-    const cv = document.getElementById('chart-nifty-val');
-    if (cv) cv.textContent = priceStr + ' ' + (isUp ? '▲' : '▼') + ' ' + Math.abs(data.changePct).toFixed(2) + '%';
-    makeSparkline('chart-nifty', generateSparkData(data.price, 24, 0.003), isUp ? '#2e7d32' : '#c62828');
-  }
-  if (sym === '^GSPC') {
-    const cv = document.getElementById('chart-spx-val');
-    if (cv) cv.textContent = priceStr + ' ' + (isUp ? '▲' : '▼') + ' ' + Math.abs(data.changePct).toFixed(2) + '%';
-    makeSparkline('chart-spx', generateSparkData(data.price, 24, 0.003), isUp ? '#2e7d32' : '#c62828');
-  }
-}
-
-function setError(sym) {
-  const map = SYMBOLS[sym];
-  if (!map) return;
-  const valEl = document.getElementById(map.val);
-  const chgEl = document.getElementById(map.chg);
-  if (valEl) { valEl.textContent = 'N/A'; valEl.classList.remove('loading-pulse'); }
-  if (chgEl) { chgEl.textContent = 'Unavailable'; chgEl.className = 'market-change loading'; }
-}
-
-async function fetchAll() {
-  const syms = Object.keys(SYMBOLS);
-  // Fetch in batches to avoid rate limiting
-  for (const sym of syms) {
-    try {
-      const data = await fetchQuote(sym);
-      updateMarketCard(sym, data);
-      await new Promise(r => setTimeout(r, 120)); // small delay between requests
-    } catch(e) {
-      setError(sym);
-    }
-  }
-  setUpdated();
-}
-
-// Start fetching
-fetchAll();
-setInterval(fetchAll, 60000);
+function setError(sym){const map=SYMBOLS[sym];if(!map)return;const valEl=document.getElementById(map.val),chgEl=document.getElementById(map.chg);if(valEl){valEl.textContent='N/A';valEl.classList.remove('loading-pulse');}if(chgEl){chgEl.textContent='Unavailable';chgEl.className='market-change loading';}}
+async function fetchAll(){const syms=Object.keys(SYMBOLS);for(const sym of syms){try{const data=await fetchQuote(sym);updateMarketCard(sym,data);await new Promise(r=>setTimeout(r,120));}catch(e){setError(sym);}}setUpdated();}
+fetchAll();setInterval(fetchAll,60000);
 </script>
-
 </body>
 </html>
