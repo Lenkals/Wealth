@@ -771,36 +771,44 @@ input[type="range"]::-moz-range-thumb {
       <div class="legend-card">
         <div class="legend-card-header capgain">
           <div class="legend-card-header-icon"></div>
-          <h3>Capital Gains — Equity &amp; Equity ETFs</h3>
+          <h3>Capital Gains — All ETF &amp; Equity Categories</h3>
         </div>
         <div class="legend-card-body">
           <div class="legend-items">
             <div class="legend-item">
-              <strong>Equity Delivery &amp; Equity-Oriented ETFs</strong> fall under Section 111A (STCG) and Section 112A (LTCG).
-              Holding period threshold is <strong>12 months</strong>. Below 12 months = Short-Term; above = Long-Term.
-            </div>
-            <div class="legend-divider"></div>
-            <div class="legend-item">
-              <strong>STCG @ 20%</strong> — applicable on gains arising from sale of listed equity shares and equity-oriented mutual funds / ETFs held for less than 12 months. Surcharge &amp; cess applicable.
+              <strong>Equity Delivery &amp; Equity-Oriented ETFs</strong> (Nifty 50, Sensex, Sectoral) — Section 111A (STCG) and Section 112A (LTCG). Holding threshold: <strong>12 months</strong>.
               <div class="legend-rate-row">
                 <span class="rate-chip stcg">STCG @ 20%</span>
-              </div>
-            </div>
-            <div class="legend-item">
-              <strong>LTCG @ 12.5%</strong> — applies beyond ₹1,25,000 annual exemption window (Section 112A). Gains up to ₹1.25 Lakh in a financial year are <em>fully exempt</em> from tax. No indexation benefit available post-Budget 2024.
-              <div class="legend-rate-row">
                 <span class="rate-chip ltcg">LTCG @ 12.5% (above ₹1.25L)</span>
               </div>
             </div>
+            <div class="legend-divider"></div>
             <div class="legend-item">
-              <strong>Debt / Liquid ETFs</strong> (non-equity-oriented) are taxed at <strong>applicable slab rates</strong> regardless of holding period — following the Finance Act 2023 amendment abolishing the old 20% + indexation route for debt funds.
+              <strong>Gold &amp; Silver ETFs</strong> (GoldBEES, SilverBEES, HDFCMFGETF, etc.) — Merged into one row as they carry identical charge structures (STT = 0% on both sides, Stamp 0.015% buy only, DP ₹13.5 sell). Classified as <strong>non-equity listed securities</strong>.
+              Holding threshold: <strong>12 months</strong> (same as equity). <strong>STCG (≤12 months):</strong> Added to income, taxed at slab rate — <em>not</em> the flat 20% that applies to equity STCG. <strong>LTCG (&gt;12 months):</strong> Flat 12.5% with <em>no</em> ₹1.25L annual exemption (unlike Section 112A equity gains). No indexation benefit.
               <div class="legend-rate-row">
-                <span class="rate-chip slab">Slab Rate (all periods)</span>
+                <span class="rate-chip slab">STCG @ Slab Rate (not 20%)</span>
+                <span class="rate-chip ltcg">LTCG @ 12.5% (No ₹1.25L Exemption)</span>
               </div>
             </div>
             <div class="legend-divider"></div>
             <div class="legend-item">
-              <strong>At 0% Profit:</strong> The total frictional cost (brokerage + STT + exchange fees + DP charge + GST) constitutes a <strong>harvestable Capital Loss</strong>, which can be set off against other capital gains in the same financial year, or carried forward for up to 8 assessment years (STCL can set off against both STCG &amp; LTCG; LTCL only against LTCG).
+              <strong>International / Cross-Border ETFs</strong> (Motilal S&amp;P 500, Nasdaq 100, etc.) — STT = 0 on both sides. LTCG threshold is <strong>24 months</strong> (not 12). No ₹1.25L exemption. STCG (held &lt;24 months) taxed at slab rate. LTCG @ 12.5%.
+              <div class="legend-rate-row">
+                <span class="rate-chip slab">STCG @ Slab Rate (&lt;24 mo)</span>
+                <span class="rate-chip ltcg">LTCG @ 12.5% (≥24 mo, No Exemption)</span>
+              </div>
+            </div>
+            <div class="legend-divider"></div>
+            <div class="legend-item">
+              <strong>Debt, Liquid &amp; Gilt ETFs</strong> (LIQUIDBEES, DSP Liquid ETF, Bharat Bond, etc.) — STT = 0, Stamp Duty = 0. Taxed at <strong>applicable slab rates regardless of holding period</strong>, following Finance Act 2023 amendment abolishing the debt fund indexation benefit.
+              <div class="legend-rate-row">
+                <span class="rate-chip slab">Slab Rate (all holding periods)</span>
+              </div>
+            </div>
+            <div class="legend-divider"></div>
+            <div class="legend-item">
+              <strong>At 0% Profit:</strong> Total friction = harvestable <strong>Capital Loss</strong>. STCL offsets both STCG &amp; LTCG; LTCL offsets only LTCG. Carry-forward up to 8 assessment years. Gold/Silver/Intl ETF losses are treated as non-equity capital losses.
               <div class="legend-rate-row">
                 <span class="rate-chip loss">Friction = Harvestable Capital Loss</span>
               </div>
@@ -897,22 +905,21 @@ input[type="range"]::-moz-range-thumb {
 <script>
 // ========= ASSET DEFINITIONS =========
 const ASSETS = [
+  // ── STOCKS ──────────────────────────────────────────────────────────
   {
     id: 'eq-delivery',
     name: 'Stocks',
     sub: 'Equity Delivery',
     taxType: 'capgain',
     taxLabel: 'Capital Gain',
-    // buy side
-    buyBrokerage: (p) => 0,
+    buyBrokerage: () => 0,
     buyStt: (p) => p * 0.001,
     buyExchange: (p) => p * 0.000035,
     buyStamp: (p) => p * 0.00015,
     buyDp: () => 0,
-    // sell side
-    sellBrokerage: (p) => 0,
-    sellStt: (p, saleVal) => saleVal * 0.001,
-    sellExchange: (p, saleVal) => saleVal * 0.000035,
+    sellBrokerage: () => 0,
+    sellStt: (p, sv) => sv * 0.001,
+    sellExchange: (p, sv) => sv * 0.000035,
     sellStamp: () => 0,
     sellDp: () => 13.5,
   },
@@ -927,35 +934,80 @@ const ASSETS = [
     buyExchange: (p) => p * 0.000035,
     buyStamp: (p) => p * 0.00003,
     buyDp: () => 0,
-    sellBrokerage: (p, saleVal) => Math.min(saleVal * 0.0003, 20),
-    sellStt: (p, saleVal) => saleVal * 0.00025,
-    sellExchange: (p, saleVal) => saleVal * 0.000035,
+    sellBrokerage: (p, sv) => Math.min(sv * 0.0003, 20),
+    sellStt: (p, sv) => sv * 0.00025,
+    sellExchange: (p, sv) => sv * 0.000035,
     sellStamp: () => 0,
     sellDp: () => 0,
   },
+  // ── ETFs — EQUITY ORIENTED ───────────────────────────────────────────
   {
     id: 'etf-equity',
     name: 'ETFs',
-    sub: 'Equity Oriented',
+    sub: 'Equity Oriented (e.g., Nifty 50)',
     taxType: 'capgain',
     taxLabel: 'Capital Gain',
+    // STT: 0% buy, 0.001% sell (delivery). Stamp 0.015% buy only.
     buyBrokerage: () => 0,
     buyStt: () => 0,
     buyExchange: (p) => p * 0.000035,
     buyStamp: (p) => p * 0.00015,
     buyDp: () => 0,
     sellBrokerage: () => 0,
-    sellStt: (p, saleVal) => saleVal * 0.00001,
-    sellExchange: (p, saleVal) => saleVal * 0.000035,
+    sellStt: (p, sv) => sv * 0.00001,   // 0.001% sell
+    sellExchange: (p, sv) => sv * 0.000035,
     sellStamp: () => 0,
     sellDp: () => 13.5,
   },
+  // ── ETFs — GOLD & SILVER (merged — identical charge structure) ─────────
+  {
+    id: 'etf-gold-silver',
+    name: 'ETFs',
+    sub: 'Gold & Silver (GoldBEES / SilverBEES)',
+    taxType: 'capgain-specified',
+    taxLabel: 'Capital Gain',
+    // Gold & Silver ETFs: STT = 0 on BOTH sides (non-equity-oriented, listed security).
+    // Stamp Duty 0.015% on buy. DP charge ₹13.5 on sell. Exchange fee 0.0035%.
+    // STCG: Slab rate (held ≤12 months). LTCG: 12.5% flat (held >12 months). NO ₹1.25L exemption.
+    buyBrokerage: () => 0,
+    buyStt: () => 0,
+    buyExchange: (p) => p * 0.000035,
+    buyStamp: (p) => p * 0.00015,
+    buyDp: () => 0,
+    sellBrokerage: () => 0,
+    sellStt: () => 0,
+    sellExchange: (p, sv) => sv * 0.000035,
+    sellStamp: () => 0,
+    sellDp: () => 13.5,
+  },
+  // ── ETFs — INTERNATIONAL / CROSS BORDER ─────────────────────────────
+  {
+    id: 'etf-intl',
+    name: 'ETFs',
+    sub: 'International / Cross Border',
+    taxType: 'capgain-intl',
+    taxLabel: 'Capital Gain',
+    // International ETFs (Motilal S&P500, etc.): STT=0 both sides
+    // LTCG threshold: 24 months (not 12 months). No ₹1.25L exemption.
+    buyBrokerage: () => 0,
+    buyStt: () => 0,
+    buyExchange: (p) => p * 0.000035,
+    buyStamp: (p) => p * 0.00015,
+    buyDp: () => 0,
+    sellBrokerage: () => 0,
+    sellStt: () => 0,
+    sellExchange: (p, sv) => sv * 0.000035,
+    sellStamp: () => 0,
+    sellDp: () => 13.5,
+  },
+  // ── ETFs — DEBT / LIQUID ─────────────────────────────────────────────
   {
     id: 'etf-liquid',
     name: 'ETFs',
-    sub: 'Liquid / Debt',
-    taxType: 'capgain',
+    sub: 'Liquid / Debt & Gilt / Overnight (LIQUIDBEES)',
+    taxType: 'debt-slab',
     taxLabel: 'Capital Gain',
+    // Merged: Liquid/Debt + Gilt/Overnight — identical charge structure. STT=0, Stamp=0.
     buyBrokerage: () => 0,
     buyStt: () => 0,
     buyExchange: (p) => p * 0.000035,
@@ -963,7 +1015,7 @@ const ASSETS = [
     buyDp: () => 0,
     sellBrokerage: () => 0,
     sellStt: () => 0,
-    sellExchange: (p, saleVal) => saleVal * 0.000035,
+    sellExchange: (p, sv) => sv * 0.000035,
     sellStamp: () => 0,
     sellDp: () => 13.5,
   },
@@ -1121,10 +1173,29 @@ function getTaxInfo(asset) {
   if (asset.taxType === 'business') {
     return { label: 'Business Income', rate: 'Slab rate', chipClass: '', badge: 'tax-business' };
   }
-  // capgain — depends on holding + sub-type
-  if (asset.id === 'etf-liquid') {
-    return { label: 'Capital Gain', rate: 'Slab rate (Debt ETF)', chipClass: holdingMode, badge: 'tax-capgain' };
+
+  // Debt/Liquid/Gilt ETFs — always slab, no holding period benefit
+  if (asset.taxType === 'debt-slab') {
+    return { label: 'Capital Gain', rate: 'Slab Rate (Debt ETF)', chipClass: holdingMode, badge: 'tax-capgain' };
   }
+
+  // Gold / Silver ETFs — "Specified Asset": LTCG @ 12.5% after 12 months, NO ₹1.25L exemption
+  if (asset.taxType === 'capgain-specified') {
+    if (holdingMode === 'long') {
+      return { label: 'Capital Gain', rate: 'LTCG @ 12.5% (No Exemption)', chipClass: 'long', badge: 'tax-capgain' };
+    }
+    return { label: 'Capital Gain', rate: 'STCG @ Slab Rate', chipClass: 'short', badge: 'tax-capgain' };
+  }
+
+  // International ETFs — LTCG threshold is 24 months (not 12). No ₹1.25L exemption.
+  if (asset.taxType === 'capgain-intl') {
+    if (holdingMode === 'long') {
+      return { label: 'Capital Gain', rate: 'LTCG @ 12.5% (≥24 mo, No Exemption)', chipClass: 'long', badge: 'tax-capgain' };
+    }
+    return { label: 'Capital Gain', rate: 'STCG @ Slab Rate (<24 mo)', chipClass: 'short', badge: 'tax-capgain' };
+  }
+
+  // Standard equity capgain (delivery stocks + equity ETFs)
   if (holdingMode === 'long') {
     return { label: 'Capital Gain', rate: 'LTCG @ 12.5% (>₹1.25L)', chipClass: 'long', badge: 'tax-capgain' };
   }
@@ -1137,9 +1208,9 @@ function updateTaxHint() {
   if (equityMode === 'intraday') {
     hint.textContent = 'Intraday: Speculative Business Income · Slab rate';
   } else if (holdingMode === 'long') {
-    hint.textContent = 'Long-Term: LTCG @ 12.5% (equity, above ₹1.25L) · Debt ETF at Slab';
+    hint.textContent = 'Long-Term: Equity LTCG @ 12.5% (>₹1.25L) · Gold/Silver/Intl ETF LTCG @ 12.5% (no exemption) · Debt ETF: Slab';
   } else {
-    hint.textContent = 'Short-Term: STCG @ 20% (equity) · Debt ETF at Slab';
+    hint.textContent = 'Short-Term: Equity STCG @ 20% · Gold/Silver/Intl ETF: Slab rate · Debt/Gilt ETF: Slab rate';
   }
 }
 
