@@ -353,42 +353,36 @@
 <!-- ═══════════════════════════════════════════════
      APP HEADER
 ════════════════════════════════════════════════ -->
+<div class="app-wrapper">
 <header class="app-header">
-  <div class="app-header-inner">
-    <div class="brand">
-      <div class="brand-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        </svg>
-      </div>
-      <div class="brand-text">
-        <span class="brand-name">Retirement Planner</span>
-        <span class="brand-sub">Corpus · Pension · Benefits · FY 2026-27</span>
-      </div>
+  <div class="header-brand">
+    <svg class="brand-logo" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="36" height="36" rx="8" fill="currentColor" opacity="0.08"/>
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2" fill="none" transform="translate(6,4) scale(0.85)"/>
+    </svg>
+    <div>
+      <div class="brand-title">Retirement Planner</div>
+      <div class="brand-sub">Corpus · Pension · Benefits · FY 2026-27</div>
     </div>
-    <div class="header-actions">
-      <a href="../index.html" class="btn btn-ghost btn-sm">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
-        Back
-      </a>
-      <span class="badge badge-info">India</span>
-      <button class="btn btn-ghost btn-sm icon-btn" data-theme-toggle aria-label="Toggle theme"></button>
-    </div>
+  </div>
+  <div class="header-actions">
+    <a href="../index.html" class="btn btn-ghost" style="font-size:var(--text-xs);padding:6px 14px;">← Dashboard</a>
+    <span class="header-badge">India</span>
+    <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
   </div>
 </header>
 
 <!-- ═══════════════════════════════════════════════
      MAIN CONTENT
 ════════════════════════════════════════════════ -->
-<main class="page-content">
 
   <!-- Breadcrumb -->
   <nav class="breadcrumb" aria-label="Breadcrumb">
-    <a href="../index.html" class="breadcrumb-item">Home</a>
+    <a href="../index.html">Dashboard</a>
     <span class="breadcrumb-sep">›</span>
-    <span class="breadcrumb-item active">Retirement Benefits Simulator</span>
+    <span class="breadcrumb-current">Retirement Benefits Simulator</span>
   </nav>
 
   <!-- Page Hero -->
@@ -422,7 +416,7 @@
           <label class="field-label" for="r-age">Current Age</label>
           <span class="field-value" id="v-age">32 yrs</span>
         </div>
-        <input type="range" class="range-input" id="r-age" min="20" max="60" value="32"
+        <input type="range" id="r-age" min="20" max="60" value="32"
           oninput="syncSlider('age',this.value,'yrs')" />
       </div>
 
@@ -432,7 +426,7 @@
           <label class="field-label" for="r-ret">Retirement Age</label>
           <span class="field-value" id="v-ret">60 yrs</span>
         </div>
-        <input type="range" class="range-input" id="r-ret" min="45" max="70" value="60"
+        <input type="range" id="r-ret" min="45" max="70" value="60"
           oninput="syncSlider('ret',this.value,'yrs')" />
       </div>
 
@@ -442,7 +436,7 @@
           <label class="field-label" for="r-inc">Monthly Income</label>
           <span class="field-value" id="v-inc">₹75,000</span>
         </div>
-        <input type="range" class="range-input" id="r-inc" min="15000" max="500000" step="5000" value="75000"
+        <input type="range" id="r-inc" min="15000" max="500000" step="5000" value="75000"
           oninput="syncSlider('inc',this.value,'',true)" />
       </div>
 
@@ -452,7 +446,7 @@
           <label class="field-label" for="r-save">Savings Rate</label>
           <span class="field-value" id="v-save">25 %</span>
         </div>
-        <input type="range" class="range-input" id="r-save" min="5" max="60" value="25"
+        <input type="range" id="r-save" min="5" max="60" value="25"
           oninput="syncSlider('save',this.value,'%')" />
       </div>
 
@@ -462,7 +456,7 @@
           <label class="field-label" for="r-ret-rate">Expected Return</label>
           <span class="field-value" id="v-ret-rate">10 %</span>
         </div>
-        <input type="range" class="range-input" id="r-ret-rate" min="4" max="18" step=".5" value="10"
+        <input type="range" id="r-ret-rate" min="4" max="18" step=".5" value="10"
           oninput="syncSlider('ret-rate',this.value,'%')" />
       </div>
 
@@ -472,7 +466,7 @@
           <label class="field-label" for="r-inf">Inflation Rate</label>
           <span class="field-value" id="v-inf">6 %</span>
         </div>
-        <input type="range" class="range-input" id="r-inf" min="2" max="12" step=".5" value="6"
+        <input type="range" id="r-inf" min="2" max="12" step=".5" value="6"
           oninput="syncSlider('inf',this.value,'%')" />
       </div>
 
@@ -495,11 +489,11 @@
           <label class="field-label" for="r-life">Life Expectancy</label>
           <span class="field-value" id="v-life">85 yrs</span>
         </div>
-        <input type="range" class="range-input" id="r-life" min="70" max="100" value="85"
+        <input type="range" id="r-life" min="70" max="100" value="85"
           oninput="syncSlider('life',this.value,'yrs')" />
       </div>
 
-      <button class="btn btn-primary" style="width:100%;padding:12px;" onclick="calculate()">
+      <button class="btn btn-primary" style="width:100%;padding:12px;margin-top:var(--space-2);" onclick="calculate()">
         ↻ Calculate My Retirement Benefits
       </button>
     </div>
@@ -507,24 +501,35 @@
     <!-- RIGHT: Results -->
     <div>
 
-      <!-- Stats Grid -->
+      <!-- Stats Grid: 2x2 + retirement age full-width -->
       <div class="stats-grid">
         <div class="stat-card highlight">
           <div class="rc-label">Retirement Corpus</div>
           <div class="rc-value" id="res-corpus">—</div>
+          <div class="rc-sub">Projected at retirement age</div>
         </div>
         <div class="stat-card">
           <div class="rc-label">Monthly Pension</div>
           <div class="rc-value" id="res-pension">—</div>
+          <div class="rc-sub">Inflation-adjusted withdrawal</div>
         </div>
         <div class="stat-card">
           <div class="rc-label">Corpus Lasts Until</div>
           <div class="rc-value" id="res-sustain">—</div>
+          <div class="rc-sub">At 4% safe withdrawal rate</div>
         </div>
         <div class="stat-card">
-          <div class="rc-label">Healthcare Cover</div>
+          <div class="rc-label">Healthcare Reserve</div>
           <div class="rc-value" id="res-health">—</div>
+          <div class="rc-sub">2% of corpus · capped at ₹50L</div>
         </div>
+      </div>
+
+      <!-- Retirement age info strip -->
+      <div style="background:var(--color-surface-offset);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-5);margin-bottom:var(--space-5);display:flex;gap:var(--space-8);flex-wrap:wrap;align-items:center;">
+        <div><span style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted);">Retirement at Age</span><div style="font-family:'JetBrains Mono',monospace;font-size:var(--text-xl);font-weight:700;color:var(--color-text);" id="res-ret-age">—</div></div>
+        <div><span style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted);">Years to Retirement</span><div style="font-family:'JetBrains Mono',monospace;font-size:var(--text-xl);font-weight:700;color:var(--color-primary);" id="res-years-left">—</div></div>
+        <div><span style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted);">Monthly Savings</span><div style="font-family:'JetBrains Mono',monospace;font-size:var(--text-xl);font-weight:700;color:var(--color-success);" id="res-monthly-savings">—</div></div>
       </div>
 
       <!-- Chart -->
@@ -544,7 +549,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
           </svg>
-          Corpus Breakdown by Source
+          Estimated Corpus Breakdown by Source
         </div>
         <div id="breakdown"></div>
       </div>
@@ -557,7 +562,7 @@
 
       <!-- Milestones -->
       <div style="margin-top:var(--space-6);">
-        <div class="milestones-section-title">Key Milestones</div>
+        <div class="milestones-section-title">Key Life Milestones</div>
         <div class="milestones" id="milestones"></div>
       </div>
 
@@ -578,37 +583,37 @@
         <div class="benefit-card">
           <span class="benefit-icon">🏦</span>
           <h3>National Pension System (NPS)</h3>
-          <p>Tax deductions up to ₹2L/year (₹1.5L under 80C + ₹50K under 80CCD(1B)). Employer contribution of up to 10% of salary is fully deductible. Annuity from NPS is taxed as income; lump sum withdrawal of 60% at maturity is tax-free.</p>
+          <p>Tax deductions up to ₹2L/year (₹1.5L under 80C + ₹50K under 80CCD(1B)). Employer contribution of up to 10% of salary is fully deductible. 60% lump sum at maturity is tax-free; annuity portion taxed at slab rate. NPS Tier-II has no lock-in.</p>
         </div>
 
         <div class="benefit-card">
           <span class="benefit-icon">📋</span>
           <h3>EPF / EPS Benefits</h3>
-          <p>Employee Provident Fund earns 8.25% p.a. (tax-free). EPS provides a defined monthly pension (max ₹7,500/mo). Full EPF corpus is tax-free at retirement after 5 years of service. Partial withdrawal allowed for housing, education, and medical expenses.</p>
+          <p>EPF earns 8.25% p.a. (tax-free). EPS provides a defined monthly pension — capped at ₹7,500/mo. Full EPF corpus is tax-free at retirement after 5 years of continuous service. Partial withdrawal available for housing, education &amp; medical needs.</p>
         </div>
 
         <div class="benefit-card">
           <span class="benefit-icon">🏛️</span>
           <h3>Public Provident Fund (PPF)</h3>
-          <p>Guaranteed 7.1% p.a. (tax-free under EEE regime). Annual contribution limit of ₹1.5L. Partial withdrawal from year 7; full withdrawal at maturity (15 years). Interest and maturity proceeds are completely tax-exempt.</p>
+          <p>Sovereign-guaranteed 7.1% p.a. under EEE (Exempt-Exempt-Exempt) tax regime. Annual deposit limit ₹1.5L. Partial withdrawal from 7th year; full maturity at 15 years (extendable in 5-year blocks). Interest and proceeds 100% tax-exempt.</p>
         </div>
 
         <div class="benefit-card">
           <span class="benefit-icon">🏥</span>
           <h3>Senior Citizen Healthcare</h3>
-          <p>₹50,000 deduction on health insurance premiums (80D) for senior citizens. CGHS covers central govt. retirees comprehensively. Ayushman Bharat Pradhan Mantri Jan Arogya Yojana provides ₹5L/year hospital cover for eligible families.</p>
+          <p>₹50,000 deduction on health insurance premiums under Sec 80D for senior citizens. CGHS covers central govt. retirees. Ayushman Bharat PM-JAY provides up to ₹5L/year hospital cover. Additional ₹50K 80TTB deduction on interest income.</p>
         </div>
 
         <div class="benefit-card">
           <span class="benefit-icon">🏠</span>
           <h3>Reverse Mortgage (RML)</h3>
-          <p>Convert your home equity into monthly income without selling the property. Loan amount up to 60% of property value. Repayment required only upon death or permanent relocation. No income tax on loan proceeds received.</p>
+          <p>Convert home equity into monthly income without selling. Loan up to 60% of property value — disbursed as monthly payouts. No repayment during lifetime; settled from estate after death. Loan proceeds are not taxable as income.</p>
         </div>
 
         <div class="benefit-card">
           <span class="benefit-icon">💰</span>
           <h3>Senior Citizen Savings Scheme (SCSS)</h3>
-          <p>Highest risk-free yield among government schemes at ~8.2% p.a. Max deposit ₹30L. Quarterly interest payouts — ideal for regular pension income. 5-year tenure with one extension available. Interest taxable, but covered by ₹50K 80TTB deduction.</p>
+          <p>Highest sovereign-backed yield at 8.2% p.a. Max deposit ₹30L per account. Quarterly payouts make it ideal for regular pension income. 5-year tenure with one extension. Interest taxable but ₹50K 80TTB deduction offsets tax for most retirees.</p>
         </div>
 
       </div>
@@ -620,7 +625,7 @@
     <p>⚠️ This simulator is for educational and planning purposes only. It does not constitute financial advice. Returns shown are illustrative; actual returns may vary. Consult a SEBI-registered financial advisor before making investment decisions. Tax rules are based on FY 2026-27 Budget provisions.</p>
   </footer>
 
-</main>
+</div><!-- /app-wrapper -->
 
 <!-- ═══════════════════════════════════════════════
      JAVASCRIPT
@@ -648,33 +653,123 @@ function renderBreakdown(corpus){
 }
 function advice(savingsRate,yearsLeft,corpus){
   if(savingsRate<15)return'Your savings rate is below 15%. Even a ₹3,000/month increase compounding over '+yearsLeft+' years can add '+fmt(3000*12*yearsLeft*1.6)+' to your retirement fund.';
-  if(savingsRate<25)return'You\'re building a solid base. Consider topping up your NPS Tier-I by ₹50,000 p.a. for an additional tax deduction under Sec 80CCD(1B) — that\'s ₹15,600 saved annually if you\'re in the 30% bracket.';
-  if(corpus>=5e7)return'Excellent trajectory! With a corpus above ₹5 Crore, consider a bucket strategy — keep 3 years of expenses liquid, invest the rest across equity, bonds, and real estate.';
-  return'Your corpus will generate approximately '+fmt(corpus*0.04/12)+' per month at a 4% safe withdrawal rate. Ensure your equity allocation gradually decreases from age 55 onwards.';
+  const sources=SCHEME_SOURCES[scheme]||SCHEME_SOURCES['NPS'];
+  el.innerHTML=sources.map(s=>`<div class="breakdown-row"><div class="breakdown-dot" style="background:${s.color}"></div><div class="breakdown-label">${s.label}</div><div class="breakdown-bar-wrap"><div class="breakdown-bar" style="width:${s.pct}%;background:${s.color}"></div></div><div class="breakdown-pct">${fmt(corpus*s.pct/100)}</div></div>`).join('');
 }
+
+// ── MILESTONES (age-aware, no stale hardcoded offsets) ──
+function renderMilestones(currentAge,retAge){
+  const defs=[
+    {age:Math.min(currentAge+10,retAge-2),label:'EPF Partial Withdrawal',   desc:'Housing, education & medical costs covered under EPF Scheme rules.'},
+    {age:retAge-5,                         label:'Begin Glide Path',         desc:'Shift equity → debt. Lock in SCSS rates 5 years before retirement.'},
+    {age:retAge,                           label:'Retirement Day 🎉',        desc:'Full EPF tax-free payout. NPS annuity begins. SCSS account opens.'},
+    {age:retAge+3,                         label:'PMVVY Pension',            desc:'Pradhan Mantri Vaya Vandana Yojana — up to ₹30L at 8%+ p.a.'},
+    {age:retAge+5,                         label:'Senior Tax Peak',          desc:'₹50K standard deduction + ₹50K 80TTB + higher exemption slab.'},
+    {age:retAge+10,                        label:'Will & Estate Review',     desc:'Revisit nominees, legal heirs, and asset distribution plan.'}
+  ].filter(m=>m.age>currentAge&&m.age<=90);
+  document.getElementById('milestones').innerHTML=defs.map(m=>`<div class="milestone"><div class="milestone-age">${m.age}</div><div class="milestone-label">${m.label}</div><div class="milestone-desc">${m.desc}</div></div>`).join('');
+}
+
+// ── CORPUS SUSTAINABILITY via simulation ──
+function computeSustainAge(corpus,monthlyWithdrawal,nominalRate,retAge){
+  let c=corpus;
+  const rm=nominalRate/12;
+  for(let m=1;m<=60*12;m++){
+    c=c*(1+rm)-monthlyWithdrawal;
+    if(c<=0)return retAge+Math.floor(m/12);
+  }
+  return 99; // lasts 60+ years — perpetual
+}
+
+// ── SCHEME + SAVINGS RATE AWARE PERSONALIZED ADVICE ──
+function advice(savePct,years,corpus,scheme,inc){
+  const monthly=inc*savePct/100;
+  if(savePct<10) return `Your savings rate of ${savePct}% is critically low. Minimum recommended is 15–20%. Start an automated SIP of ₹${Math.round(inc*0.10/500)*500}/month. Even modest amounts compounded over ${years} years make an enormous difference — ₹5,000/month at 10% CAGR over ${years} years becomes ${fmt(5000*12*((Math.pow(1.10,years)-1)/0.10))}.`;
+  if(savePct<15) return `Savings rate of ${savePct}% is below the 15% threshold. A step-up SIP — increasing contribution by 10% each year — can bridge this gap. ₹3,000/month extra, stepped up 10% annually over ${years} years, becomes ${fmt(3000*12*((Math.pow(1.10,years)-1)/0.10))} at 10% CAGR.`;
+  if(scheme==='NPS'&&savePct<30) return `Good NPS foundation. Top up Tier-I by ₹50,000/year under Sec 80CCD(1B) — saves ₹15,600/year in tax (30% bracket). Critical note: 40% of your NPS corpus must be compulsorily annuitised at retirement. Build a separate liquid corpus to cover this illiquidity gap.`;
+  if(scheme==='EPF/EPS'&&savePct<30) return `Solid EPF base. Activate VPF (Voluntary PF) — same guaranteed 8.25% p.a. tax-free as EPF, deductible under 80C. If your basic salary exceeds ₹15,000, opt out of EPS and direct the employer's 8.33% entirely to EPF — this alone can add ${fmt(inc*0.0833*12*years*0.5)} over ${years} years.`;
+  if(scheme==='PPF + MF Portfolio') return `Excellent tax-efficient combination. Maximise PPF at ₹1.5L/year — at 7.1% for ${years} years, that alone becomes ${fmt(150000*((Math.pow(1.071,years)-1)/0.071))}. Pair with ELSS SIP for equity growth. Rebalance from 80% equity now to 40% equity by retirement using the glide path principle.`;
+  if(corpus>=5e7) return `Exceptional trajectory — corpus above ₹5 Crore! Implement a 3-bucket strategy at retirement: Bucket 1 (0–3 yrs expenses) in FD/Liquid funds; Bucket 2 (3–10 yrs) in debt MFs; Bucket 3 (10+ yrs) in equity funds. Rebalance buckets annually to maintain liquidity without sacrificing growth.`;
+  if(corpus>=2e7) return `Strong corpus projected. Begin a glide path — shift 5% from equity to debt each year from age ${Math.max(50,retAge-years)}. Target 60% debt by retirement. Open SCSS on day one of retirement (₹30L max at 8.2% p.a.) for guaranteed quarterly pension of ${fmt(30e5*0.082/4)}/quarter.`;
+  return `Your corpus generates ${fmt(corpus*0.04/12)}/month at 4% SWR. For India — where long-run inflation averages 6% — a 3.5% SWR (${fmt(corpus*0.035/12)}/mo) is more conservative. Consider supplementing with SCSS (₹30L at 8.2%) and a ₹5L/year immediate annuity from LIC Jeevan Akshay for guaranteed lifetime income.`;
+}
+
+// ── MAIN CALCULATE ──
 function calculate(){
-  const age=+document.getElementById('r-age').value,retAge=+document.getElementById('r-ret').value,inc=+document.getElementById('r-inc').value,savePct=+document.getElementById('r-save').value,rate=+document.getElementById('r-ret-rate').value/100,inf=+document.getElementById('r-inf').value/100,life=+document.getElementById('r-life').value;
-  const years=Math.max(retAge-age,1),monthly=inc*savePct/100,r_monthly=rate/12;
-  const corpus=monthly*((Math.pow(1+r_monthly,years*12)-1)/r_monthly)*(1+r_monthly);
-  const realRate=(1+rate)/(1+inf)-1,monthlyPension=corpus*realRate/12;
-  const annualWithdrawal=corpus*0.04,corpusSustainYears=Math.log(1-(corpus*inf)/annualWithdrawal)/Math.log(1+inf),sustainAge=Math.min(retAge+Math.abs(Math.round(corpusSustainYears))+5,99);
-  const health=Math.min(Math.max(corpus*0.02,1e6),5e6);
+  const age    =+document.getElementById('r-age').value;
+  const retAge =+document.getElementById('r-ret').value;
+  const inc    =+document.getElementById('r-inc').value;
+  const savePct=+document.getElementById('r-save').value;
+  const rate   =+document.getElementById('r-ret-rate').value/100;
+  const inf    =+document.getElementById('r-inf').value/100;
+  const life   =+document.getElementById('r-life').value;
+  const scheme =document.getElementById('s-scheme').value;
+
+  const years  =Math.max(retAge-age,1);
+  const monthly=inc*savePct/100;
+  const rm     =rate/12;
+
+  // Future value of monthly SIP
+  const corpus=monthly*((Math.pow(1+rm,years*12)-1)/rm)*(1+rm);
+
+  // Real rate of return
+  const realRate=(1+rate)/(1+inf)-1;
+
+  // Safe withdrawal rate: India-adjusted (min 2.5%, max 4%)
+  const swr=Math.min(0.04, Math.max(0.025, realRate+0.01));
+  const monthlyPension=corpus*swr/12;
+
+  // EPS/NPS adjustments
+  const epsSalary =Math.min(inc*0.5, 15000); 
+  const epsMonthly=scheme==='EPF/EPS' ? Math.min(Math.round((epsSalary*years)/70), 7500) : 0;
+  const npsAnnuity=scheme==='NPS' ? Math.round((corpus*0.40*0.06)/12) : 0;
+
+  const totalMonthly=monthlyPension+epsMonthly+npsAnnuity;
+  const sustainAge=computeSustainAge(corpus, monthlyPension, rate, retAge);
+  const health=Math.min(Math.max(corpus*0.02, 1e6), 5e6);
+
+  // ── Update UI ──
   document.getElementById('res-corpus').textContent=fmt(corpus);
-  document.getElementById('res-ret-age').textContent=retAge;
-  document.getElementById('res-pension').textContent=fmt(monthlyPension)+'/mo';
-  document.getElementById('res-sustain').textContent='Age '+sustainAge;
+  document.getElementById('res-ret-age').textContent=retAge+' yrs';
+  document.getElementById('res-years-left').textContent=years+' yr'+(years!==1?'s':'');
+  document.getElementById('res-monthly-savings').textContent=fmt(monthly)+'/mo';
+  document.getElementById('res-pension').textContent=fmt(totalMonthly)+'/mo';
+  document.getElementById('res-sustain').textContent=sustainAge>=99?'Age 99+ ✓':'Age '+sustainAge;
   document.getElementById('res-health').textContent=fmt(health);
-  const labels=[],accumData=Array(years*12+1).fill(null),drawData=Array(years*12+1).fill(null);
+
+  const pensionCard=document.querySelector('#res-pension')?.closest('.stat-card');
+  if(pensionCard){
+    let sub=pensionCard.querySelector('.rc-sub');
+    if(!sub){sub=document.createElement('div');sub.className='rc-sub';pensionCard.appendChild(sub);}
+    if(scheme==='EPF/EPS'&&epsMonthly>0) sub.textContent=`${(swr*100).toFixed(1)}% SWR ${fmt(monthlyPension)}/mo + EPS ${fmt(epsMonthly)}/mo`;
+    else if(scheme==='NPS'&&npsAnnuity>0) sub.textContent=`${(swr*100).toFixed(1)}% SWR ${fmt(monthlyPension)}/mo + Annuity ${fmt(npsAnnuity)}/mo`;
+    else sub.textContent=`Based on ${(swr*100).toFixed(1)}% safe withdrawal rate`;
+  }
+
+  // ── Chart data ──
+  const labels=[],accumData=[];
   let c=0;
-  for(let m=0;m<=years*12;m++){c=c*(1+r_monthly)+monthly;if(m%12===0)labels.push('Age '+(age+m/12));accumData[m]=c;}
-  const drawYears=life-retAge,drawMonths=drawYears*12,withdrawal=monthlyPension;
+  for(let m=0;m<=years*12;m++){
+    c=c*(1+rm)+monthly;
+    if(m%12===0) labels.push('Age '+(age+m/12));
+    accumData.push(c);
+  }
+  const drawMonths=(life-retAge)*12;
   let dc=corpus;
   const allLabels=[...labels],fullAccum=[...accumData],fullDraw=new Array(labels.length).fill(null);
   fullDraw[fullDraw.length-1]=corpus;
-  for(let m=1;m<=drawMonths;m++){dc=dc*(1+r_monthly)-withdrawal;if(dc<0)dc=0;if(m%12===0){allLabels.push('Age '+(retAge+m/12));fullAccum.push(null);fullDraw.push(dc);}}
-  buildChart(allLabels,fullAccum,fullDraw);renderBreakdown(corpus);renderMilestones(age,retAge);
-  document.getElementById('advice-text').textContent=advice(savePct,years,corpus);
+  for(let m=1;m<=drawMonths;m++){
+    dc=dc*(1+rm)-totalMonthly;
+    if(dc<0)dc=0;
+    if(m%12===0){allLabels.push('Age '+(retAge+m/12));fullAccum.push(null);fullDraw.push(dc);}
+  }
+
+  buildChart(allLabels,fullAccum,fullDraw);
+  renderBreakdown(corpus,scheme);
+  renderMilestones(age,retAge);
+  document.getElementById('advice-text').textContent=advice(savePct,years,corpus,scheme,inc);
 }
+
 window.addEventListener('DOMContentLoaded',()=>{
   ['age','ret','life'].forEach(id=>{const el=document.getElementById('r-'+id);syncSlider(id,el.value,'yrs');});
   syncSlider('inc',document.getElementById('r-inc').value,'₹',true);
