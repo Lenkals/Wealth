@@ -172,16 +172,7 @@
     }
     .exchange-card.is-open  { --card-accent: var(--color-success); box-shadow: 0 0 18px color-mix(in srgb, var(--color-success) 18%, transparent), var(--shadow-sm); }
     .exchange-card.is-lunch { --card-accent: var(--color-warning); }
-    .exchange-card.is-closed {
-      --card-accent: var(--color-text-faint);
-      opacity: 0.42;
-      filter: grayscale(0.75) brightness(0.72);
-      transition: opacity 0.3s ease, filter 0.3s ease;
-    }
-    .exchange-card.is-closed:hover {
-      opacity: 0.7;
-      filter: grayscale(0.3) brightness(0.88);
-    }
+    .exchange-card.is-closed { --card-accent: var(--color-text-faint); }
 
     .exchange-header {
       display: flex;
