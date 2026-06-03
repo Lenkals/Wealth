@@ -811,6 +811,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   syncSlider('ret-rate',document.getElementById('r-ret-rate').value,'%');
   syncSlider('inf',document.getElementById('r-inf').value,'%');
   calculate();
+  window.addEventListener('theme-toggled', calculate);
 });
 </script>
 

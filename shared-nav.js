@@ -34,6 +34,7 @@
       root.setAttribute('data-theme', theme);
       localStorage.setItem('tw-theme', theme); /* persist across all pages */
       setIcon(theme);
+      window.dispatchEvent(new Event('theme-toggled'));
     });
   }
 
