@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio Tracker — Thrivel Wealth</title>
+  <meta name="description" content="Personal portfolio tracker. Add holdings, track P&L, returns, and portfolio value. Data persisted locally — no login required." />
+  <link rel="stylesheet" href="../shared.css" />
+  <style>
+    .port-add-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr auto;
+      gap: var(--space-3);
+      align-items: flex-end;
+      margin-bottom: var(--space-6);
+    }
+    @media(max-width:768px){ .port-add-grid { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:500px){ .port-add-grid { grid-template-columns: 1fr; } }
+
+    .summary-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+    @media(max-width:700px){ .summary-bar { grid-template-columns: repeat(2, 1fr); } }
+    .summary-chip {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-4) var(--space-5);
+    }
+    .summary-chip-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-faint);
+      margin-bottom: 6px;
+    }
+    .summary-chip-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-text);
+    }
+
+    .port-table-wrap { overflow-x: auto; border-radius: var(--radius-xl); border: 1px solid var(--color-border); }
+    .port-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+    }
+    .port-table th {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+      text-align: left;
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 2px solid var(--color-divider);
+      background: var(--color-surface-offset);
+      white-space: nowrap;
+    }
+    .port-table td {
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--color-divider);
+      color: var(--color-text);
+      white-space: nowrap;
+    }
+    .port-table tr:last-child td { border-bottom: none; }
+    .port-table tr:hover td { background: var(--color-surface-offset); }
+    .profit { color: var(--color-success); font-weight: 700; }
+    .loss   { color: var(--color-error);   font-weight: 700; }
+    .port-table .mono { font-family: 'JetBrains Mono', monospace; font-size: var(--text-xs); }
+    .del-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-text-faint);
+      font-size: 0.75rem;
+      padding: 3px 7px;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition);
+    }
+    .del-btn:hover { background: var(--color-error-bg); color: var(--color-error); }
+    .empty-state {
+      text-align: center;
+      padding: var(--space-12) var(--space-6);
+      color: var(--color-text-faint);
+    }
+    .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: var(--space-3); }
+    .empty-state .empty-text { font-size: var(--text-sm); }
+
+    .edit-input {
+      width: 100%;
+      background: var(--color-surface-2);
+      border: 1px solid var(--color-primary);
+      border-radius: var(--radius-sm);
+      color: var(--color-text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--text-xs);
+      padding: 3px 6px;
+      outline: none;
+    }
+    .asset-category-tag {
+      font-size: 0.58rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 1px 6px;
+      border-radius: var(--radius-full);
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="top-nav" id="top-nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-brand">
+      <div class="nav-logo">TW</div>
+      <div>
+        <span class="nav-brand-name">Thrivel Wealth</span>
+        <span class="nav-brand-tag">Private Client Services</span>
+      </div>
+    </a>
+    <div class="nav-links" id="nav-links">
+      <a href="../index.html" class="nav-link">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-link nav-dropdown-btn">Markets <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+        <div class="nav-dropdown-menu">
+          <a href="../dashboards/market-timings.html"><span class="menu-icon">🕐</span>Market Timings</a>
+          <a href="../dashboards/trading-costs-dashboard.html"><span class="menu-icon">📊</span>Trading Costs</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-link nav-dropdown-btn active">Calculators <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+        <div class="nav-dropdown-menu">
+          <a href="../calculators/retirement-calc.html"><span class="menu-icon">🏛️</span>Retirement</a>
+          <a href="../calculators/liquid-return-calc.html"><span class="menu-icon">💧</span>Liquid Returns</a>
+          <a href="../calculators/liquid-etf-parking-calc.html"><span class="menu-icon">🅿️</span>ETF Parking</a>
+          <a href="../calculators/fno-tax-structure.html"><span class="menu-icon">⚡</span>F&amp;O Charges</a>
+          <div class="menu-divider"></div>
+          <a href="../calculators/interest-calc.html"><span class="menu-icon">📐</span>Interest Calc</a>
+          <a href="../calculators/portfolio-tracker.html"><span class="menu-icon">💼</span>Portfolio</a>
+        </div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="nav-clock-chip"><span class="nav-clock-dot"></span><span id="nav-clock">--:-- IST</span></div>
+      <button class="nav-theme-btn" data-theme-toggle aria-label="Toggle theme"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button class="nav-mobile-btn" id="nav-mobile-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+    </div>
+  </div>
+</nav>
+
+<div class="app-wrapper">
+  <nav class="breadcrumb">
+    <a href="../index.html">Home</a>
+    <span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current">Portfolio Tracker</span>
+  </nav>
+
+  <div class="page-hero">
+    <div class="page-hero-label">Calculators</div>
+    <h1 class="page-hero-title">Portfolio Tracker</h1>
+    <p class="page-hero-sub">Add your holdings and track P&amp;L, returns, and portfolio value. Data stored locally in your browser — no login required, no data leaves your device.</p>
+  </div>
+
+  <!-- Add Asset Form -->
+  <div class="surface-card-padded" style="margin-bottom:var(--space-6);">
+    <div style="font-size:var(--text-sm);font-weight:700;color:var(--color-text);margin-bottom:var(--space-4);display:flex;align-items:center;gap:var(--space-2);">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+      Add New Holding
+    </div>
+    <div class="port-add-grid">
+      <div class="field-group" style="margin-bottom:0;">
+        <label class="field-label">Asset Name</label>
+        <input class="field-input" id="pt-name" placeholder="e.g. Reliance Industries" />
+      </div>
+      <div class="field-group" style="margin-bottom:0;">
+        <label class="field-label">Category</label>
+        <select class="field-input" id="pt-cat">
+          <option value="Equity">Equity</option>
+          <option value="MF">Mutual Fund</option>
+          <option value="ETF">ETF</option>
+          <option value="Debt">Debt / FD</option>
+          <option value="Gold">Gold</option>
+          <option value="Crypto">Crypto</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field-group" style="margin-bottom:0;">
+        <label class="field-label">Qty / Units</label>
+        <input class="field-input" id="pt-qty" type="number" placeholder="100" />
+      </div>
+      <div class="field-group" style="margin-bottom:0;">
+        <label class="field-label">Buy Price (₹)</label>
+        <input class="field-input" id="pt-buy" type="number" placeholder="2500" />
+      </div>
+      <div class="field-group" style="margin-bottom:0;">
+        <label class="field-label">Current Price (₹)</label>
+        <input class="field-input" id="pt-cur" type="number" placeholder="2750" />
+      </div>
+    </div>
+    <div style="display:flex;gap:var(--space-3);align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="addAsset()">+ Add Holding</button>
+      <div id="add-error" style="font-size:var(--text-xs);color:var(--color-error);display:none;"></div>
+    </div>
+  </div>
+
+  <!-- Summary Bar -->
+  <div class="summary-bar" id="summary-bar" style="display:none;">
+    <div class="summary-chip">
+      <div class="summary-chip-label">Total Invested</div>
+      <div class="summary-chip-val" id="pt-invested">—</div>
+    </div>
+    <div class="summary-chip">
+      <div class="summary-chip-label">Portfolio Value</div>
+      <div class="summary-chip-val" id="pt-value">—</div>
+    </div>
+    <div class="summary-chip">
+      <div class="summary-chip-label">Total P&amp;L</div>
+      <div class="summary-chip-val" id="pt-pnl">—</div>
+    </div>
+    <div class="summary-chip">
+      <div class="summary-chip-label">Overall Return</div>
+      <div class="summary-chip-val" id="pt-ret">—</div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="port-table-wrap">
+    <table class="port-table">
+      <thead>
+        <tr>
+          <th>Asset</th>
+          <th>Category</th>
+          <th>Qty</th>
+          <th>Buy Price</th>
+          <th>Current</th>
+          <th>Invested</th>
+          <th>Value</th>
+          <th>P&amp;L</th>
+          <th>Return %</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="port-body">
+        <tr>
+          <td colspan="10">
+            <div class="empty-state">
+              <div class="empty-icon">💼</div>
+              <div class="empty-text">No holdings yet. Add your first position above ↑</div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:var(--space-4);font-size:var(--text-xs);color:var(--color-text-faint);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);">
+    <span>🔒 Data stored locally in your browser · Never leaves your device</span>
+    <button class="btn btn-ghost btn-sm" onclick="clearAll()" style="color:var(--color-error);border-color:var(--color-error-bg);">Clear All Holdings</button>
+  </div>
+</div>
+
+<script>
+const CATEGORY_COLORS = {
+  Equity:'var(--color-primary)',MF:'var(--color-blue)',ETF:'var(--color-success)',
+  Debt:'var(--color-text-muted)',Gold:'#c9a84c',Crypto:'#a78bfa',Other:'var(--color-text-faint)'
+};
+function fmtINR(n){if(isNaN(n))return'—';if(n>=1e7)return'₹'+(n/1e7).toFixed(2)+' Cr';if(n>=1e5)return'₹'+(n/1e5).toFixed(2)+' L';return'₹'+Math.round(n).toLocaleString('en-IN');}
+function fmtPct(n){return(n>=0?'+':'')+n.toFixed(2)+'%';}
+
+let portfolio=JSON.parse(localStorage.getItem('tw_portfolio')||'[]');
+function savePort(){localStorage.setItem('tw_portfolio',JSON.stringify(portfolio));}
+
+function addAsset(){
+  const name=document.getElementById('pt-name').value.trim();
+  const cat=document.getElementById('pt-cat').value;
+  const qty=parseFloat(document.getElementById('pt-qty').value);
+  const buy=parseFloat(document.getElementById('pt-buy').value);
+  const cur=parseFloat(document.getElementById('pt-cur').value);
+  const errEl=document.getElementById('add-error');
+  errEl.style.display='none';
+  if(!name||isNaN(qty)||isNaN(buy)||isNaN(cur)||qty<=0||buy<=0||cur<=0){
+    errEl.textContent='Please fill all fields with valid positive numbers.';
+    errEl.style.display='block';
+    return;
+  }
+  portfolio.push({name,cat,qty,buy,cur,id:Date.now()});
+  savePort();renderPortfolio();
+  ['pt-name','pt-qty','pt-buy','pt-cur'].forEach(id=>document.getElementById(id).value='');
+}
+
+function removeAsset(id){portfolio=portfolio.filter(a=>a.id!==id);savePort();renderPortfolio();}
+
+function updateCurrent(id,val){
+  const a=portfolio.find(x=>x.id===id);
+  if(a){a.cur=parseFloat(val)||a.cur;savePort();renderPortfolio();}
+}
+
+function clearAll(){
+  if(!confirm('Clear all holdings? This cannot be undone.'))return;
+  portfolio=[];savePort();renderPortfolio();
+}
+
+function renderPortfolio(){
+  const tbody=document.getElementById('port-body');
+  const sb=document.getElementById('summary-bar');
+  if(portfolio.length===0){
+    tbody.innerHTML=`<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">💼</div><div class="empty-text">No holdings yet. Add your first position above ↑</div></div></td></tr>`;
+    sb.style.display='none';return;
+  }
+  let totalInvested=0,totalValue=0;
+  tbody.innerHTML=portfolio.map(a=>{
+    const invested=a.qty*a.buy,value=a.qty*a.cur,pl=value-invested,ret=((a.cur-a.buy)/a.buy)*100;
+    totalInvested+=invested;totalValue+=value;
+    const cls=pl>=0?'profit':'loss';
+    const catColor=CATEGORY_COLORS[a.cat]||'var(--color-text-faint)';
+    return`<tr>
+      <td><strong>${a.name}</strong></td>
+      <td><span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;padding:1px 7px;border-radius:99px;background:color-mix(in srgb,${catColor} 15%,transparent);color:${catColor};border:1px solid color-mix(in srgb,${catColor} 30%,transparent);">${a.cat}</span></td>
+      <td class="mono">${a.qty.toLocaleString('en-IN')}</td>
+      <td class="mono">${fmtINR(a.buy)}</td>
+      <td><input class="edit-input" type="number" value="${a.cur}" onchange="updateCurrent(${a.id},this.value)" title="Click to update current price" style="width:90px;" /></td>
+      <td class="mono">${fmtINR(invested)}</td>
+      <td class="mono">${fmtINR(value)}</td>
+      <td class="mono ${cls}">${pl>=0?'+':''}${fmtINR(pl)}</td>
+      <td class="mono ${cls}">${fmtPct(ret)}</td>
+      <td><button class="del-btn" onclick="removeAsset(${a.id})" title="Remove holding">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  const totalPL=totalValue-totalInvested,totalRet=((totalValue-totalInvested)/totalInvested)*100;
+  document.getElementById('pt-invested').textContent=fmtINR(totalInvested);
+  document.getElementById('pt-value').textContent=fmtINR(totalValue);
+  const pnlEl=document.getElementById('pt-pnl');
+  pnlEl.textContent=(totalPL>=0?'+':'')+fmtINR(totalPL);
+  pnlEl.style.color=totalPL>=0?'var(--color-success)':'var(--color-error)';
+  const retEl=document.getElementById('pt-ret');
+  retEl.textContent=fmtPct(totalRet);
+  retEl.style.color=totalRet>=0?'var(--color-success)':'var(--color-error)';
+  sb.style.display='grid';
+}
+renderPortfolio();
+
+// Enter to add
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&['pt-name','pt-qty','pt-buy','pt-cur'].includes(document.activeElement?.id))addAsset();});
+
+// Nav + Theme
+(function(){
+  const toggle=document.querySelector('[data-theme-toggle]');
+  const root=document.documentElement;
+  let theme=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+  root.setAttribute('data-theme',theme);
+  function setIcon(t){if(!toggle)return;toggle.innerHTML=t==='dark'?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';toggle.setAttribute('aria-label','Switch to '+(t==='dark'?'light':'dark')+' mode');}
+  setIcon(theme);
+  if(toggle)toggle.addEventListener('click',()=>{theme=theme==='dark'?'light':'dark';root.setAttribute('data-theme',theme);setIcon(theme);});
+  function updateNavClock(){const now=new Date();const ist=new Date(now.getTime()+now.getTimezoneOffset()*60000+5.5*3600000);const hh=String(ist.getHours()).padStart(2,'0');const mm=String(ist.getMinutes()).padStart(2,'0');const ss=String(ist.getSeconds()).padStart(2,'0');const nc=document.getElementById('nav-clock');if(nc)nc.textContent=`${hh}:${mm}:${ss} IST`;}
+  updateNavClock();setInterval(updateNavClock,1000);
+  const mb=document.getElementById('nav-mobile-btn');const nl=document.getElementById('nav-links');if(mb&&nl)mb.addEventListener('click',()=>nl.classList.toggle('open'));
+})();
+</script>
+</body>
+</html>

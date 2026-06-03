@@ -166,32 +166,46 @@
 </style>
 </head>
 <body>
-<div class="app-wrapper">
-
-  <!-- HEADER -->
-  <header class="app-header">
-    <div class="header-brand">
-      <svg class="brand-logo" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="TradeCost logo">
-        <rect width="36" height="36" rx="8" fill="currentColor" opacity="0.08"/>
-        <rect x="6" y="22" width="5" height="8" rx="1.5" fill="currentColor" opacity="0.4"/>
-        <rect x="13.5" y="16" width="5" height="14" rx="1.5" fill="currentColor" opacity="0.65"/>
-        <rect x="21" y="10" width="5" height="20" rx="1.5" fill="currentColor"/>
-        <path d="M7 14 L14 10 L21 13 L29 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
-        <circle cx="29" cy="6" r="2" fill="currentColor" opacity="0.85"/>
-      </svg>
+<!-- TOP NAV -->
+<nav class="top-nav" id="top-nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-brand">
+      <div class="nav-logo">TW</div>
       <div>
-        <div class="brand-title">TradeCost India</div>
-        <div class="brand-sub">Transaction Friction &amp; Tax Dashboard · FY 2026-27</div>
+        <span class="nav-brand-name">Thrivel Wealth</span>
+        <span class="nav-brand-tag">Private Client Services</span>
+      </div>
+    </a>
+    <div class="nav-links" id="nav-links">
+      <a href="../index.html" class="nav-link">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-link nav-dropdown-btn">Markets <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+        <div class="nav-dropdown-menu">
+          <a href="../dashboards/market-timings.html"><span class="menu-icon">🕐</span>Market Timings</a>
+          <a href="../dashboards/trading-costs-dashboard.html"><span class="menu-icon">📊</span>Trading Costs</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-link nav-dropdown-btn">Calculators <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+        <div class="nav-dropdown-menu">
+          <a href="../calculators/retirement-calc.html"><span class="menu-icon">🏛️</span>Retirement</a>
+          <a href="../calculators/liquid-return-calc.html"><span class="menu-icon">💧</span>Liquid Returns</a>
+          <a href="../calculators/liquid-etf-parking-calc.html"><span class="menu-icon">🅿️</span>ETF Parking</a>
+          <a href="../calculators/fno-tax-structure.html"><span class="menu-icon">⚡</span>F&amp;O Charges</a>
+          <div class="menu-divider"></div>
+          <a href="../calculators/interest-calc.html"><span class="menu-icon">📐</span>Interest Calc</a>
+          <a href="../calculators/portfolio-tracker.html"><span class="menu-icon">💼</span>Portfolio</a>
+        </div>
       </div>
     </div>
-    <div class="header-actions">
-      <a href="../index.html" class="btn btn-ghost" style="font-size:var(--text-xs);padding:6px 14px;">← Dashboard</a>
-      <span class="header-badge">Budget 2026</span>
-      <button class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      </button>
+    <div class="nav-right">
+      <div class="nav-clock-chip"><span class="nav-clock-dot"></span><span id="nav-clock">--:-- IST</span></div>
+      <button class="nav-theme-btn" data-theme-toggle aria-label="Toggle theme"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button class="nav-mobile-btn" id="nav-mobile-btn" aria-label="Open menu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
     </div>
-  </header>
+  </div>
+</nav>
+<div class="app-wrapper">
 
   <!-- CONTROLS PANEL -->
   <section class="controls-panel" aria-label="Input controls">
@@ -432,12 +446,18 @@ document.querySelectorAll('[data-toggle]').forEach(btn=>{
   });
 });
 (function(){
-  const toggle=document.querySelector('[data-theme-toggle]'),root=document.documentElement;
+  const toggle=document.querySelector('[data-theme-toggle]');
+  const root=document.documentElement;
   let theme=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
   root.setAttribute('data-theme',theme);
-  function setIcon(t){if(!toggle)return;toggle.innerHTML=t==='dark'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';toggle.setAttribute('aria-label','Switch to '+(t==='dark'?'light':'dark')+' mode');}
+  function setIcon(t){if(!toggle)return;toggle.innerHTML=t==='dark'?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';toggle.setAttribute('aria-label','Switch to '+(t==='dark'?'light':'dark')+' mode');}
   setIcon(theme);
-  if(toggle)toggle.addEventListener('click',()=>{theme=theme==='dark'?'light':'dark';root.setAttribute('data-theme',theme);setIcon(theme);});
+  if(toggle) toggle.addEventListener('click',()=>{theme=theme==='dark'?'light':'dark';root.setAttribute('data-theme',theme);setIcon(theme);});
+  // Nav clock
+  function updateNavClock(){const now=new Date();const ist=new Date(now.getTime()+now.getTimezoneOffset()*60000+5.5*3600000);const hh=String(ist.getHours()).padStart(2,'0');const mm=String(ist.getMinutes()).padStart(2,'0');const ss=String(ist.getSeconds()).padStart(2,'0');const nc=document.getElementById('nav-clock');if(nc)nc.textContent=`${hh}:${mm}:${ss} IST`;}
+  updateNavClock();setInterval(updateNavClock,1000);
+  // Mobile nav
+  const mb=document.getElementById('nav-mobile-btn');const nl=document.getElementById('nav-links');if(mb&&nl)mb.addEventListener('click',()=>nl.classList.toggle('open'));
 })();
 updatePrincipalDisplay(10000);updateProfitDisplay(10);updateTaxHint();renderTable(10000,10);
 </script>

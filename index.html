@@ -1,644 +1,638 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Personal Wealth &amp; Portfolio Dashboard</title>
-<meta name="description" content="All-in-one personal wealth dashboard: calculators, portfolio tracker, global markets, and financial tools for Indian investors.">
-<link rel="stylesheet" href="shared.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<style>
-/* ===== INDEX-SPECIFIC STYLES ===== */
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thrivel Wealth — Institutional Financial Intelligence</title>
+  <meta name="description" content="Thrivel Wealth — Institutional-grade financial tools for India's serious investors. Trading analysis, retirement planning, commodity timings, and portfolio management." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    /* ── Index-specific: Hero ── */
+    .index-hero {
+      position: relative;
+      background: var(--hero-gradient);
+      border-bottom: 1px solid var(--color-border);
+      overflow: hidden;
+      padding: var(--space-16) var(--space-8) var(--space-12);
+    }
+    .index-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--hero-grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--hero-grid-color) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+    .index-hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 120px;
+      background: linear-gradient(to top, var(--color-bg), transparent);
+      pointer-events: none;
+    }
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-primary);
+      margin-bottom: var(--space-5);
+    }
+    .hero-eyebrow::before, .hero-eyebrow::after {
+      content: '';
+      flex: 1;
+      width: 24px; height: 1px;
+      background: var(--color-primary);
+      opacity: 0.5;
+    }
+    .hero-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.6rem);
+      font-weight: 700;
+      color: var(--color-text);
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: var(--space-5);
+      max-width: 700px;
+    }
+    .hero-heading .gold {
+      color: var(--color-primary);
+      font-style: italic;
+    }
+    .hero-sub {
+      font-size: var(--text-base);
+      color: var(--color-text-muted);
+      max-width: 560px;
+      line-height: 1.75;
+      margin-bottom: var(--space-10);
+    }
+    .hero-stats {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+      flex-wrap: wrap;
+    }
+    .hero-stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--color-text);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .hero-stat-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-faint);
+    }
+    .hero-stat-divider {
+      width: 1px;
+      height: 36px;
+      background: var(--color-border);
+    }
+    .hero-clock-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--color-primary);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    /* Decorative gold orb */
+    .hero-orb {
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, color-mix(in srgb, var(--color-primary) 12%, transparent) 0%, transparent 70%);
+      pointer-events: none;
+    }
 
-/* Tool Cards Grid */
-.tools-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--space-5);
-  margin-bottom: var(--space-10);
-}
-.tool-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  text-decoration: none;
-  color: inherit;
-  transition: all var(--transition);
-  position: relative;
-  overflow: hidden;
-}
-.tool-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--card-accent, var(--color-primary));
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-}
-.tool-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--card-accent, var(--color-primary));
-}
-.tool-card-icon {
-  width: 44px; height: 44px;
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-offset);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  flex-shrink: 0;
-}
-.tool-card-title {
-  font-size: var(--text-base);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--color-text);
-}
-.tool-card-sub {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  line-height: 1.5;
-  flex: 1;
-}
-.tool-card-arrow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  color: var(--card-accent, var(--color-primary));
-  margin-top: var(--space-2);
-  transition: gap var(--transition);
-}
-.tool-card:hover .tool-card-arrow { gap: var(--space-3); }
+    /* ── Tools Section ── */
+    .tools-section {
+      padding-top: var(--space-12);
+      padding-bottom: var(--space-16);
+    }
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: var(--space-8);
+      gap: var(--space-4);
+    }
+    .section-eyebrow {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--color-primary);
+      margin-bottom: var(--space-2);
+    }
+    .section-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--color-text);
+      letter-spacing: -0.02em;
+    }
 
-/* Section dividers */
-.section-divider {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  margin: var(--space-8) 0 var(--space-5);
-}
-.section-divider-title {
-  font-size: var(--text-sm);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-.section-divider-line {
-  flex: 1;
-  height: 1px;
-  background: var(--color-divider);
-}
+    .tool-category {
+      margin-bottom: var(--space-10);
+    }
+    .tool-category-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--color-text-faint);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-divider);
+      margin-bottom: var(--space-5);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .tool-category-label::before {
+      content: '';
+      width: 3px; height: 14px;
+      background: var(--color-primary);
+      border-radius: 2px;
+    }
 
-/* Clock box */
-.clock-box {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-4) var(--space-5);
-  box-shadow: var(--shadow-sm);
-  min-width: 220px;
-}
-.clock-time { font-family: 'JetBrains Mono', monospace; font-size: var(--text-2xl); font-weight: 700; color: var(--color-text); letter-spacing: -0.02em; }
-.clock-date { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px; }
-.clock-updated { font-size: 0.68rem; color: var(--color-text-faint); margin-top: 4px; display:flex; align-items:center; gap:5px; }
-.refresh-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-success); animation: pulse 2s infinite; }
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-4);
+    }
+    .tool-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5) var(--space-6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      text-decoration: none;
+      color: inherit;
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--card-accent, var(--color-primary));
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .tool-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+      border-color: color-mix(in srgb, var(--card-accent, var(--color-primary)) 50%, transparent);
+    }
+    .tool-card:hover::before { opacity: 1; }
 
-/* Calculator sections */
-.calc-section { margin-bottom: var(--space-8); }
-.calc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-5); }
-@media (max-width: 720px) { .calc-grid { grid-template-columns: 1fr; } }
+    .tool-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+    .tool-card-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-lg);
+      background: var(--color-primary-dim);
+      border: 1px solid color-mix(in srgb, var(--card-accent, var(--color-primary)) 20%, transparent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .tool-card-tag {
+      font-size: 0.58rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      background: var(--color-surface-offset);
+      color: var(--color-text-faint);
+      border: 1px solid var(--color-border);
+    }
+    .tool-card-title {
+      font-size: var(--text-base);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--color-text);
+      line-height: 1.3;
+    }
+    .tool-card-sub {
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      line-height: 1.55;
+      flex: 1;
+    }
+    .tool-card-arrow {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--card-accent, var(--color-primary));
+      margin-top: auto;
+      padding-top: var(--space-2);
+      border-top: 1px solid var(--color-divider);
+      transition: gap var(--transition);
+    }
+    .tool-card:hover .tool-card-arrow { gap: var(--space-3); }
 
-/* Calc cards */
-.calc-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-5) var(--space-6);
-  box-shadow: var(--shadow-sm);
-}
-.calc-card-title {
-  font-size: var(--text-base);
-  font-weight: 700;
-  color: var(--color-text);
-  letter-spacing: -0.01em;
-  margin-bottom: var(--space-4);
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--color-divider);
-}
-.slider-group { margin-bottom: var(--space-4); }
-.slider-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-2); }
-.slider-label { font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); }
-.slider-val { font-family: 'JetBrains Mono', monospace; font-size: var(--text-lg); font-weight: 700; color: var(--color-text); }
-.range-hint { display:flex; justify-content:space-between; font-size:0.68rem; color:var(--color-text-faint); margin-top:4px; }
-.result-box {
-  margin-top: var(--space-4);
-  background: var(--color-surface-offset);
-  border-radius: var(--radius-lg);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-divider);
-}
-.result-row { display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; border-bottom:1px solid var(--color-divider); font-size:var(--text-xs); }
-.result-row:last-child { border-bottom:none; }
-.result-label { color:var(--color-text-muted); }
-.result-val { font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--color-success); font-size:var(--text-sm); }
-
-/* ROR section */
-.ror-big { font-family:'JetBrains Mono',monospace; font-size:var(--text-2xl); font-weight:700; }
-.ror-big.positive { color:var(--color-success); }
-.ror-big.negative { color:var(--color-error); }
-
-/* Portfolio section */
-.portfolio-add { display:flex; gap:var(--space-3); flex-wrap:wrap; margin-bottom:var(--space-5); align-items:flex-end; }
-.portfolio-add .field-group { flex:1; min-width:120px; margin-bottom:0; }
-.port-table { width:100%; border-collapse:collapse; font-size:var(--text-xs); }
-.port-table th { font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-text-muted); text-align:left; padding:6px 10px; border-bottom:2px solid var(--color-divider); }
-.port-table td { padding:8px 10px; border-bottom:1px solid var(--color-divider); font-size:var(--text-xs); color:var(--color-text); }
-.port-table tr:hover td { background:var(--color-surface-offset); }
-.port-table .profit { color:var(--color-success); font-weight:600; }
-.port-table .loss   { color:var(--color-error); font-weight:600; }
-.port-total { margin-top:var(--space-4); padding:var(--space-3) var(--space-4); background:var(--color-surface-offset); border-radius:var(--radius-lg); display:flex; gap:var(--space-8); flex-wrap:wrap; font-family:'JetBrains Mono',monospace; }
-.port-total span { font-size:var(--text-xs); color:var(--color-text-muted); font-family:'Inter',sans-serif; font-weight:600; display:block; margin-bottom:2px; }
-.del-btn { background:none; border:none; cursor:pointer; color:var(--color-text-faint); font-size:var(--text-xs); padding:2px 6px; border-radius:var(--radius-sm); transition:all var(--transition); }
-.del-btn:hover { background:var(--color-error-bg); color:var(--color-error); }
-
-/* Market cards */
-.market-section-label { font-size:var(--text-xs); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-text-muted); margin:var(--space-4) 0 var(--space-3); padding-left:var(--space-3); border-left:3px solid var(--color-primary); }
-.markets-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-3); margin-bottom:var(--space-2); }
-@media(max-width:900px){.markets-grid{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:500px){.markets-grid{grid-template-columns:1fr;}}
-.market-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-3) var(--space-4); transition:all var(--transition); }
-.market-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
-.market-name { font-size:0.68rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-text-faint); }
-.market-val { font-family:'JetBrains Mono',monospace; font-size:var(--text-lg); font-weight:700; color:var(--color-text); margin:3px 0; }
-.market-change { font-size:var(--text-xs); font-weight:600; }
-.market-change.up   { color:var(--color-success); }
-.market-change.down { color:var(--color-error); }
-.market-change.loading { color:var(--color-text-faint); }
-
-/* Commodity cards */
-.commodity-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-3) var(--space-4); text-align:center; transition:all var(--transition); }
-.commodity-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
-.commodity-icon { font-size:1.6rem; margin-bottom:var(--space-2); }
-.commodity-name { font-size:0.68rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-text-faint); }
-.commodity-val { font-family:'JetBrains Mono',monospace; font-size:var(--text-base); font-weight:700; color:var(--color-text); }
-.commodity-change { font-size:var(--text-xs); font-weight:600; }
-
-/* Chart cards */
-.chart-cards-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-3); }
-@media(max-width:900px){.chart-cards-grid{grid-template-columns:repeat(2,1fr);}}
-.spark-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-3) var(--space-4); }
-.spark-name { font-size:var(--text-sm); font-weight:700; color:var(--color-text); margin-bottom:2px; }
-.spark-val { font-size:var(--text-xs); color:var(--color-text-muted); margin-bottom:var(--space-2); }
-
-/* Select input */
-select.field-input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8985' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 32px;
-  appearance: none;
-}
-</style>
+    /* ── Footer ── */
+    .index-footer {
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+      padding: var(--space-12) var(--space-8) var(--space-8);
+    }
+    .footer-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--space-8);
+    }
+    @media(max-width:768px){ .footer-inner { grid-template-columns: 1fr; } }
+    .footer-brand-name {
+      font-family: 'Playfair Display', serif;
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: var(--space-2);
+    }
+    .footer-brand-sub {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      line-height: 1.6;
+    }
+    .footer-col-title {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--color-text-faint);
+      margin-bottom: var(--space-4);
+    }
+    .footer-links { display: flex; flex-direction: column; gap: var(--space-2); }
+    .footer-links a {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      transition: color var(--transition);
+    }
+    .footer-links a:hover { color: var(--color-primary); }
+    .footer-bottom {
+      max-width: 1320px;
+      margin: var(--space-8) auto 0;
+      padding-top: var(--space-6);
+      border-top: 1px solid var(--color-divider);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      font-size: var(--text-xs);
+      color: var(--color-text-faint);
+    }
+  </style>
 </head>
 <body>
-<div class="app-wrapper">
 
-  <!-- HEADER -->
-  <header class="app-header">
-    <div class="header-brand">
-      <svg class="brand-logo" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="36" height="36" rx="8" fill="currentColor" opacity="0.1"/>
-        <path d="M8 26 L14 18 L20 21 L28 10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="28" cy="10" r="3" fill="currentColor"/>
-        <path d="M8 30 L28 30" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
-      </svg>
+<!-- ═══════════════════════════════════════════
+     TOP NAV
+════════════════════════════════════════════ -->
+<nav class="top-nav" id="top-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-logo">TW</div>
       <div>
-        <div class="brand-title">Wealth Dashboard</div>
-        <div class="brand-sub">Personal Finance &amp; Portfolio Tracker · India</div>
+        <span class="nav-brand-name">Thrivel Wealth</span>
+        <span class="nav-brand-tag">Private Client Services</span>
+      </div>
+    </a>
+
+    <div class="nav-links" id="nav-links">
+      <a href="index.html" class="nav-link active">Home</a>
+
+      <div class="nav-dropdown">
+        <button class="nav-link nav-dropdown-btn">
+          Markets
+          <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg>
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="dashboards/market-timings.html"><span class="menu-icon">🕐</span>Market Timings</a>
+          <a href="dashboards/trading-costs-dashboard.html"><span class="menu-icon">📊</span>Trading Costs</a>
+        </div>
+      </div>
+
+      <div class="nav-dropdown">
+        <button class="nav-link nav-dropdown-btn">
+          Calculators
+          <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg>
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="calculators/retirement-calc.html"><span class="menu-icon">🏛️</span>Retirement Simulator</a>
+          <a href="calculators/liquid-return-calc.html"><span class="menu-icon">💧</span>Liquid Returns</a>
+          <a href="calculators/liquid-etf-parking-calc.html"><span class="menu-icon">🅿️</span>ETF Parking</a>
+          <a href="calculators/fno-tax-structure.html"><span class="menu-icon">⚡</span>F&amp;O Charges</a>
+          <div class="menu-divider"></div>
+          <a href="calculators/interest-calc.html"><span class="menu-icon">📐</span>Interest Calculator</a>
+          <a href="calculators/portfolio-tracker.html"><span class="menu-icon">💼</span>Portfolio Tracker</a>
+        </div>
       </div>
     </div>
-    <div class="header-actions">
-      <span class="header-badge">FY 2026–27</span>
-      <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+
+    <div class="nav-right">
+      <div class="nav-clock-chip">
+        <span class="nav-clock-dot"></span>
+        <span id="nav-clock">--:-- IST</span>
+      </div>
+      <button class="nav-theme-btn" data-theme-toggle aria-label="Toggle theme">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="nav-mobile-btn" id="nav-mobile-btn" aria-label="Open menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
       </button>
     </div>
-  </header>
+  </div>
+</nav>
 
-  <!-- HERO + CLOCK -->
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:var(--space-5);margin-bottom:var(--space-8);">
+<!-- ═══════════════════════════════════════════
+     HERO
+════════════════════════════════════════════ -->
+<section class="index-hero">
+  <div class="hero-orb"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Thrivel Wealth · Private Client Services · India</div>
+    <h1 class="hero-heading">
+      Institutional-Grade<br>
+      <span class="gold">Financial Intelligence</span>
+    </h1>
+    <p class="hero-sub">
+      Precision tools for India's discerning investors. Built for serious wealth management, trading analysis, retirement planning, and market intelligence.
+    </p>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-num">9</div>
+        <div class="hero-stat-label">Financial Tools</div>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div>
+        <div class="hero-stat-num">FY 26–27</div>
+        <div class="hero-stat-label">Current Tax Year</div>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div>
+        <div class="hero-clock-num" id="hero-clock">--:--</div>
+        <div class="hero-stat-label">India Standard Time</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     TOOLS GRID
+════════════════════════════════════════════ -->
+<section class="tools-section page-wrapper">
+
+  <div class="section-header">
     <div>
-      <div class="page-hero-label">Personal Finance Hub</div>
-      <h1 class="page-hero-title">📒 Personal Wealth<br>&amp; Portfolio Dashboard</h1>
-      <p class="page-hero-sub">Track markets, calculate returns, and monitor investments — all in one place.</p>
+      <div class="section-eyebrow">Platform</div>
+      <h2 class="section-heading">Financial Tools</h2>
     </div>
-    <div class="clock-box">
-      <div class="clock-time" id="clock">--:--:--</div>
-      <div class="clock-date" id="dateline">Loading...</div>
-      <div class="clock-updated"><span class="refresh-dot"></span>Updated: <span id="lastUpdate">--</span></div>
-    </div>
+    <span class="badge badge-neutral">9 Tools</span>
   </div>
 
-  <!-- TOOLS NAVIGATION CARDS -->
-  <div class="section-divider">
-    <span class="section-divider-title">Financial Tools</span>
-    <div class="section-divider-line"></div>
-    <span class="badge badge-primary">4 Tools</span>
-  </div>
+  <!-- Markets & Analysis -->
+  <div class="tool-category">
+    <div class="tool-category-label">Markets &amp; Analysis</div>
+    <div class="tools-grid">
 
-  <div class="tools-grid">
-    <a href="dashboards/market-timings.html" class="tool-card" style="--card-accent: #f59e0b;">
-      <div class="tool-card-icon">🕐</div>
-      <div>
-        <div class="tool-card-title">Market Timings</div>
-        <div class="tool-card-sub">Live open/closed status for 10 global stock exchanges + India commodity markets (MCX/NCDEX) — all in IST with 24-hour timeline.</div>
-      </div>
-      <div class="tool-card-arrow">Open Dashboard <span>→</span></div>
-    </a>
-
-    <a href="dashboards/trading-costs-dashboard.html" class="tool-card" style="--card-accent: var(--color-blue);">
-      <div class="tool-card-icon">📊</div>
-      <div>
-        <div class="tool-card-title">Trading Costs &amp; Tax Dashboard</div>
-        <div class="tool-card-sub">Compare transaction friction, charges &amp; tax treatment across all Indian asset classes — Stocks, ETFs, F&amp;O, Commodities, Currencies. FY 2026-27.</div>
-      </div>
-      <div class="tool-card-arrow">Open Dashboard <span>→</span></div>
-    </a>
-
-
-    <a href="calculators/liquid-return-calc.html" class="tool-card" style="--card-accent: var(--color-success);">
-      <div class="tool-card-icon">💧</div>
-      <div>
-        <div class="tool-card-title">Liquid Return Calculator</div>
-        <div class="tool-card-sub">Compare after-charge, after-tax returns across Liquid ETF, Liquid Fund, Arbitrage Fund, Bank FD, and Savings Account for any holding period.</div>
-      </div>
-      <div class="tool-card-arrow">Open Calculator <span>→</span></div>
-    </a>
-
-    <a href="calculators/liquid-etf-parking-calc.html" class="tool-card" style="--card-accent: var(--color-primary);">
-      <div class="tool-card-icon">🅿️</div>
-      <div>
-        <div class="tool-card-title">Liquid ETF Parking Calculator</div>
-        <div class="tool-card-sub">Exact cost vs return analysis for LIQUIDBEES, LIQUIDPLUS, LIQUIDCASE parking. Find your break-even day across 7 investment amounts.</div>
-      </div>
-      <div class="tool-card-arrow">Open Calculator <span>→</span></div>
-    </a>
-
-    <a href="calculators/fno-tax-structure.html" class="tool-card" style="--card-accent: #f59e0b;">
-      <div class="tool-card-icon">⚡</div>
-      <div>
-        <div class="tool-card-title">F&amp;O Scalping Charges</div>
-        <div class="tool-card-sub">Round-trip friction costs for options trading — Brokerage, STT, Exchange Fee, GST, Stamp Duty across 5 premium sizes. Includes PGBP tax structure.</div>
-      </div>
-      <div class="tool-card-arrow">Open Dashboard <span>→</span></div>
-    </a>
-
-    <a href="calculators/retirement-calc.html" class="tool-card" style="--card-accent: var(--color-gold);">
-      <div class="tool-card-icon">🏛️</div>
-      <div>
-        <div class="tool-card-title">Retirement Benefits Simulator</div>
-        <div class="tool-card-sub">Project your retirement corpus, monthly pension, healthcare coverage &amp; benefit milestones across NPS, EPF, PPF &amp; self-managed portfolios.</div>
-      </div>
-      <div class="tool-card-arrow">Open Simulator <span>→</span></div>
-    </a>
-  </div>
-
-  <!-- CALCULATORS SECTION -->
-  <div class="section-divider">
-    <span class="section-divider-title">Interest Calculators</span>
-    <div class="section-divider-line"></div>
-    <a href="#calculators" id="calculators" style="opacity:0;pointer-events:none;"></a>
-  </div>
-
-  <div class="calc-grid calc-section">
-    <!-- Simple Interest -->
-    <div class="calc-card">
-      <div class="calc-card-title">📐 Simple Interest Calculator</div>
-      <div class="slider-group">
-        <div class="slider-header"><span class="slider-label">Principal</span><span class="slider-val mono" id="si-p-val">₹1,00,000</span></div>
-        <input type="range" id="si-p" min="10000" max="10000000" step="10000" value="100000" oninput="autoSI()">
-        <div class="range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
-      </div>
-      <div class="slider-group">
-        <div class="slider-header"><span class="slider-label">Interest Rate</span><span class="slider-val mono" id="si-r-val">7.0%</span></div>
-        <input type="range" id="si-r" min="1" max="20" step="0.5" value="7" oninput="autoSI()">
-        <div class="range-hint"><span>1%</span><span>20%</span></div>
-      </div>
-      <div class="slider-group">
-        <div class="slider-header"><span class="slider-label">Time</span><span class="slider-val mono" id="si-t-val">2 yrs</span></div>
-        <input type="range" id="si-t" min="1" max="30" step="1" value="2" oninput="autoSI()">
-        <div class="range-hint"><span>1 yr</span><span>30 yrs</span></div>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Unit</label>
-        <select class="field-input" id="si-unit" onchange="autoSI()">
-          <option value="years">Years</option>
-          <option value="days">Days</option>
-        </select>
-      </div>
-      <div class="result-box">
-        <div class="result-row"><span class="result-label">Interest Earned</span><span class="result-val" id="si-interest">—</span></div>
-        <div class="result-row"><span class="result-label">Total Amount</span><span class="result-val" id="si-total">—</span></div>
-      </div>
-    </div>
-
-    <!-- Compound Interest -->
-    <div class="calc-card">
-      <div class="calc-card-title">📈 Compound Interest Calculator</div>
-      <div class="slider-group">
-        <div class="slider-header"><span class="slider-label">Principal</span><span class="slider-val mono" id="ci-p-val">₹1,00,000</span></div>
-        <input type="range" id="ci-p" min="10000" max="10000000" step="10000" value="100000" oninput="autoCI()">
-        <div class="range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
-      </div>
-      <div class="slider-group">
-        <div class="slider-header"><span class="slider-label">Interest Rate</span><span class="slider-val mono" id="ci-r-val">8.0%</span></div>
-        <input type="range" id="ci-r" min="1" max="24" step="0.5" value="8" oninput="autoCI()">
-        <div class="range-hint"><span>1%</span><span>24%</span></div>
-      </div>
-      <div class="slider-group">
-        <div class="slider-header"><span class="slider-label">Time (Years)</span><span class="slider-val mono" id="ci-t-val">5 yrs</span></div>
-        <input type="range" id="ci-t" min="1" max="30" step="1" value="5" oninput="autoCI()">
-        <div class="range-hint"><span>1 yr</span><span>30 yrs</span></div>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Compounding Frequency</label>
-        <select class="field-input" id="ci-freq" onchange="autoCI()">
-          <option value="1">Annually</option>
-          <option value="2">Semi-Annually</option>
-          <option value="4" selected>Quarterly</option>
-          <option value="12">Monthly</option>
-          <option value="365">Daily</option>
-        </select>
-      </div>
-      <div class="result-box">
-        <div class="result-row"><span class="result-label">Future Value</span><span class="result-val" id="ci-fv">—</span></div>
-        <div class="result-row"><span class="result-label">Total Interest</span><span class="result-val" id="ci-interest">—</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- RATE OF RETURN -->
-  <div class="section-divider">
-    <span class="section-divider-title">Rate of Return</span>
-    <div class="section-divider-line"></div>
-    <a id="ror"></a>
-  </div>
-
-  <div class="calc-section" style="max-width:680px;">
-    <div class="calc-card">
-      <div class="calc-card-title">📈 Investment Returns Calculator</div>
-      <div class="calc-grid" style="grid-template-columns:1fr 1fr 1fr;gap:var(--space-4);">
-        <div class="slider-group">
-          <div class="slider-header"><span class="slider-label">Initial Investment</span><span class="slider-val mono" id="ror-init-val">₹1,00,000</span></div>
-          <input type="range" id="ror-init" min="10000" max="10000000" step="10000" value="100000" oninput="autoROR()">
-          <div class="range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
+      <a href="dashboards/market-timings.html" class="tool-card" style="--card-accent:#c9a84c;">
+        <div class="tool-card-top">
+          <div class="tool-card-icon">🕐</div>
+          <span class="tool-card-tag">Live</span>
         </div>
-        <div class="slider-group">
-          <div class="slider-header"><span class="slider-label">Final Value</span><span class="slider-val mono" id="ror-final-val">₹1,85,000</span></div>
-          <input type="range" id="ror-final" min="10000" max="20000000" step="10000" value="185000" oninput="autoROR()">
-          <div class="range-hint"><span>₹10K</span><span>₹2 Cr</span></div>
+        <div>
+          <div class="tool-card-title">Market Timings</div>
+          <div class="tool-card-sub">Real-time open/closed status for 10 global exchanges and India commodity markets (MCX/NCDEX) — all in IST with live 24-hour timeline.</div>
         </div>
-        <div class="slider-group">
-          <div class="slider-header"><span class="slider-label">Time Period</span><span class="slider-val mono" id="ror-years-val">5 yrs</span></div>
-          <input type="range" id="ror-years" min="1" max="30" step="1" value="5" oninput="autoROR()">
-          <div class="range-hint"><span>1 yr</span><span>30 yrs</span></div>
+        <div class="tool-card-arrow">Open Dashboard <span>→</span></div>
+      </a>
+
+      <a href="dashboards/trading-costs-dashboard.html" class="tool-card" style="--card-accent:#60a5fa;">
+        <div class="tool-card-top">
+          <div class="tool-card-icon">📊</div>
+          <span class="tool-card-tag">FY 26-27</span>
         </div>
+        <div>
+          <div class="tool-card-title">Trading Costs &amp; Tax Dashboard</div>
+          <div class="tool-card-sub">Compare transaction friction, STT, GST, and tax treatment across all Indian asset classes — Stocks, ETFs, F&amp;O, Commodities, Currencies.</div>
+        </div>
+        <div class="tool-card-arrow">Open Dashboard <span>→</span></div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Calculators -->
+  <div class="tool-category">
+    <div class="tool-category-label">Calculators &amp; Simulators</div>
+    <div class="tools-grid">
+
+      <a href="calculators/retirement-calc.html" class="tool-card" style="--card-accent:#c9a84c;">
+        <div class="tool-card-top">
+          <div class="tool-card-icon">🏛️</div>
+          <span class="tool-card-tag">India</span>
+        </div>
+        <div>
+          <div class="tool-card-title">Retirement Benefits Simulator</div>
+          <div class="tool-card-sub">Project your corpus, monthly pension, and milestones across NPS, EPF/EPS, PPF, and self-managed portfolios with EPS and annuity income.</div>
+        </div>
+        <div class="tool-card-arrow">Open Simulator <span>→</span></div>
+      </a>
+
+      <a href="calculators/liquid-return-calc.html" class="tool-card" style="--card-accent:#22c55e;">
+        <div class="tool-card-top">
+          <div class="tool-card-icon">💧</div>
+          <span class="tool-card-tag">After-Tax</span>
+        </div>
+        <div>
+          <div class="tool-card-title">Liquid Return Calculator</div>
+          <div class="tool-card-sub">Compare net returns across Liquid ETF, Liquid Fund, Arbitrage Fund, Bank FD, and Savings Account — after all charges and taxes.</div>
+        </div>
+        <div class="tool-card-arrow">Open Calculator <span>→</span></div>
+      </a>
+
+      <a href="calculators/liquid-etf-parking-calc.html" class="tool-card" style="--card-accent:#a78bfa;">
+        <div class="tool-card-top">
+          <div class="tool-card-icon">🅿️</div>
+          <span class="tool-card-tag">Break-Even</span>
+        </div>
+        <div>
+          <div class="tool-card-title">Liquid ETF Parking Calculator</div>
+          <div class="tool-card-sub">Exact cost vs return for LIQUIDBEES, LIQUIDPLUS, LIQUIDCASE. Find your break-even day across 7 investment amounts with detailed charge breakdown.</div>
+        </div>
+        <div class="tool-card-arrow">Open Calculator <span>→</span></div>
+      </a>
+
+      <a href="calculators/fno-tax-structure.html" class="tool-card" style="--card-accent:#fbbf24;">
+        <div class="tool-card-top">
+          <div class="tool-card-icon">⚡</div>
+          <span class="tool-card-tag">NSE</span>
+        </div>
+        <div>
+          <div class="tool-card-title">F&amp;O Scalping Charges</div>
+          <div class="tool-card-sub">Round-trip friction analysis for options trading — Brokerage, STT, Exchange Fee, GST, Stamp Duty across 5 premium sizes. Includes PGBP tax structure.</div>
+        </div>
+        <div class="tool-card-arrow">Open Dashboard <span>→</span></div>
+      </a>
+
+      <a href="calculators/interest-calc.html" class="tool-card" style="--card-accent:#60a5fa;">
+        <div class="tool-card-top">
+          <div class="tool-card-icon">📐</div>
+          <span class="tool-card-tag">SI · CI · CAGR</span>
+        </div>
+        <div>
+          <div class="tool-card-title">Interest Calculator</div>
+          <div class="tool-card-sub">Simple Interest, Compound Interest, and Rate of Return (CAGR) calculators in one place. Interactive sliders with instant results.</div>
+        </div>
+        <div class="tool-card-arrow">Open Calculator <span>→</span></div>
+      </a>
+
+      <a href="calculators/portfolio-tracker.html" class="tool-card" style="--card-accent:#f87171;">
+        <div class="tool-card-top">
+          <div class="tool-card-icon">💼</div>
+          <span class="tool-card-tag">P&amp;L</span>
+        </div>
+        <div>
+          <div class="tool-card-title">Portfolio Tracker</div>
+          <div class="tool-card-sub">Add your holdings and track real-time P&amp;L, absolute returns, and CAGR. Persistent across sessions — no login required. Data stored locally.</div>
+        </div>
+        <div class="tool-card-arrow">Open Tracker <span>→</span></div>
+      </a>
+
+      <a href="calculators/retirement-calc.html" class="tool-card" style="--card-accent:#34d399;opacity:0.6;pointer-events:none;" aria-disabled="true">
+        <div class="tool-card-top">
+          <div class="tool-card-icon">🔮</div>
+          <span class="tool-card-tag" style="color:var(--color-text-faint);">Coming Soon</span>
+        </div>
+        <div>
+          <div class="tool-card-title" style="color:var(--color-text-muted);">SIP Planner</div>
+          <div class="tool-card-sub">Goal-based SIP calculator with step-up SIP, inflation adjustment, and target corpus planning for mutual fund investments.</div>
+        </div>
+        <div class="tool-card-arrow" style="color:var(--color-text-faint);">In Development <span>·</span></div>
+      </a>
+
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer class="index-footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand-name">Thrivel Wealth</div>
+      <div class="footer-brand-sub">
+        Institutional-grade financial tools for India's serious investors and wealth managers.
+        Built with precision. Designed for clarity.
       </div>
-      <div class="result-box" style="display:flex;gap:var(--space-6);align-items:center;flex-wrap:wrap;">
-        <div><div class="result-label">Absolute Return</div><div class="ror-big" id="ror-abs">—</div></div>
-        <div><div class="result-label">CAGR</div><div class="ror-big" id="ror-cagr">—</div></div>
-        <div><div class="result-label">Profit / Loss</div><div style="font-family:'JetBrains Mono',monospace;font-size:var(--text-xl);font-weight:700;" id="ror-pl">—</div></div>
+    </div>
+    <div>
+      <div class="footer-col-title">Markets &amp; Analysis</div>
+      <div class="footer-links">
+        <a href="dashboards/market-timings.html">Market Timings (Global + MCX)</a>
+        <a href="dashboards/trading-costs-dashboard.html">Trading Costs Dashboard</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Calculators</div>
+      <div class="footer-links">
+        <a href="calculators/retirement-calc.html">Retirement Simulator</a>
+        <a href="calculators/liquid-return-calc.html">Liquid Return Calculator</a>
+        <a href="calculators/liquid-etf-parking-calc.html">ETF Parking Calculator</a>
+        <a href="calculators/fno-tax-structure.html">F&amp;O Scalping Charges</a>
+        <a href="calculators/interest-calc.html">Interest Calculator</a>
+        <a href="calculators/portfolio-tracker.html">Portfolio Tracker</a>
       </div>
     </div>
   </div>
-
-  <!-- PORTFOLIO TRACKER -->
-  <div class="section-divider">
-    <span class="section-divider-title">Portfolio Tracker</span>
-    <div class="section-divider-line"></div>
-    <a id="portfolio"></a>
+  <div class="footer-bottom">
+    <div>© 2026 Thrivel Wealth · All rights reserved</div>
+    <div>Not financial advice. For educational &amp; tracking purposes only · India · FY 2026-27</div>
   </div>
-
-  <div class="calc-section">
-    <div class="calc-card">
-      <div class="calc-card-title">💼 Personal Portfolio Tracker</div>
-      <div class="portfolio-add">
-        <div class="field-group"><label class="field-label">Asset Name</label><input class="field-input" id="pt-name" placeholder="e.g. Reliance"></div>
-        <div class="field-group"><label class="field-label">Quantity</label><input class="field-input" id="pt-qty" type="number" placeholder="100"></div>
-        <div class="field-group"><label class="field-label">Buy Price (₹)</label><input class="field-input" id="pt-buy" type="number" placeholder="2500"></div>
-        <div class="field-group"><label class="field-label">Current Price (₹)</label><input class="field-input" id="pt-cur" type="number" placeholder="2750"></div>
-        <div style="display:flex;align-items:flex-end;"><button class="btn btn-primary" onclick="addAsset()">+ Add Asset</button></div>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="port-table">
-          <thead><tr><th>Asset</th><th>Qty</th><th>Buy Price</th><th>Current</th><th>Invested</th><th>Value</th><th>P&amp;L</th><th>Return</th><th></th></tr></thead>
-          <tbody id="port-body"><tr><td colspan="9" style="text-align:center;color:var(--color-text-faint);padding:24px;">No assets yet. Add your first one above ↑</td></tr></tbody>
-        </table>
-      </div>
-      <div class="port-total" id="port-total" style="display:none;">
-        <div><span>Total Invested</span><strong id="pt-invested">—</strong></div>
-        <div><span>Portfolio Value</span><strong id="pt-value">—</strong></div>
-        <div><span>Total P&amp;L</span><strong id="pt-pnl">—</strong></div>
-        <div><span>Overall Return</span><strong id="pt-ret">—</strong></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- GLOBAL MARKETS -->
-  <div class="section-divider">
-    <span class="section-divider-title">Global Markets</span>
-    <div class="section-divider-line"></div>
-    <span style="font-size:0.68rem;color:var(--color-text-faint);"><span class="refresh-dot" style="display:inline-block;margin-right:4px;"></span>Auto-refresh 60s</span>
-    <a id="markets"></a>
-  </div>
-
-  <div class="calc-section">
-    <div class="market-section-label">🇮🇳 Indian Markets</div>
-    <div class="markets-grid" id="in-markets">
-      <div class="market-card"><div class="market-name">Nifty 50</div><div class="market-val loading-pulse" id="nifty-val">Loading...</div><div class="market-change loading" id="nifty-chg">—</div></div>
-      <div class="market-card"><div class="market-name">Sensex</div><div class="market-val loading-pulse" id="sensex-val">Loading...</div><div class="market-change loading" id="sensex-chg">—</div></div>
-      <div class="market-card"><div class="market-name">Bank Nifty</div><div class="market-val loading-pulse" id="banknifty-val">Loading...</div><div class="market-change loading" id="banknifty-chg">—</div></div>
-      <div class="market-card"><div class="market-name">Nifty IT</div><div class="market-val loading-pulse" id="niftyit-val">Loading...</div><div class="market-change loading" id="niftyit-chg">—</div></div>
-    </div>
-    <div class="market-section-label">🇺🇸 US Markets</div>
-    <div class="markets-grid" id="us-markets">
-      <div class="market-card"><div class="market-name">S&amp;P 500</div><div class="market-val loading-pulse" id="spx-val">Loading...</div><div class="market-change loading" id="spx-chg">—</div></div>
-      <div class="market-card"><div class="market-name">Nasdaq</div><div class="market-val loading-pulse" id="ndx-val">Loading...</div><div class="market-change loading" id="ndx-chg">—</div></div>
-      <div class="market-card"><div class="market-name">Dow Jones</div><div class="market-val loading-pulse" id="dji-val">Loading...</div><div class="market-change loading" id="dji-chg">—</div></div>
-      <div class="market-card"><div class="market-name">VIX</div><div class="market-val loading-pulse" id="vix-val">Loading...</div><div class="market-change loading" id="vix-chg">—</div></div>
-    </div>
-    <div class="market-section-label">🌏 Asian &amp; European Markets</div>
-    <div class="markets-grid">
-      <div class="market-card"><div class="market-name">Nikkei 225</div><div class="market-val loading-pulse" id="nikkei-val">Loading...</div><div class="market-change loading" id="nikkei-chg">—</div></div>
-      <div class="market-card"><div class="market-name">Hang Seng</div><div class="market-val loading-pulse" id="hsi-val">Loading...</div><div class="market-change loading" id="hsi-chg">—</div></div>
-      <div class="market-card"><div class="market-name">FTSE 100</div><div class="market-val loading-pulse" id="ftse-val">Loading...</div><div class="market-change loading" id="ftse-chg">—</div></div>
-      <div class="market-card"><div class="market-name">DAX</div><div class="market-val loading-pulse" id="dax-val">Loading...</div><div class="market-change loading" id="dax-chg">—</div></div>
-    </div>
-  </div>
-
-  <!-- COMMODITIES -->
-  <div class="section-divider">
-    <span class="section-divider-title">Commodities</span>
-    <div class="section-divider-line"></div>
-    <a id="commodities"></a>
-  </div>
-  <div class="calc-section">
-    <div class="markets-grid" style="grid-template-columns:repeat(5,1fr);" id="commodities-grid">
-      <div class="commodity-card"><div class="commodity-icon">🥇</div><div class="commodity-name">Gold (USD/oz)</div><div class="commodity-val loading-pulse" id="gold-val">Loading...</div><div class="commodity-change loading" id="gold-chg">—</div></div>
-      <div class="commodity-card"><div class="commodity-icon">🥈</div><div class="commodity-name">Silver (USD/oz)</div><div class="commodity-val loading-pulse" id="silver-val">Loading...</div><div class="commodity-change loading" id="silver-chg">—</div></div>
-      <div class="commodity-card"><div class="commodity-icon">🛢️</div><div class="commodity-name">Crude Oil (USD)</div><div class="commodity-val loading-pulse" id="crude-val">Loading...</div><div class="commodity-change loading" id="crude-chg">—</div></div>
-      <div class="commodity-card"><div class="commodity-icon">🔥</div><div class="commodity-name">Natural Gas</div><div class="commodity-val loading-pulse" id="gas-val">Loading...</div><div class="commodity-change loading" id="gas-chg">—</div></div>
-      <div class="commodity-card"><div class="commodity-icon">🔶</div><div class="commodity-name">Copper (USD/lb)</div><div class="commodity-val loading-pulse" id="copper-val">Loading...</div><div class="commodity-change loading" id="copper-chg">—</div></div>
-    </div>
-    <p style="font-size:0.68rem;color:var(--color-text-faint);margin-top:var(--space-2);">* Prices in USD. Data via Yahoo Finance proxy.</p>
-  </div>
-
-  <!-- MINI CHARTS -->
-  <div class="section-divider">
-    <span class="section-divider-title">Mini Charts</span>
-    <div class="section-divider-line"></div>
-    <a id="charts"></a>
-  </div>
-  <div class="calc-section">
-    <div class="chart-cards-grid">
-      <div class="spark-card"><div class="spark-name">Nifty 50</div><div class="spark-val" id="chart-nifty-val">—</div><div style="height:80px;position:relative;"><canvas id="chart-nifty"></canvas></div></div>
-      <div class="spark-card"><div class="spark-name">S&amp;P 500</div><div class="spark-val" id="chart-spx-val">—</div><div style="height:80px;position:relative;"><canvas id="chart-spx"></canvas></div></div>
-      <div class="spark-card"><div class="spark-name">Gold</div><div class="spark-val" id="chart-gold-val">—</div><div style="height:80px;position:relative;"><canvas id="chart-gold"></canvas></div></div>
-      <div class="spark-card"><div class="spark-name">Crude Oil</div><div class="spark-val" id="chart-crude-val">—</div><div style="height:80px;position:relative;"><canvas id="chart-crude"></canvas></div></div>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <footer style="border-top:1px solid var(--color-divider);padding:var(--space-6) 0 var(--space-12);font-size:var(--text-xs);color:var(--color-text-faint);text-align:center;line-height:1.8;">
-    <div>📡 Data Source: Yahoo Finance (via allorigins proxy) · Auto-refreshes every 60 seconds</div>
-    <div>Last Updated: <span id="footer-update">—</span></div>
-    <div style="margin-top:var(--space-2);">Not financial advice. For educational &amp; tracking purposes only.</div>
-  </footer>
-
-</div><!-- /app-wrapper -->
+</footer>
 
 <script>
-// ===== THEME TOGGLE =====
+// ── IST Clock ──
+function updateClocks(){
+  const now=new Date();
+  const ist=new Date(now.getTime()+now.getTimezoneOffset()*60000+5.5*3600000);
+  const hh=String(ist.getHours()).padStart(2,'0');
+  const mm=String(ist.getMinutes()).padStart(2,'0');
+  const ss=String(ist.getSeconds()).padStart(2,'0');
+  const t=`${hh}:${mm}`;
+  const el=document.getElementById('hero-clock');
+  const nc=document.getElementById('nav-clock');
+  if(el) el.textContent=t;
+  if(nc) nc.textContent=`${t}:${ss} IST`;
+}
+updateClocks();
+setInterval(updateClocks,1000);
+
+// ── Mobile Nav ──
+const mobileBtn=document.getElementById('nav-mobile-btn');
+const navLinks=document.getElementById('nav-links');
+if(mobileBtn&&navLinks){
+  mobileBtn.addEventListener('click',()=>{
+    navLinks.classList.toggle('open');
+  });
+}
+
+// ── Theme Toggle ──
 (function(){
-  const toggle=document.querySelector('[data-theme-toggle]'),root=document.documentElement;
+  const toggle=document.querySelector('[data-theme-toggle]');
+  const root=document.documentElement;
   let theme=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
   root.setAttribute('data-theme',theme);
-  function setIcon(t){if(!toggle)return;toggle.innerHTML=t==='dark'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';toggle.setAttribute('aria-label','Switch to '+(t==='dark'?'light':'dark')+' mode');}
+  function setIcon(t){
+    if(!toggle)return;
+    toggle.innerHTML=t==='dark'
+      ?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+      :'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    toggle.setAttribute('aria-label','Switch to '+(t==='dark'?'light':'dark')+' mode');
+  }
   setIcon(theme);
-  if(toggle)toggle.addEventListener('click',()=>{theme=theme==='dark'?'light':'dark';root.setAttribute('data-theme',theme);setIcon(theme);});
+  if(toggle) toggle.addEventListener('click',()=>{
+    theme=theme==='dark'?'light':'dark';
+    root.setAttribute('data-theme',theme);
+    setIcon(theme);
+  });
 })();
-
-// ===== CLOCK =====
-function updateClock(){const now=new Date();document.getElementById('clock').textContent=now.toLocaleTimeString('en-IN');document.getElementById('dateline').textContent=now.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
-setInterval(updateClock,1000);updateClock();
-function setUpdated(){const t=new Date().toLocaleTimeString('en-IN');document.getElementById('lastUpdate').textContent=t;const fu=document.getElementById('footer-update');if(fu)fu.textContent=new Date().toLocaleString('en-IN');}
-
-// ===== FORMATTERS =====
-function fmtINR(n){if(isNaN(n))return'—';return'₹'+Math.abs(n).toLocaleString('en-IN',{maximumFractionDigits:2});}
-function fmtNum(n,decimals=2){if(isNaN(n))return'—';return n.toLocaleString('en-US',{maximumFractionDigits:decimals});}
-function fmtPct(n){return(n>=0?'+':'')+n.toFixed(2)+'%';}
-
-// ===== SIMPLE INTEREST =====
-function autoSI(){
-  const p=parseFloat(document.getElementById('si-p').value),r=parseFloat(document.getElementById('si-r').value),t=parseFloat(document.getElementById('si-t').value),unit=document.getElementById('si-unit').value;
-  document.getElementById('si-p-val').textContent=fmtINR(p);
-  document.getElementById('si-r-val').textContent=r.toFixed(1)+'%';
-  document.getElementById('si-t-val').textContent=unit==='days'?t+' days':t+' yr'+(t>1?'s':'');
-  const years=unit==='days'?t/365:t,interest=p*r/100*years,total=p+interest;
-  document.getElementById('si-interest').textContent=fmtINR(interest);
-  document.getElementById('si-total').textContent=fmtINR(total);
-}
-autoSI();
-
-// ===== COMPOUND INTEREST =====
-function autoCI(){
-  const p=parseFloat(document.getElementById('ci-p').value),r=parseFloat(document.getElementById('ci-r').value),t=parseFloat(document.getElementById('ci-t').value),n=parseInt(document.getElementById('ci-freq').value);
-  document.getElementById('ci-p-val').textContent=fmtINR(p);
-  document.getElementById('ci-r-val').textContent=r.toFixed(1)+'%';
-  document.getElementById('ci-t-val').textContent=t+' yr'+(t>1?'s':'');
-  const fv=p*Math.pow(1+(r/100)/n,n*t),interest=fv-p;
-  document.getElementById('ci-fv').textContent=fmtINR(fv);
-  document.getElementById('ci-interest').textContent=fmtINR(interest);
-}
-autoCI();
-
-// ===== RATE OF RETURN =====
-function autoROR(){
-  const init=parseFloat(document.getElementById('ror-init').value),fin=parseFloat(document.getElementById('ror-final').value),yrs=parseFloat(document.getElementById('ror-years').value);
-  document.getElementById('ror-init-val').textContent=fmtINR(init);
-  document.getElementById('ror-final-val').textContent=fmtINR(fin);
-  document.getElementById('ror-years-val').textContent=yrs+' yr'+(yrs>1?'s':'');
-  const pl=fin-init,absReturn=(pl/init)*100,cagr=fin>0&&init>0?(Math.pow(fin/init,1/yrs)-1)*100:0;
-  const absEl=document.getElementById('ror-abs'),cagrEl=document.getElementById('ror-cagr');
-  absEl.textContent=fmtPct(absReturn);cagrEl.textContent=fmtPct(cagr);
-  absEl.className='ror-big '+(pl>=0?'positive':'negative');
-  cagrEl.className='ror-big '+(cagr>=0?'positive':'negative');
-  document.getElementById('ror-pl').textContent=(pl>=0?'+':'')+fmtINR(pl);
-  document.getElementById('ror-pl').style.color=pl>=0?'var(--color-success)':'var(--color-error)';
-}
-autoROR();
-
-// ===== PORTFOLIO TRACKER =====
-let portfolio=JSON.parse(localStorage.getItem('portfolio')||'[]');
-function savePort(){localStorage.setItem('portfolio',JSON.stringify(portfolio));}
-function addAsset(){
-  const name=document.getElementById('pt-name').value.trim(),qty=parseFloat(document.getElementById('pt-qty').value),buy=parseFloat(document.getElementById('pt-buy').value),cur=parseFloat(document.getElementById('pt-cur').value);
-  if(!name||isNaN(qty)||isNaN(buy)||isNaN(cur)){alert('Please fill all fields');return;}
-  portfolio.push({name,qty,buy,cur,id:Date.now()});savePort();renderPortfolio();
-  ['pt-name','pt-qty','pt-buy','pt-cur'].forEach(id=>document.getElementById(id).value='');
-}
-function removeAsset(id){portfolio=portfolio.filter(a=>a.id!==id);savePort();renderPortfolio();}
-function renderPortfolio(){
-  const tbody=document.getElementById('port-body');
-  if(portfolio.length===0){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--color-text-faint);padding:24px;">No assets yet. Add your first one above ↑</td></tr>';document.getElementById('port-total').style.display='none';return;}
-  let totalInvested=0,totalValue=0;
-  tbody.innerHTML=portfolio.map(a=>{
-    const invested=a.qty*a.buy,value=a.qty*a.cur,pl=value-invested,ret=((a.cur-a.buy)/a.buy)*100;
-    totalInvested+=invested;totalValue+=value;
-    const cls=pl>=0?'profit':'loss';
-    return`<tr><td><strong>${a.name}</strong></td><td>${a.qty}</td><td>${fmtINR(a.buy)}</td><td>${fmtINR(a.cur)}</td><td>${fmtINR(invested)}</td><td>${fmtINR(value)}</td><td class="${cls}">${pl>=0?'+':''}${fmtINR(pl)}</td><td class="${cls}">${fmtPct(ret)}</td><td><button class="del-btn" onclick="removeAsset(${a.id})">✕</button></td></tr>`;
-  }).join('');
-  const totalPL=totalValue-totalInvested,totalRet=((totalValue-totalInvested)/totalInvested)*100;
-  document.getElementById('pt-invested').textContent=fmtINR(totalInvested);
-  document.getElementById('pt-value').textContent=fmtINR(totalValue);
-  const pnlEl=document.getElementById('pt-pnl');pnlEl.textContent=(totalPL>=0?'+':'')+fmtINR(totalPL);pnlEl.style.color=totalPL>=0?'var(--color-success)':'var(--color-error)';
-  const retEl=document.getElementById('pt-ret');retEl.textContent=fmtPct(totalRet);retEl.style.color=totalRet>=0?'var(--color-success)':'var(--color-error)';
-  document.getElementById('port-total').style.display='flex';
-}
-renderPortfolio();
-
-// ===== MARKET DATA =====
-const SYMBOLS={'^GSPC':{val:'spx-val',chg:'spx-chg'},'^IXIC':{val:'ndx-val',chg:'ndx-chg'},'^DJI':{val:'dji-val',chg:'dji-chg'},'^VIX':{val:'vix-val',chg:'vix-chg'},'^NSEI':{val:'nifty-val',chg:'nifty-chg',chartVal:'chart-nifty-val',chart:'chart-nifty'},'^BSESN':{val:'sensex-val',chg:'sensex-chg'},'^NSEBANK':{val:'banknifty-val',chg:'banknifty-chg'},'^CNXIT':{val:'niftyit-val',chg:'niftyit-chg'},'^N225':{val:'nikkei-val',chg:'nikkei-chg'},'^HSI':{val:'hsi-val',chg:'hsi-chg'},'^FTSE':{val:'ftse-val',chg:'ftse-chg'},'^GDAXI':{val:'dax-val',chg:'dax-chg'},'GC=F':{val:'gold-val',chg:'gold-chg',chartVal:'chart-gold-val',chart:'chart-gold'},'SI=F':{val:'silver-val',chg:'silver-chg'},'CL=F':{val:'crude-val',chg:'crude-chg',chartVal:'chart-crude-val',chart:'chart-crude'},'NG=F':{val:'gas-val',chg:'gas-chg'},'HG=F':{val:'copper-val',chg:'copper-chg'}};
-const sparkCharts={};
-function makeSparkline(canvasId,values,color){const ctx=document.getElementById(canvasId);if(!ctx)return;if(sparkCharts[canvasId])sparkCharts[canvasId].destroy();sparkCharts[canvasId]=new Chart(ctx,{type:'line',data:{labels:values.map((_,i)=>i),datasets:[{data:values,borderColor:color,borderWidth:2,fill:true,backgroundColor:color+'22',pointRadius:0,tension:0.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}},animation:false}});}
-function generateSparkData(baseVal,points=20,volatility=0.005){const data=[baseVal];for(let i=1;i<points;i++){const change=data[i-1]*volatility*(Math.random()-0.48);data.push(data[i-1]+change);}return data;}
-async function fetchQuote(symbol){const url=`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;const proxy=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;const res=await fetch(proxy);const json=await res.json();const data=JSON.parse(json.contents);const meta=data.chart.result[0].meta;return{price:meta.regularMarketPrice,prevClose:meta.chartPreviousClose||meta.previousClose,change:meta.regularMarketPrice-(meta.chartPreviousClose||meta.previousClose),changePct:((meta.regularMarketPrice-(meta.chartPreviousClose||meta.previousClose))/(meta.chartPreviousClose||meta.previousClose))*100};}
-function updateMarketCard(sym,data){
-  const map=SYMBOLS[sym];if(!map)return;
-  const valEl=document.getElementById(map.val),chgEl=document.getElementById(map.chg);if(!valEl||!chgEl)return;
-  valEl.classList.remove('loading-pulse');const isUp=data.change>=0;
-  let priceStr;if(data.price>1000)priceStr=data.price.toLocaleString('en-US',{maximumFractionDigits:2});else priceStr=data.price.toFixed(data.price<10?3:2);
-  valEl.textContent=priceStr;
-  chgEl.textContent=`${isUp?'▲':'▼'} ${Math.abs(data.change).toFixed(2)} (${Math.abs(data.changePct).toFixed(2)}%)`;
-  chgEl.className='market-change '+(isUp?'up':'down');
-  if(map.chartVal){const cv=document.getElementById(map.chartVal);if(cv)cv.textContent=priceStr+' '+(isUp?'▲':'▼')+' '+Math.abs(data.changePct).toFixed(2)+'%';}
-  if(map.chart){const color=isUp?'var(--color-success)':'var(--color-error)';makeSparkline(map.chart,generateSparkData(data.price,24,0.004),isUp?'#6db545':'#f87171');}
-  if(sym==='^NSEI'&&!map.chart){const cv=document.getElementById('chart-nifty-val');if(cv)cv.textContent=priceStr+' '+(isUp?'▲':'▼')+' '+Math.abs(data.changePct).toFixed(2)+'%';makeSparkline('chart-nifty',generateSparkData(data.price,24,0.003),isUp?'#6db545':'#f87171');}
-  if(sym==='^GSPC'&&!map.chart){const cv=document.getElementById('chart-spx-val');if(cv)cv.textContent=priceStr+' '+(isUp?'▲':'▼')+' '+Math.abs(data.changePct).toFixed(2)+'%';makeSparkline('chart-spx',generateSparkData(data.price,24,0.003),isUp?'#6db545':'#f87171');}
-}
-function setError(sym){const map=SYMBOLS[sym];if(!map)return;const valEl=document.getElementById(map.val),chgEl=document.getElementById(map.chg);if(valEl){valEl.textContent='N/A';valEl.classList.remove('loading-pulse');}if(chgEl){chgEl.textContent='Unavailable';chgEl.className='market-change loading';}}
-async function fetchAll(){const syms=Object.keys(SYMBOLS);for(const sym of syms){try{const data=await fetchQuote(sym);updateMarketCard(sym,data);await new Promise(r=>setTimeout(r,120));}catch(e){setError(sym);}}setUpdated();}
-fetchAll();setInterval(fetchAll,60000);
 </script>
 </body>
 </html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interest Calculator — Thrivel Wealth</title>
+  <meta name="description" content="Simple Interest, Compound Interest, and CAGR/Rate of Return calculators. Interactive sliders with instant results." />
+  <link rel="stylesheet" href="../shared.css" />
+  <style>
+    .calc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: var(--space-5); }
+    .calc-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-sm);
+    }
+    .calc-card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-text);
+      letter-spacing: -0.01em;
+      margin-bottom: var(--space-5);
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--color-divider);
+      display: flex; align-items: center; gap: var(--space-3);
+    }
+    .calc-card-title .card-icon {
+      width: 32px; height: 32px;
+      border-radius: var(--radius-md);
+      background: var(--color-primary-dim);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .slider-group { margin-bottom: var(--space-4); }
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: var(--space-2);
+    }
+    .slider-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--color-text-muted);
+    }
+    .slider-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+    .range-hint {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.62rem;
+      color: var(--color-text-faint);
+      margin-top: 5px;
+    }
+    .result-box {
+      margin-top: var(--space-5);
+      background: var(--color-surface-offset);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      overflow: hidden;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--color-divider);
+      font-size: var(--text-sm);
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-label { color: var(--color-text-muted); font-weight: 500; }
+    .result-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--color-success);
+      font-size: var(--text-sm);
+    }
+    .ror-big {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .ror-big.positive { color: var(--color-success); }
+    .ror-big.negative { color: var(--color-error); }
+    .ror-stats { display: flex; gap: var(--space-6); flex-wrap: wrap; margin-top: var(--space-5); }
+    .ror-stat label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--color-text-faint); display: block; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="top-nav" id="top-nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-brand">
+      <div class="nav-logo">TW</div>
+      <div>
+        <span class="nav-brand-name">Thrivel Wealth</span>
+        <span class="nav-brand-tag">Private Client Services</span>
+      </div>
+    </a>
+    <div class="nav-links" id="nav-links">
+      <a href="../index.html" class="nav-link">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-link nav-dropdown-btn">Markets <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+        <div class="nav-dropdown-menu">
+          <a href="../dashboards/market-timings.html"><span class="menu-icon">🕐</span>Market Timings</a>
+          <a href="../dashboards/trading-costs-dashboard.html"><span class="menu-icon">📊</span>Trading Costs</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-link nav-dropdown-btn active">Calculators <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+        <div class="nav-dropdown-menu">
+          <a href="../calculators/retirement-calc.html"><span class="menu-icon">🏛️</span>Retirement</a>
+          <a href="../calculators/liquid-return-calc.html"><span class="menu-icon">💧</span>Liquid Returns</a>
+          <a href="../calculators/liquid-etf-parking-calc.html"><span class="menu-icon">🅿️</span>ETF Parking</a>
+          <a href="../calculators/fno-tax-structure.html"><span class="menu-icon">⚡</span>F&amp;O Charges</a>
+          <div class="menu-divider"></div>
+          <a href="../calculators/interest-calc.html"><span class="menu-icon">📐</span>Interest Calc</a>
+          <a href="../calculators/portfolio-tracker.html"><span class="menu-icon">💼</span>Portfolio</a>
+        </div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="nav-clock-chip"><span class="nav-clock-dot"></span><span id="nav-clock">--:-- IST</span></div>
+      <button class="nav-theme-btn" data-theme-toggle aria-label="Toggle theme"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button class="nav-mobile-btn" id="nav-mobile-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+    </div>
+  </div>
+</nav>
+
+<div class="app-wrapper">
+  <nav class="breadcrumb">
+    <a href="../index.html">Home</a>
+    <span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current">Interest Calculator</span>
+  </nav>
+
+  <div class="page-hero">
+    <div class="page-hero-label">Calculators</div>
+    <h1 class="page-hero-title">Interest Calculator</h1>
+    <p class="page-hero-sub">Simple Interest, Compound Interest, and Rate of Return (CAGR) — all in one place with interactive sliders and instant results.</p>
+  </div>
+
+  <div class="calc-grid">
+
+    <!-- Simple Interest -->
+    <div class="calc-card">
+      <div class="calc-card-title">
+        <span class="card-icon">📐</span>
+        Simple Interest
+      </div>
+      <div class="slider-group">
+        <div class="slider-header"><span class="slider-label">Principal</span><span class="slider-val" id="si-p-val">₹1,00,000</span></div>
+        <input type="range" id="si-p" min="10000" max="10000000" step="10000" value="100000" oninput="autoSI()">
+        <div class="range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
+      </div>
+      <div class="slider-group">
+        <div class="slider-header"><span class="slider-label">Interest Rate</span><span class="slider-val" id="si-r-val">7.0%</span></div>
+        <input type="range" id="si-r" min="1" max="20" step="0.5" value="7" oninput="autoSI()">
+        <div class="range-hint"><span>1%</span><span>20%</span></div>
+      </div>
+      <div class="slider-group">
+        <div class="slider-header"><span class="slider-label">Time</span><span class="slider-val" id="si-t-val">2 yrs</span></div>
+        <input type="range" id="si-t" min="1" max="30" step="1" value="2" oninput="autoSI()">
+        <div class="range-hint"><span>1 yr</span><span>30 yrs</span></div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Unit</label>
+        <select class="field-input" id="si-unit" onchange="autoSI()">
+          <option value="years">Years</option>
+          <option value="days">Days</option>
+        </select>
+      </div>
+      <div class="result-box">
+        <div class="result-row"><span class="result-label">Interest Earned</span><span class="result-val" id="si-interest">—</span></div>
+        <div class="result-row"><span class="result-label">Total Amount</span><span class="result-val" id="si-total">—</span></div>
+      </div>
+    </div>
+
+    <!-- Compound Interest -->
+    <div class="calc-card">
+      <div class="calc-card-title">
+        <span class="card-icon">📈</span>
+        Compound Interest
+      </div>
+      <div class="slider-group">
+        <div class="slider-header"><span class="slider-label">Principal</span><span class="slider-val" id="ci-p-val">₹1,00,000</span></div>
+        <input type="range" id="ci-p" min="10000" max="10000000" step="10000" value="100000" oninput="autoCI()">
+        <div class="range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
+      </div>
+      <div class="slider-group">
+        <div class="slider-header"><span class="slider-label">Interest Rate</span><span class="slider-val" id="ci-r-val">8.0%</span></div>
+        <input type="range" id="ci-r" min="1" max="24" step="0.5" value="8" oninput="autoCI()">
+        <div class="range-hint"><span>1%</span><span>24%</span></div>
+      </div>
+      <div class="slider-group">
+        <div class="slider-header"><span class="slider-label">Time (Years)</span><span class="slider-val" id="ci-t-val">5 yrs</span></div>
+        <input type="range" id="ci-t" min="1" max="30" step="1" value="5" oninput="autoCI()">
+        <div class="range-hint"><span>1 yr</span><span>30 yrs</span></div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Compounding Frequency</label>
+        <select class="field-input" id="ci-freq" onchange="autoCI()">
+          <option value="1">Annually</option>
+          <option value="2">Semi-Annually</option>
+          <option value="4" selected>Quarterly</option>
+          <option value="12">Monthly</option>
+          <option value="365">Daily</option>
+        </select>
+      </div>
+      <div class="result-box">
+        <div class="result-row"><span class="result-label">Future Value</span><span class="result-val" id="ci-fv">—</span></div>
+        <div class="result-row"><span class="result-label">Total Interest</span><span class="result-val" id="ci-interest">—</span></div>
+        <div class="result-row"><span class="result-label">Growth Multiple</span><span class="result-val" id="ci-mult">—</span></div>
+      </div>
+    </div>
+
+    <!-- Rate of Return / CAGR -->
+    <div class="calc-card">
+      <div class="calc-card-title">
+        <span class="card-icon">🎯</span>
+        CAGR / Rate of Return
+      </div>
+      <div class="slider-group">
+        <div class="slider-header"><span class="slider-label">Initial Investment</span><span class="slider-val" id="ror-init-val">₹1,00,000</span></div>
+        <input type="range" id="ror-init" min="10000" max="10000000" step="10000" value="100000" oninput="autoROR()">
+        <div class="range-hint"><span>₹10K</span><span>₹1 Cr</span></div>
+      </div>
+      <div class="slider-group">
+        <div class="slider-header"><span class="slider-label">Final Value</span><span class="slider-val" id="ror-final-val">₹1,85,000</span></div>
+        <input type="range" id="ror-final" min="10000" max="20000000" step="10000" value="185000" oninput="autoROR()">
+        <div class="range-hint"><span>₹10K</span><span>₹2 Cr</span></div>
+      </div>
+      <div class="slider-group">
+        <div class="slider-header"><span class="slider-label">Time Period</span><span class="slider-val" id="ror-years-val">5 yrs</span></div>
+        <input type="range" id="ror-years" min="1" max="30" step="1" value="5" oninput="autoROR()">
+        <div class="range-hint"><span>1 yr</span><span>30 yrs</span></div>
+      </div>
+      <div class="result-box">
+        <div class="result-row" style="flex-direction:column;align-items:flex-start;gap:4px;padding:var(--space-4);">
+          <div class="result-label">CAGR</div>
+          <div class="ror-big" id="ror-cagr">—</div>
+        </div>
+        <div class="result-row"><span class="result-label">Absolute Return</span><span class="result-val" id="ror-abs">—</span></div>
+        <div class="result-row"><span class="result-label">Profit / Loss</span><span class="result-val" id="ror-pl">—</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function fmtINR(n){if(isNaN(n))return'—';if(n>=1e7)return'₹'+(n/1e7).toFixed(2)+' Cr';if(n>=1e5)return'₹'+(n/1e5).toFixed(2)+' L';return'₹'+Math.round(n).toLocaleString('en-IN');}
+function fmtPct(n){return(n>=0?'+':'')+n.toFixed(2)+'%';}
+
+function autoSI(){
+  const p=parseFloat(document.getElementById('si-p').value),r=parseFloat(document.getElementById('si-r').value),t=parseFloat(document.getElementById('si-t').value),unit=document.getElementById('si-unit').value;
+  document.getElementById('si-p-val').textContent=fmtINR(p);
+  document.getElementById('si-r-val').textContent=r.toFixed(1)+'%';
+  document.getElementById('si-t-val').textContent=unit==='days'?t+' days':t+' yr'+(t>1?'s':'');
+  const years=unit==='days'?t/365:t,interest=p*r/100*years,total=p+interest;
+  document.getElementById('si-interest').textContent=fmtINR(interest);
+  document.getElementById('si-total').textContent=fmtINR(total);
+}
+autoSI();
+
+function autoCI(){
+  const p=parseFloat(document.getElementById('ci-p').value),r=parseFloat(document.getElementById('ci-r').value),t=parseFloat(document.getElementById('ci-t').value),n=parseInt(document.getElementById('ci-freq').value);
+  document.getElementById('ci-p-val').textContent=fmtINR(p);
+  document.getElementById('ci-r-val').textContent=r.toFixed(1)+'%';
+  document.getElementById('ci-t-val').textContent=t+' yr'+(t>1?'s':'');
+  const fv=p*Math.pow(1+(r/100)/n,n*t),interest=fv-p;
+  document.getElementById('ci-fv').textContent=fmtINR(fv);
+  document.getElementById('ci-interest').textContent=fmtINR(interest);
+  document.getElementById('ci-mult').textContent=(fv/p).toFixed(2)+'x';
+}
+autoCI();
+
+function autoROR(){
+  const init=parseFloat(document.getElementById('ror-init').value),fin=parseFloat(document.getElementById('ror-final').value),yrs=parseFloat(document.getElementById('ror-years').value);
+  document.getElementById('ror-init-val').textContent=fmtINR(init);
+  document.getElementById('ror-final-val').textContent=fmtINR(fin);
+  document.getElementById('ror-years-val').textContent=yrs+' yr'+(yrs>1?'s':'');
+  const pl=fin-init,absReturn=(pl/init)*100,cagr=fin>0&&init>0?(Math.pow(fin/init,1/yrs)-1)*100:0;
+  const cagrEl=document.getElementById('ror-cagr');
+  cagrEl.textContent=fmtPct(cagr);
+  cagrEl.className='ror-big '+(cagr>=0?'positive':'negative');
+  document.getElementById('ror-abs').textContent=fmtPct(absReturn);
+  document.getElementById('ror-abs').style.color=pl>=0?'var(--color-success)':'var(--color-error)';
+  document.getElementById('ror-pl').textContent=(pl>=0?'+':'')+fmtINR(pl);
+  document.getElementById('ror-pl').style.color=pl>=0?'var(--color-success)':'var(--color-error)';
+}
+autoROR();
+
+// Nav + Theme
+(function(){
+  const toggle=document.querySelector('[data-theme-toggle]');
+  const root=document.documentElement;
+  let theme=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+  root.setAttribute('data-theme',theme);
+  function setIcon(t){if(!toggle)return;toggle.innerHTML=t==='dark'?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';toggle.setAttribute('aria-label','Switch to '+(t==='dark'?'light':'dark')+' mode');}
+  setIcon(theme);
+  if(toggle)toggle.addEventListener('click',()=>{theme=theme==='dark'?'light':'dark';root.setAttribute('data-theme',theme);setIcon(theme);});
+  function updateNavClock(){const now=new Date();const ist=new Date(now.getTime()+now.getTimezoneOffset()*60000+5.5*3600000);const hh=String(ist.getHours()).padStart(2,'0');const mm=String(ist.getMinutes()).padStart(2,'0');const ss=String(ist.getSeconds()).padStart(2,'0');const nc=document.getElementById('nav-clock');if(nc)nc.textContent=`${hh}:${mm}:${ss} IST`;}
+  updateNavClock();setInterval(updateNavClock,1000);
+  const mb=document.getElementById('nav-mobile-btn');const nl=document.getElementById('nav-links');if(mb&&nl)mb.addEventListener('click',()=>nl.classList.toggle('open'));
+})();
+</script>
+</body>
+</html>
