@@ -6,6 +6,7 @@
   <title>Thrivel Wealth — Institutional Financial Intelligence</title>
   <meta name="description" content="Thrivel Wealth — Institutional-grade financial tools for India's serious investors. Trading analysis, retirement planning, commodity timings, and portfolio management." />
   <link rel="stylesheet" href="shared.css" />
+  <script>!function(){var t=localStorage.getItem('tw-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}();</script>
   <style>
     /* ── Index-specific: Hero ── */
     .index-hero {
@@ -392,22 +393,6 @@
     <p class="hero-sub">
       Precision tools for India's discerning investors. Built for serious wealth management, trading analysis, retirement planning, and market intelligence.
     </p>
-    <div class="hero-stats">
-      <div>
-        <div class="hero-stat-num">9</div>
-        <div class="hero-stat-label">Financial Tools</div>
-      </div>
-      <div class="hero-stat-divider"></div>
-      <div>
-        <div class="hero-stat-num">FY 26–27</div>
-        <div class="hero-stat-label">Current Tax Year</div>
-      </div>
-      <div class="hero-stat-divider"></div>
-      <div>
-        <div class="hero-clock-num" id="hero-clock">--:--</div>
-        <div class="hero-stat-label">India Standard Time</div>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -588,7 +573,7 @@
 </footer>
 
 <script>
-// ── IST Clock ──
+// ── IST Clock (hero removed; nav clock handled by shared-nav.js) ──
 function updateClocks(){
   const now=new Date();
   const ist=new Date(now.getTime()+now.getTimezoneOffset()*60000+5.5*3600000);
@@ -603,36 +588,7 @@ function updateClocks(){
 }
 updateClocks();
 setInterval(updateClocks,1000);
-
-// ── Mobile Nav ──
-const mobileBtn=document.getElementById('nav-mobile-btn');
-const navLinks=document.getElementById('nav-links');
-if(mobileBtn&&navLinks){
-  mobileBtn.addEventListener('click',()=>{
-    navLinks.classList.toggle('open');
-  });
-}
-
-// ── Theme Toggle ──
-(function(){
-  const toggle=document.querySelector('[data-theme-toggle]');
-  const root=document.documentElement;
-  let theme=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
-  root.setAttribute('data-theme',theme);
-  function setIcon(t){
-    if(!toggle)return;
-    toggle.innerHTML=t==='dark'
-      ?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
-      :'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-    toggle.setAttribute('aria-label','Switch to '+(t==='dark'?'light':'dark')+' mode');
-  }
-  setIcon(theme);
-  if(toggle) toggle.addEventListener('click',()=>{
-    theme=theme==='dark'?'light':'dark';
-    root.setAttribute('data-theme',theme);
-    setIcon(theme);
-  });
-})();
 </script>
+<script src="shared-nav.js"></script>
 </body>
 </html>
