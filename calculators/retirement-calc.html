@@ -655,10 +655,24 @@ const fmt=(n)=>{if(n>=1e7)return'₹'+(n/1e7).toFixed(2)+' Cr';if(n>=1e5)return'
 const fmtK=(n)=>{if(n>=1e7)return(n/1e7).toFixed(1)+'Cr';if(n>=1e5)return(n/1e5).toFixed(1)+'L';return Math.round(n/1000)+'k';};
 function syncSlider(id,value,unit,currency=false){const el=document.getElementById('v-'+id);if(currency){el.textContent=fmt(+value);}else{el.textContent=value+' '+unit;}calculate();}
 let chartInst=null;
+function getChartColors(){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  return{
+    primary:      isDark?'#c9a84c':'#8b6914',
+    grid:         isDark?'rgba(46,44,41,0.4)':'rgba(180,168,140,0.4)',
+    ticks:        isDark?'#344d68':'#9a8e74',
+    tooltipBg:    isDark?'#112040':'#ffffff',
+    tooltipTitle: isDark?'#e6e2d8':'#1a1308',
+    tooltipMuted: isDark?'#7a8fa8':'#5a4e34',
+    legendColor:  isDark?'#7a8fa8':'#5a4e34',
+    textMuted:    isDark?'#7a8fa8':'#5a4e34',
+  };
+}
 function buildChart(labels,accumData,drawData){
   const ctx=document.getElementById('corpusChart').getContext('2d');
   if(chartInst)chartInst.destroy();
-  chartInst=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Corpus (Accumulation)',data:accumData,fill:true,backgroundColor:'rgba(61,156,168,0.12)',borderColor:'var(--color-primary)',borderWidth:2.5,tension:.45,pointRadius:0,pointHoverRadius:5},{label:'Corpus (Drawdown)',data:drawData,fill:true,backgroundColor:'rgba(61,156,168,0.06)',borderColor:'var(--color-text-muted)',borderWidth:2,tension:.45,pointRadius:0,pointHoverRadius:5,borderDash:[5,4]}]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{font:{family:'Inter',size:11},color:'var(--color-text-muted)'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw)},backgroundColor:'var(--color-surface-2)',titleColor:'var(--color-text)',bodyColor:'var(--color-text-muted)',padding:10}},scales:{x:{ticks:{color:'var(--color-text-faint)',font:{family:'Inter',size:10}},grid:{color:'var(--color-divider)'}},y:{ticks:{color:'var(--color-text-faint)',font:{family:'Inter',size:10},callback:v=>fmtK(v)},grid:{color:'var(--color-divider)'}}}}});
+  const cc=getChartColors();
+  chartInst=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Corpus (Accumulation)',data:accumData,fill:true,backgroundColor:'rgba(61,156,168,0.12)',borderColor:cc.primary,borderWidth:2.5,tension:.45,pointRadius:0,pointHoverRadius:5},{label:'Corpus (Drawdown)',data:drawData,fill:true,backgroundColor:'rgba(61,156,168,0.06)',borderColor:cc.textMuted,borderWidth:2,tension:.45,pointRadius:0,pointHoverRadius:5,borderDash:[5,4]}]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{font:{family:'Inter',size:11},color:cc.legendColor}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw)},backgroundColor:cc.tooltipBg,titleColor:cc.tooltipTitle,bodyColor:cc.tooltipMuted,padding:10}},scales:{x:{ticks:{color:cc.ticks,font:{family:'Inter',size:10}},grid:{color:cc.grid}},y:{ticks:{color:cc.ticks,font:{family:'Inter',size:10},callback:v=>fmtK(v)},grid:{color:cc.grid}}}}});
 }
 const MILESTONE_DEFS=[{offset:0,label:'EPF Partial Withdrawal',desc:'Housing, education, medical emergencies covered under EPF rules.'},{offset:5,label:'NPS Tier-II Flexibility',desc:'Full withdrawal from NPS Tier-II at any time — no lock-in.'},{offset:10,label:'PPF Partial Withdrawal',desc:'From 7th year onwards, 50% of balance available tax-free.'},{offset:0,label:'Retirement Day',desc:'Full EPF tax-free lump sum. NPS annuity begins. SCSS access opens.'},{offset:3,label:'PMVVY Pension',desc:'Senior citizen guaranteed pension scheme — ₹30L max deposit, 8%+ p.a.'},{offset:5,label:'Senior Tax Benefits Peak',desc:'₹50,000 standard deduction + higher exemption slab. Maximum tax relief.'}];
 function renderMilestones(currentAge,retAge){
