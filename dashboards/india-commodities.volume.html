@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>India Commodities by Trading Volume — MCX / NCDEX Ranking</title>
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#121826; --panel2:#161f30; --text:#e8edf5; --muted:#8fa0b8;
+    --accent:#f0b429; --accent2:#3ec5ff; --good:#2fbf71; --mid:#f0b429; --low:#8fa0b8;
+    --border:#243149;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#0b0f14,#0e1420 400px);color:var(--text);
+    font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;padding:0 0 60px}
+  header{padding:36px 20px 14px;max-width:1000px;margin:0 auto}
+  h1{font-size:1.7rem;margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:.95rem;line-height:1.5;max-width:70ch}
+  .updated{color:var(--muted);font-size:.8rem;margin-top:10px}
+  main{max-width:1000px;margin:0 auto;padding:0 20px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+  .tabs.top button{padding:9px 18px;font-size:.88rem}
+  .tabs.sub{margin-top:6px;padding-top:12px;border-top:1px solid var(--border)}
+  button.tab{background:var(--panel);border:1px solid var(--border);color:var(--text);
+    padding:7px 14px;border-radius:20px;font-size:.82rem;cursor:pointer;display:flex;align-items:center;gap:6px}
+  button.tab.active{background:var(--accent);color:#1a1200;border-color:var(--accent);font-weight:600}
+  .tabs.top button.active{background:var(--accent2);border-color:var(--accent2);color:#001824}
+  button.tab .exch{font-size:.65rem;opacity:.7}
+  .cat-head{margin:12px 0 12px}
+  .cat-head h2{font-size:1.2rem;margin:0}
+  .cat-head .cat-sub{color:var(--muted);font-size:.82rem}
+  .empty{color:var(--muted);font-size:.9rem;padding:20px;background:var(--panel);border-radius:12px}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:12px;overflow:hidden;
+    box-shadow:0 8px 30px rgba(0,0,0,.35)}
+  thead th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--muted);padding:11px 14px;border-bottom:1px solid var(--border)}
+  tbody td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:.92rem;vertical-align:top}
+  tbody tr:hover{background:var(--panel2)}
+  tbody tr:last-child td{border-bottom:none}
+  .rank{font-weight:700;color:var(--accent2);width:26px}
+  .name{font-weight:600}
+  .bar-wrap{background:#1e2a3f;border-radius:6px;height:8px;width:100%;overflow:hidden;margin-top:6px}
+  .bar{height:100%;border-radius:6px}
+  .tier-high .bar{background:var(--good)}
+  .tier-mid .bar{background:var(--mid)}
+  .tier-low .bar{background:var(--low)}
+  .badge{font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:6px;white-space:nowrap}
+  .b-high{background:rgba(47,191,113,.15);color:var(--good)}
+  .b-mid{background:rgba(240,180,41,.15);color:var(--mid)}
+  .b-low{background:rgba(143,160,184,.15);color:var(--low)}
+  .note{color:var(--muted);font-size:.8rem;margin-top:4px}
+  footer{max-width:1000px;margin:26px auto 0;padding:0 20px;color:var(--muted);font-size:.78rem;line-height:1.6}
+  a{color:var(--accent2)}
+  @media (max-width:640px){
+    tbody td{padding:10px 8px;font-size:.85rem}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>India Commodities — Ranked by Trading Volume</h1>
+  <div class="sub">Pick a group (Bullion, Energy, Metals, Agri, Others), then a commodity within it, to see every contract variant ranked by which trades most (e.g. Gold → Gold, Gold Mini, Gold Petal, Gold Guinea, Gold Ten). Tabs are ordered by overall liquidity. Directional guidance, not a live feed — check <a href="https://www.mcxindia.com/market-data/most-active-contracts" target="_blank" rel="noopener">MCX Most Active Contracts</a> for today's exact numbers.</div>
+  <div class="updated">Reference compiled September 2026</div>
+</header>
+<main>
+  <div class="tabs top" id="topTabs"></div>
+  <div class="tabs sub" id="subTabs"></div>
+  <div class="cat-head" id="catHead" style="display:none">
+    <h2 id="catTitle"></h2><span class="cat-sub" id="catSub"></span>
+  </div>
+  <div id="tableWrap"></div>
+</main>
+<footer>
+  Built as a static reference — no live data connection. Liquidity scores reflect general/typical patterns on MCX &amp; NCDEX, not one day's numbers. Some agri contracts have had SEBI trading suspensions since Dec 2021 (noted per row) — confirm current status before trading.
+</footer>
+
+<script>
+const GROUPS = [
+  { name:"Bullion",
+    commodities:[
+      { name:"Gold", exch:"MCX", sub:"All gold contract sizes, ranked by which trades most",
+        items:[
+          {name:"Gold Petal", lot:"1 gram", liq:96, tier:"high", trade:"high", note:"Highest-volume gold contract by lot count — retail favourite."},
+          {name:"Gold Mini", lot:"100 grams", liq:88, tier:"high", trade:"high", note:"Very actively traded, bigger ticket than Petal."},
+          {name:"Gold", lot:"1 kg (benchmark contract)", liq:72, tier:"mid", trade:"high", note:"Lower lot-count volume than Mini/Petal but sets the reference price."},
+          {name:"Gold Guinea", lot:"8 grams", liq:28, tier:"low", trade:"mid", note:"Niche, low-volume; jewellery-linked hedging."},
+          {name:"Gold Ten", lot:"10 grams", liq:22, tier:"low", trade:"mid", note:"Least liquid of the gold variants."},
+        ]},
+      { name:"Silver", exch:"MCX", sub:"All silver contract sizes, ranked by which trades most",
+        items:[
+          {name:"Silver Micro", lot:"1 kg", liq:94, tier:"high", trade:"high", note:"Highest-volume silver contract by lot count."},
+          {name:"Silver Mini", lot:"5 kg", liq:80, tier:"high", trade:"high", note:"Popular mid-size silver contract."},
+          {name:"Silver", lot:"30 kg (benchmark contract)", liq:68, tier:"mid", trade:"high", note:"Large lot size keeps volume lower despite high value traded."},
+          {name:"SILVER100", lot:"100 grams", liq:40, tier:"low", trade:"high", note:"Smaller niche silver contract, thinner volume."},
+        ]},
+    ]},
+  { name:"Energy",
+    commodities:[
+      { name:"Crude Oil", exch:"MCX", sub:"All crude oil contract sizes",
+        items:[
+          {name:"Crude Oil Mini", lot:"10 barrels", liq:86, tier:"high", trade:"high", note:"Preferred by retail for its smaller ticket size."},
+          {name:"Crude Oil", lot:"100 barrels", liq:82, tier:"high", trade:"high", note:"The benchmark contract; huge value traded despite fewer lots than Mini."},
+        ]},
+      { name:"Natural Gas", exch:"MCX", sub:"All natural gas contract sizes",
+        items:[
+          {name:"Natural Gas Mini", lot:"250 mmBtu", liq:97, tier:"high", trade:"high", note:"Consistently among the single highest-volume contracts on all of MCX."},
+          {name:"Natural Gas", lot:"1,250 mmBtu", liq:90, tier:"high", trade:"high", note:"Very high volume, sharp moves around US inventory data."},
+        ]},
+    ]},
+  { name:"Metals",
+    commodities:[
+      { name:"Copper", exch:"MCX", sub:"Single contract — most liquid base metal",
+        items:[{name:"Copper", lot:"2,500 kg", liq:78, tier:"high", trade:"high", note:"Most liquid base metal, tracks global industrial demand closely."}]},
+      { name:"Zinc", exch:"MCX", sub:"All zinc contract sizes",
+        items:[
+          {name:"Zinc", lot:"5,000 kg", liq:68, tier:"mid", trade:"high", note:"Good liquidity, common pair-trade against copper."},
+          {name:"Zinc Mini", lot:"1,000 kg", liq:55, tier:"mid", trade:"high", note:"Smaller-ticket alternative to the main contract."},
+        ]},
+      { name:"Aluminium", exch:"MCX", sub:"All aluminium contract sizes",
+        items:[
+          {name:"Aluminium", lot:"5,000 kg", liq:66, tier:"mid", trade:"high", note:"High turnover despite low per-tonne price."},
+          {name:"Aluminium Mini", lot:"1,000 kg", liq:53, tier:"mid", trade:"high", note:"Smaller-ticket alternative to the main contract."},
+        ]},
+      { name:"Lead", exch:"MCX", sub:"All lead contract sizes",
+        items:[
+          {name:"Lead", lot:"5,000 kg", liq:50, tier:"mid", trade:"high", note:"Moderate volume, thinner than zinc/aluminium."},
+          {name:"Lead Mini", lot:"1,000 kg", liq:35, tier:"low", trade:"high", note:"Thinner niche version of the main contract."},
+        ]},
+      { name:"Nickel", exch:"MCX", sub:"Single contract",
+        items:[{name:"Nickel", lot:"1,500 kg", liq:48, tier:"mid", trade:"high", note:"More volatile; volume spikes on EV/battery-metal news."}]},
+      { name:"Steel", exch:"MCX", sub:"Single contract",
+        items:[{name:"Steel Rebar (Long Steel)", lot:"contract varies", liq:15, tier:"low", trade:"mid", note:"Newer, still building liquidity — check current listing status."}]},
+    ]},
+  { name:"Agri",
+    commodities:[
+      { name:"Cotton", exch:"MCX", sub:"Single contract",
+        items:[{name:"Cotton", lot:"25 bales", liq:45, tier:"mid", trade:"high", note:"One of the more liquid agri contracts on MCX."}]},
+      { name:"Mentha Oil", exch:"MCX", sub:"Single contract",
+        items:[{name:"Mentha Oil", lot:"360 kg", liq:38, tier:"mid", trade:"high", note:"Niche but consistently active MCX agri contract."}]},
+      { name:"Guar", exch:"NCDEX", sub:"Guar Seed and Guar Gum contracts",
+        items:[
+          {name:"Guar Gum", lot:"5 MT", liq:35, tier:"low", trade:"high", note:"Volatile, exporter-driven demand keeps it liquid."},
+          {name:"Guar Seed", lot:"10 MT", liq:32, tier:"low", trade:"high", note:"Tracks Guar Gum closely."},
+        ]},
+      { name:"Castor Seed", exch:"NCDEX", sub:"Single contract",
+        items:[{name:"Castor Seed", lot:"10 MT", liq:33, tier:"low", trade:"high", note:"Among the more active NCDEX contracts."}]},
+      { name:"CPO", exch:"MCX", sub:"Crude Palm Oil",
+        items:[{name:"Crude Palm Oil (CPO)", lot:"10,000 kg", liq:28, tier:"low", trade:"mid", note:"Availability has varied with SEBI restrictions — verify current status."}]},
+      { name:"Soybean", exch:"NCDEX", sub:"Single contract",
+        items:[{name:"Soybean", lot:"10 MT", liq:18, tier:"low", trade:"low", note:"Retail futures suspended in past SEBI orders — check current circulars."}]},
+      { name:"Chana", exch:"NCDEX", sub:"Single contract",
+        items:[{name:"Chana (Chickpea)", lot:"10 MT", liq:10, tier:"low", trade:"low", note:"Futures suspended since Dec 2021."}]},
+      { name:"Mustard Seed", exch:"NCDEX", sub:"Single contract",
+        items:[{name:"Mustard Seed", lot:"10 MT", liq:9, tier:"low", trade:"low", note:"Futures suspended since Dec 2021."}]},
+      { name:"Wheat", exch:"NCDEX", sub:"Single contract",
+        items:[{name:"Wheat", lot:"10 MT", liq:7, tier:"low", trade:"low", note:"Futures suspended since Dec 2021."}]},
+      { name:"Paddy", exch:"NCDEX", sub:"Non-Basmati Paddy",
+        items:[{name:"Non-Basmati Paddy", lot:"10 MT", liq:6, tier:"low", trade:"low", note:"Futures suspended since Dec 2021."}]},
+      { name:"Moong", exch:"NCDEX", sub:"Single contract",
+        items:[{name:"Moong", lot:"10 MT", liq:5, tier:"low", trade:"low", note:"Futures suspended since Dec 2021."}]},
+    ]},
+  { name:"Others", commodities:[] },
+];
+
+function groupMax(g){ return g.commodities.length ? Math.max(...g.commodities.flatMap(c=>c.items.map(i=>i.liq))) : 0; }
+GROUPS.sort((a,b)=>groupMax(b)-groupMax(a));
+GROUPS.forEach(g=> g.commodities.sort((a,b)=> Math.max(...b.items.map(i=>i.liq)) - Math.max(...a.items.map(i=>i.liq))) );
+
+function tradeBadge(t){
+  if(t==="high") return '<span class="badge b-high">Yes</span>';
+  if(t==="mid") return '<span class="badge b-mid">Limited</span>';
+  return '<span class="badge b-low">Check status</span>';
+}
+
+const topTabsEl = document.getElementById('topTabs');
+const subTabsEl = document.getElementById('subTabs');
+const catHeadEl = document.getElementById('catHead');
+const titleEl = document.getElementById('catTitle');
+const subEl = document.getElementById('catSub');
+const tableWrap = document.getElementById('tableWrap');
+
+let activeGroup = 0;
+let activeCommodity = 0;
+
+function renderTable(){
+  const g = GROUPS[activeGroup];
+  if(!g.commodities.length){
+    catHeadEl.style.display = 'none';
+    tableWrap.innerHTML = '<div class="empty">No commodities filed under this group yet.</div>';
+    return;
+  }
+  const c = g.commodities[activeCommodity];
+  catHeadEl.style.display = '';
+  titleEl.textContent = c.name;
+  subEl.textContent = c.sub;
+  const items = [...c.items].sort((a,b)=>b.liq-a.liq);
+  tableWrap.innerHTML = `<table>
+    <thead><tr><th>#</th><th>Contract</th><th>Lot Size</th><th>Liquidity</th><th>Retail Tradable</th></tr></thead>
+    <tbody>${items.map((d,i)=>`
+      <tr>
+        <td class="rank">${i+1}</td>
+        <td class="name">${d.name}<div class="note">${d.note}</div></td>
+        <td>${d.lot}</td>
+        <td class="tier-${d.tier}"><div>${d.liq}/100</div><div class="bar-wrap"><div class="bar" style="width:${d.liq}%"></div></div></td>
+        <td>${tradeBadge(d.trade)}</td>
+      </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function renderSubTabs(){
+  subTabsEl.innerHTML = '';
+  const g = GROUPS[activeGroup];
+  g.commodities.forEach((c,idx)=>{
+    const b = document.createElement('button');
+    b.className = 'tab' + (idx===activeCommodity ? ' active' : '');
+    b.innerHTML = `${c.name} <span class="exch">${c.exch}</span>`;
+    b.onclick = ()=>{ activeCommodity = idx; renderSubTabs(); renderTable(); };
+    subTabsEl.appendChild(b);
+  });
+  renderTable();
+}
+
+function renderTopTabs(){
+  topTabsEl.innerHTML = '';
+  GROUPS.forEach((g,idx)=>{
+    const b = document.createElement('button');
+    b.className = 'tab' + (idx===activeGroup ? ' active' : '');
+    b.textContent = g.name;
+    b.onclick = ()=>{ activeGroup = idx; activeCommodity = 0; renderTopTabs(); renderSubTabs(); };
+    topTabsEl.appendChild(b);
+  });
+}
+
+renderTopTabs();
+renderSubTabs();
+</script>
+</body>
+</html>
