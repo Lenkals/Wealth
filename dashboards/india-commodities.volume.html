@@ -16,6 +16,8 @@
   header{padding:36px 20px 14px;max-width:1000px;margin:0 auto}
   h1{font-size:1.7rem;margin:0 0 6px;letter-spacing:-.02em}
   .sub{color:var(--muted);font-size:.95rem;line-height:1.5;max-width:70ch}
+  .disclaimer{margin-top:14px;padding:10px 14px;background:rgba(240,180,41,.08);
+    border:1px solid rgba(240,180,41,.35);border-radius:10px;color:#f0d29a;font-size:.82rem;line-height:1.5;max-width:70ch}
   .updated{color:var(--muted);font-size:.8rem;margin-top:10px}
   main{max-width:1000px;margin:0 auto;padding:0 20px}
   .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
@@ -26,9 +28,10 @@
   button.tab.active{background:var(--accent);color:#1a1200;border-color:var(--accent);font-weight:600}
   .tabs.top button.active{background:var(--accent2);border-color:var(--accent2);color:#001824}
   button.tab .exch{font-size:.65rem;opacity:.7}
-  .cat-head{margin:12px 0 12px}
+  .cat-head{margin:12px 0 8px}
   .cat-head h2{font-size:1.2rem;margin:0}
   .cat-head .cat-sub{color:var(--muted);font-size:.82rem}
+  .score-note{color:var(--muted);font-size:.76rem;margin:0 0 10px}
   .empty{color:var(--muted);font-size:.9rem;padding:20px;background:var(--panel);border-radius:12px}
   table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:12px;overflow:hidden;
     box-shadow:0 8px 30px rgba(0,0,0,.35)}
@@ -49,17 +52,21 @@
   .b-mid{background:rgba(240,180,41,.15);color:var(--mid)}
   .b-low{background:rgba(143,160,184,.15);color:var(--low)}
   .note{color:var(--muted);font-size:.8rem;margin-top:4px}
-  footer{max-width:1000px;margin:26px auto 0;padding:0 20px;color:var(--muted);font-size:.78rem;line-height:1.6}
-  a{color:var(--accent2)}
+  .ex-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .ex-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px}
+  .ex-card h3{margin:0 0 4px;font-size:1rem}
+  .ex-card .ex-tag{font-size:.68rem;color:var(--accent2);text-transform:uppercase;letter-spacing:.05em}
+  .ex-card p{margin:8px 0 0;color:var(--muted);font-size:.85rem;line-height:1.5}
   @media (max-width:640px){
     tbody td{padding:10px 8px;font-size:.85rem}
+    .ex-grid{grid-template-columns:1fr}
   }
 </style>
 </head>
 <body>
 <header>
   <h1>India Commodities — Ranked by Trading Volume</h1>
-  <div class="sub">Pick a group (Bullion, Energy, Metals, Agri, Others), then a commodity within it, to see every contract variant ranked by which trades most (e.g. Gold → Gold, Gold Mini, Gold Petal, Gold Guinea, Gold Ten). Tabs are ordered by overall liquidity. Directional guidance, not a live feed — check <a href="https://www.mcxindia.com/market-data/most-active-contracts" target="_blank" rel="noopener">MCX Most Active Contracts</a> for today's exact numbers.</div>
+  <div class="sub">Pick a group, then a commodity, to see every contract variant ranked by liquidity — plus an Exchanges tab for where it all trades.</div>
   <div class="updated">Reference compiled September 2026</div>
 </header>
 <main>
@@ -70,11 +77,27 @@
   </div>
   <div id="tableWrap"></div>
 </main>
-<footer>
-  Built as a static reference — no live data connection. Liquidity scores reflect general/typical patterns on MCX &amp; NCDEX, not one day's numbers. Some agri contracts have had SEBI trading suspensions since Dec 2021 (noted per row) — confirm current status before trading.
+<footer style="max-width:1000px;margin:26px auto 0;padding:0 20px;color:var(--muted);font-size:.78rem;line-height:1.6">
+  <div class="disclaimer" style="max-width:none;margin-bottom:14px"><strong>About the liquidity scores:</strong> the 0–100 numbers and bars are a hypothetical, illustrative ranking assigned by hand to order contracts relative to each other — not official exchange volume data. Where a contract has real reported figures (like RAINMUMBAI), that's noted separately in its description. For today's actual numbers, check <a href="https://www.mcxindia.com/market-data/most-active-contracts" target="_blank" rel="noopener">MCX Most Active Contracts</a> or NCDEX's equivalent page.</div>
+  Built as a static reference — no live data connection. Some agri contracts have had SEBI trading suspensions since Dec 2021 (noted per row) — confirm current status before trading.
 </footer>
 
 <script>
+const EXCHANGES = [
+  {name:"MCX", full:"Multi Commodity Exchange", tag:"Bullion · Metals · Energy · Some Agri",
+    desc:"India's dominant commodity derivatives exchange by volume — gold, silver, crude oil, natural gas, base metals, cotton and mentha oil all trade here."},
+  {name:"NCDEX", full:"National Commodity & Derivatives Exchange", tag:"Agri specialist",
+    desc:"The main agri-commodity exchange — guar, castor, soybean, chana, mustard, and now RAINMUMBAI weather futures. Some contracts remain SEBI-suspended."},
+  {name:"NSE", full:"National Stock Exchange", tag:"Commodity derivatives (since 2018)",
+    desc:"Primarily India's largest equity/F&O exchange, but also runs a commodity derivatives segment (gold, silver, crude, agri) — volumes there are much thinner than MCX/NCDEX for the same underlyings."},
+  {name:"BSE", full:"Bombay Stock Exchange", tag:"Commodity derivatives segment",
+    desc:"Also equity-first, with a commodity derivatives segment offering bullion and a few agri contracts — niche volumes compared to MCX."},
+  {name:"ICEX", full:"Indian Commodity Exchange", tag:"Diamonds, some agri/metals",
+    desc:"Smaller exchange historically known for launching (and later pausing) India's first diamond futures; low overall liquidity versus MCX/NCDEX."},
+  {name:"IEX", full:"Indian Energy Exchange", tag:"Power, REC, carbon — not futures",
+    desc:"Not a futures exchange — it's the spot market for electricity, Renewable Energy Certificates and carbon credits. Relevant to power trading but a different instrument type from MCX/NCDEX futures."},
+];
+
 const GROUPS = [
   { name:"Bullion",
     commodities:[
@@ -105,6 +128,10 @@ const GROUPS = [
         items:[
           {name:"Natural Gas Mini", lot:"250 mmBtu", liq:97, tier:"high", trade:"high", note:"Consistently among the single highest-volume contracts on all of MCX."},
           {name:"Natural Gas", lot:"1,250 mmBtu", liq:90, tier:"high", trade:"high", note:"Very high volume, sharp moves around US inventory data."},
+        ]},
+      { name:"Electricity", exch:"MCX", sub:"MCX Electricity futures",
+        items:[
+          {name:"Electricity", lot:"contract varies", liq:12, tier:"low", trade:"mid", note:"Listed on MCX but thin volume vs the IEX spot power market — check current listing status before relying on it."},
         ]},
     ]},
   { name:"Metals",
@@ -159,12 +186,19 @@ const GROUPS = [
       { name:"Moong", exch:"NCDEX", sub:"Single contract",
         items:[{name:"Moong", lot:"10 MT", liq:5, tier:"low", trade:"low", note:"Futures suspended since Dec 2021."}]},
     ]},
-  { name:"Others", commodities:[] },
+  { name:"Others",
+    commodities:[
+      { name:"Weather (Rain)", exch:"NCDEX", sub:"RAINMUMBAI — India's first weather derivative, launched May 2026",
+        items:[
+          {name:"RAINMUMBAI", lot:"₹50 per mm, 50-lot min order", liq:14, tier:"low", trade:"high", note:"Real reported figure (not hypothetical): ~1,000 lots/day average in its first month, peaking at 2,039 lots on 15 June 2026. Cash-settled against IMD rainfall data for Santacruz/Colaba."},
+        ]},
+    ]},
 ];
 
 function groupMax(g){ return g.commodities.length ? Math.max(...g.commodities.flatMap(c=>c.items.map(i=>i.liq))) : 0; }
 GROUPS.sort((a,b)=>groupMax(b)-groupMax(a));
 GROUPS.forEach(g=> g.commodities.sort((a,b)=> Math.max(...b.items.map(i=>i.liq)) - Math.max(...a.items.map(i=>i.liq))) );
+GROUPS.push({name:"Exchanges", commodities:[], isExchangeTab:true});
 
 function tradeBadge(t){
   if(t==="high") return '<span class="badge b-high">Yes</span>';
@@ -182,8 +216,21 @@ const tableWrap = document.getElementById('tableWrap');
 let activeGroup = 0;
 let activeCommodity = 0;
 
+function renderExchanges(){
+  catHeadEl.style.display = '';
+  titleEl.textContent = "Exchanges";
+  subEl.textContent = "Where India's commodity (and adjacent) contracts actually trade — quick reference, not ranked by volume.";
+  tableWrap.innerHTML = `<div class="ex-grid">${EXCHANGES.map(e=>`
+    <div class="ex-card">
+      <div class="ex-tag">${e.tag}</div>
+      <h3>${e.name} <span style="font-weight:400;color:var(--muted);font-size:.8rem">— ${e.full}</span></h3>
+      <p>${e.desc}</p>
+    </div>`).join('')}</div>`;
+}
+
 function renderTable(){
   const g = GROUPS[activeGroup];
+  if(g.isExchangeTab){ renderExchanges(); return; }
   if(!g.commodities.length){
     catHeadEl.style.display = 'none';
     tableWrap.innerHTML = '<div class="empty">No commodities filed under this group yet.</div>';
@@ -195,7 +242,7 @@ function renderTable(){
   subEl.textContent = c.sub;
   const items = [...c.items].sort((a,b)=>b.liq-a.liq);
   tableWrap.innerHTML = `<table>
-    <thead><tr><th>#</th><th>Contract</th><th>Lot Size</th><th>Liquidity</th><th>Retail Tradable</th></tr></thead>
+    <thead><tr><th>#</th><th>Contract</th><th>Lot Size</th><th>Liquidity (hypothetical)</th><th>Retail Tradable</th></tr></thead>
     <tbody>${items.map((d,i)=>`
       <tr>
         <td class="rank">${i+1}</td>
@@ -210,6 +257,7 @@ function renderTable(){
 function renderSubTabs(){
   subTabsEl.innerHTML = '';
   const g = GROUPS[activeGroup];
+  if(g.isExchangeTab){ renderTable(); return; }
   g.commodities.forEach((c,idx)=>{
     const b = document.createElement('button');
     b.className = 'tab' + (idx===activeCommodity ? ' active' : '');
